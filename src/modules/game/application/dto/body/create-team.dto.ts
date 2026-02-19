@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsUUID } from "class-validator";
+import { IsString, IsUUID, MaxLength, MinLength } from "class-validator";
 
 export class CreateTeamDto {
 	@IsString()
@@ -10,10 +10,14 @@ export class CreateTeamDto {
 		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
 	})
 	roomId: string;
-	@IsString()
 	@ApiProperty({
 		description: "The name of the team to be created.",
 		example: "Team Alpha",
+		minLength: 3,
+		maxLength: 50,
 	})
+	@IsString()
+	@MinLength(3)
+	@MaxLength(50)
 	teamName: string;
 }

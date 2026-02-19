@@ -1,4 +1,4 @@
-import { PlayerAlreadyInTeamError } from "../../../common/errors/team.errors";
+import { PlayerAlreadyInTeamError } from "../../../../common/errors/team.errors";
 import { v4 as uuidv4 } from "uuid";
 import { TeamIsEmptyError, TeamNameEmptyError } from "../errors/team.errors";
 

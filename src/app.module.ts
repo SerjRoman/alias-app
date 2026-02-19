@@ -6,12 +6,13 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./common/strategies/jwt.strategy";
-import { TeamModule } from './modules/team/team.module';
+import { EventEmitterModule } from "@nestjs/event-emitter";
 
 @Module({
 	providers: [JwtStrategy],
 	imports: [
 		ConfigModule.forRoot({ isGlobal: true }),
+		EventEmitterModule.forRoot({ global: true }),
 		RedisModule,
 		PassportModule,
 		JwtModule.registerAsync({
@@ -23,7 +24,6 @@ import { TeamModule } from './modules/team/team.module';
 		}),
 		AuthModule,
 		GameModule,
-		TeamModule,
 	],
 })
 export class AppModule {}

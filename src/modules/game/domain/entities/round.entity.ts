@@ -4,7 +4,7 @@ export class RoundState {
 	id: string;
 	guesserId: string;
 	teamId: string;
-	roundTimeSeconds: number;
+	endTime: number;
 	guessedWords: WordEntity[];
 	skippedWords: WordEntity[];
 	isStarted: boolean;
@@ -48,11 +48,11 @@ export class RoundEntity {
 			...state,
 		});
 	}
-	static create(guesserId: string, teamId: string, roundTimeSeconds: number) {
+	static create(guesserId: string, teamId: string, endTime: number) {
 		return new RoundEntity({
 			guesserId,
 			teamId,
-			roundTimeSeconds,
+			endTime,
 			isStarted: false,
 			guessedWords: [],
 			skippedWords: [],

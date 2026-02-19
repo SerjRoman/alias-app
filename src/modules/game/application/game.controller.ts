@@ -11,6 +11,7 @@ import {
 } from "@nestjs/common";
 import {
 	ApiBearerAuth,
+	ApiBody,
 	ApiOperation,
 	ApiParam,
 	ApiResponse,
@@ -40,9 +41,14 @@ export class GameController {
 	})
 	async getAll() {
 		const rooms = await this.service.findAll();
-		return plainToInstance(GameResponseDto, rooms, {
-			excludeExtraneousValues: true,
-		});
+		console.log(rooms);
+		return plainToInstance(
+			GameResponseDto,
+			rooms.map((r) => ({ ...r, playersCount: r.players.length })),
+			{
+				excludeExtraneousValues: true,
+			},
+		);
 	}
 
 	@Post()
@@ -101,15 +107,14 @@ export class GameController {
 		return this.service.delete(id, user);
 	}
 
-	@Post(":roomId/join")
+	@Post("join")
 	@UseGuards(JwtAuthGuard)
 	@HttpCode(HttpStatus.OK)
 	@ApiBearerAuth()
 	@ApiOperation({ summary: "Join a game room" })
-	@ApiParam({
-		name: "roomId",
+	@ApiBody({
+		type: JoinGameDto,
 		description: "The unique identifier of the game room to join.",
-		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
 	})
 	@ApiResponse({
 		status: HttpStatus.OK,
@@ -124,13 +129,10 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is already in the game room.",
 	})
-	join(
-		@Param() { roomId }: JoinGameDto,
-		@GetUserFromToken() user: UserFromToken,
-	) {
+	join(@Body() dto: JoinGameDto, @GetUserFromToken() user: UserFromToken) {
 		return plainToInstance(
 			GameResponseDto,
-			this.service.joinGame(roomId, user),
+			this.service.joinGame(dto, user),
 			{
 				excludeExtraneousValues: true,
 			},

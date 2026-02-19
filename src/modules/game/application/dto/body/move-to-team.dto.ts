@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUUID, Length } from "class-validator";
+import { IsString, IsUUID } from "class-validator";
 
-export class JoinGameDto {
+export class MoveToTeamDto {
 	@ApiProperty({
 		description: "The unique identifier of the game room.",
 		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
@@ -9,10 +9,11 @@ export class JoinGameDto {
 	@IsString()
 	@IsUUID()
 	roomId: string;
-
-	@ApiProperty({})
+	@ApiProperty({
+		description: "The unique identifier of the team to join.",
+		example: "team1",
+	})
 	@IsString()
-	@IsOptional()
-	@Length(6)
-	code?: string;
+	@IsUUID()
+	teamId: string;
 }

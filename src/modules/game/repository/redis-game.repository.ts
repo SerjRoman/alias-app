@@ -7,6 +7,7 @@ import { GameEntity, GameState } from "../domain/entities/game.entity";
 export class RedisGameRepository implements IGameRepository {
 	private readonly ROOM_PREFIX = "game:";
 	private readonly ROOM_TTL = 86400;
+	private readonly USER_SOCKET_PREFIX = "user-socket:";
 
 	constructor(private readonly redis: RedisService) {}
 

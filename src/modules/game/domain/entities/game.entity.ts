@@ -13,8 +13,8 @@ Game
 */
 
 import { TeamNotFoundError } from "../../../../common/errors/team.errors";
-import { TeamEntity } from "../../../team/entities/team.entity";
-import { TeamError } from "../../../team/errors/team.errors";
+import { TeamEntity } from "./team.entity";
+import { TeamError } from "../errors/team.errors";
 import {
 	GameInProgressError,
 	GameNotInProgressError,
@@ -146,9 +146,7 @@ export class GameEntity {
 	togglePlayerReady(playerId: string) {
 		const player = this._players.find((p) => p.id === playerId);
 		if (!player) throw new PlayerNotFoundError(playerId);
-		console.log(player.isReady);
 		player.toggleReady();
-		console.log(player.isReady);
 	}
 	togglePlayerRoundReady(playerId: string) {
 		const player = this._players.find((p) => p.id === playerId);
@@ -179,6 +177,7 @@ export class GameEntity {
 
 		const targetTeam = this.teams.find((t) => t.id === teamId);
 		if (!targetTeam) throw new TeamNotFoundError(teamId);
+		if (targetTeam.playerIds.has(playerId)) return;
 
 		this.teams.forEach((t) => t.removePlayer(playerId));
 		targetTeam.addPlayer(playerId);
@@ -194,7 +193,7 @@ export class GameEntity {
 		}
 		this.state.status = GameStatus.IN_PROGRESS;
 	}
-	createRound() {
+	createRound(startTime: number) {
 		if (this.state.status !== GameStatus.IN_PROGRESS)
 			throw new GameNotInProgressError();
 		if (this._currentRound) throw new RoundAlreadyActiveError();
@@ -206,7 +205,7 @@ export class GameEntity {
 		const round = RoundEntity.create(
 			team.id,
 			guesserId,
-			this.state.settings.roundTimeSeconds,
+			startTime + this.state.settings.roundTimeSeconds,
 		);
 		this._currentRound = round;
 		return round;

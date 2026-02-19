@@ -71,3 +71,9 @@ export class RoundNotActiveError extends GameError {
 		super("No active round");
 	}
 }
+
+export class InvalidGameCode extends GameError {
+	constructor() {
+		super("Code is invalid");
+	}
+}
