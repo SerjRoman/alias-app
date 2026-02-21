@@ -18,6 +18,7 @@ import { TeamError } from "../errors/team.errors";
 import {
 	GameInProgressError,
 	GameNotInProgressError,
+	NotRoundGuesserError,
 	PlayerNotFoundError,
 	PlayersNotReadyError,
 	RoundAlreadyActiveError,
@@ -61,9 +62,9 @@ export enum GameStatus {
 }
 
 export interface GameSettings {
+	name: string;
 	roundTimeSeconds: number;
 	pointsToWin: number;
-	roomName: string;
 	code: string | null;
 	isPrivate: boolean;
 }
@@ -80,6 +81,7 @@ export interface GameState {
 	players: PlayerState[];
 	winnerTeamId: string | null;
 	lastTeamIndex: number;
+	createdAt: number;
 }
 
 export class GameEntity {
@@ -193,7 +195,7 @@ export class GameEntity {
 		}
 		this.state.status = GameStatus.IN_PROGRESS;
 	}
-	createRound(startTime: number) {
+	createRound() {
 		if (this.state.status !== GameStatus.IN_PROGRESS)
 			throw new GameNotInProgressError();
 		if (this._currentRound) throw new RoundAlreadyActiveError();
@@ -202,18 +204,13 @@ export class GameEntity {
 			(this.state.lastTeamIndex + 1) % this.teams.length;
 		const team = this.teams[nextTeamIndex];
 		const guesserId = team.getNextGuesserId();
-		const round = RoundEntity.create(
-			team.id,
-			guesserId,
-			startTime + this.state.settings.roundTimeSeconds,
-		);
-		this._currentRound = round;
+		const round = RoundEntity.create(team.id, guesserId, 0);
 		return round;
 	}
-	startRound(teamId: string) {
+	startRound(teamId: string, startTime: number) {
 		if (this.state.status !== GameStatus.IN_PROGRESS)
 			throw new GameNotInProgressError();
-		if (this._currentRound) throw new RoundAlreadyActiveError();
+		if (!this._currentRound) throw new RoundAlreadyActiveError();
 
 		const team = this.teams.find((t) => t.id === teamId);
 		if (!team) throw new TeamNotFoundError(teamId);
@@ -223,14 +220,8 @@ export class GameEntity {
 				throw new PlayersNotReadyError();
 			}
 		});
-		const guesserId = team.getNextGuesserId();
-		const round = RoundEntity.create(
-			team.id,
-			guesserId,
-			this.state.settings.roundTimeSeconds,
-		);
-		this._currentRound = round;
-		return round;
+
+		this._currentRound.endTime = startTime;
 	}
 	processWord(isSkipped: boolean, isGuessed: boolean) {
 		if (!this._currentRound) throw new RoundNotActiveError();
@@ -291,6 +282,7 @@ export class GameEntity {
 				settings,
 				winnerTeamId: null,
 				lastTeamIndex: -1,
+				createdAt: Date.now(),
 			},
 			[],
 			[],

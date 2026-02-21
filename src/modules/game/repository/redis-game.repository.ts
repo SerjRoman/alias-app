@@ -44,4 +44,13 @@ export class RedisGameRepository implements IGameRepository {
 	async delete(roomId: string): Promise<void> {
 		await this.redis.del(`${this.ROOM_PREFIX}${roomId}`);
 	}
+	async setUserRoom(userId: string, roomId: string): Promise<void> {
+		await this.redis.set(`user:${userId}:room`, roomId, "EX", 86400);
+	}
+	async getUserRoom(userId: string): Promise<string | null> {
+		return this.redis.get(`user:${userId}:room`);
+	}
+	async removeUserRoom(userId: string): Promise<void> {
+		await this.redis.del(`user:${userId}:room`);
+	}
 }

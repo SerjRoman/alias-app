@@ -18,13 +18,17 @@ import {
 	ApiTags,
 } from "@nestjs/swagger";
 import { GameService } from "./game.service";
-import { CreateGameDto } from "./dto/body/create-game.dto";
 import { GetUserFromToken } from "../../../common/decorators/get-user-from-token";
-import type { UserFromToken } from "../../../common/types/user-from-token";
 import { plainToInstance } from "class-transformer";
-import { GameResponseDto, CreateGameResponseDto } from "./dto/response";
+import {
+	CreateGameResponseDto,
+	CurrentGameResponseDto,
+	GameResponseDto,
+	GetRoomCodeResponseDto,
+} from "./dto/response";
 import { JwtAuthGuard } from "../../../common/guards/auth.guard";
-import { JoinGameDto } from "./dto/body";
+import { CreateGameDto, GetRoomCodeDto, JoinGameDto } from "./dto/body";
+import { UserDto } from "../../auth/dto/user.dto";
 
 @ApiTags("Games")
 @Controller("games")
@@ -41,7 +45,6 @@ export class GameController {
 	})
 	async getAll() {
 		const rooms = await this.service.findAll();
-		console.log(rooms);
 		return plainToInstance(
 			GameResponseDto,
 			rooms.map((r) => ({ ...r, playersCount: r.players.length })),
@@ -66,13 +69,14 @@ export class GameController {
 		description:
 			"Unauthorized. The user must be authenticated to create a game room.",
 	})
-	create(
+	async create(
 		@Body() body: CreateGameDto,
-		@GetUserFromToken() user: UserFromToken,
+		@GetUserFromToken() user: UserDto,
 	) {
+		const { room, code } = await this.service.create(body, user);
 		return plainToInstance(
 			CreateGameResponseDto,
-			this.service.create(body, user),
+			{ ...room, code },
 			{
 				excludeExtraneousValues: true,
 			},
@@ -100,10 +104,7 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is not the owner of the game room.",
 	})
-	delete(
-		@Param() { id }: { id: string },
-		@GetUserFromToken() user: UserFromToken,
-	) {
+	delete(@Param() { id }: { id: string }, @GetUserFromToken() user: UserDto) {
 		return this.service.delete(id, user);
 	}
 
@@ -129,13 +130,62 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is already in the game room.",
 	})
-	join(@Body() dto: JoinGameDto, @GetUserFromToken() user: UserFromToken) {
+	join(@Body() dto: JoinGameDto, @GetUserFromToken() user: UserDto) {
 		return plainToInstance(
 			GameResponseDto,
 			this.service.joinGame(dto, user),
 			{
 				excludeExtraneousValues: true,
 			},
+		);
+	}
+
+	@Post("code")
+	@UseGuards(JwtAuthGuard)
+	@HttpCode(HttpStatus.OK)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Get a room code. Only for owner" })
+	@ApiBody({
+		type: GetRoomCodeDto,
+		description: "The unique identifier of the game room to get the code.",
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "Code was successfuly sent.",
+		type: GetRoomCodeResponseDto,
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: "The game room with the specified ID was not found.",
+	})
+	@ApiResponse({
+		status: HttpStatus.FORBIDDEN,
+		description: "Forbidden. The user is not an owner.",
+	})
+	getCode(@Body() dto: GetRoomCodeDto, @GetUserFromToken() user: UserDto) {
+		return plainToInstance(
+			GetRoomCodeResponseDto,
+			this.service.getRoomCode(dto, user),
+			{ excludeExtraneousValues: true },
+		);
+	}
+
+	@Get("current")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({
+		summary: "Get the ID of the room the user is currently in",
+	})
+	@ApiResponse({
+		type: CurrentGameResponseDto,
+		status: 200,
+		description: "Returns roomId or null",
+	})
+	async getMyCurrentGame(@GetUserFromToken() user: UserDto) {
+		return plainToInstance(
+			CurrentGameResponseDto,
+			await this.service.getCurrentGameId(user.id),
+			{ excludeExtraneousValues: true },
 		);
 	}
 }

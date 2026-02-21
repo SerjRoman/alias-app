@@ -1,14 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 
-export class RoundState {
+export interface RoundState {
 	id: string;
 	guesserId: string;
 	teamId: string;
 	endTime: number;
-	guessedWords: WordEntity[];
-	skippedWords: WordEntity[];
+	guessedWords: WordState[];
+	skippedWords: WordState[];
 	isStarted: boolean;
-	currentWord: WordEntity | null;
+	currentWord: WordState | null;
 }
 export class RoundEntity {
 	private readonly state: RoundState;
@@ -26,6 +26,9 @@ export class RoundEntity {
 	}
 	get guesserId() {
 		return this.state.guesserId;
+	}
+	set endTime(time: number) {
+		this.state.endTime = time;
 	}
 	addGuessedWord() {
 		if (!this.state.currentWord) return;
@@ -59,6 +62,10 @@ export class RoundEntity {
 			currentWord: null,
 		});
 	}
+}
+export interface WordState {
+	id: string;
+	word: string;
 }
 
 export class WordEntity {

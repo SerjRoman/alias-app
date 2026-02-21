@@ -16,6 +16,11 @@ export class NotRoomOwnerError extends GameError {
 		super("User is not the owner of the room");
 	}
 }
+export class NotRoundGuesserError extends GameError {
+	constructor() {
+		super("User is not guesser");
+	}
+}
 export class NotInGameError extends GameError {
 	constructor() {
 		super("User is not in the game room");

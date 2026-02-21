@@ -5,13 +5,15 @@ import type { TeamState } from "../domain/entities/team.entity";
 export const GAME_UPDATED = "game.updated";
 export type GameUpdatedPayload = { room: GameState };
 
-export const PLAYER_GAME_READY_UPDATE = "game.player.ready.update";
-export type PlayerGameReadyPayload = { roomId: string; player: PlayerState };
-export const PLAYER_ROUND_READY_UPDATE = "game.round.player.ready.update";
-export type PlayerRoundReadyPayload = { roomId: string; player: PlayerState };
+export const PLAYERS_UPDATED = "game.player.updated";
+export type PlayersUpdatedPayload = { roomId: string; players: PlayerState[] };
 
 export const PLAYER_KICKED = "game.player.kicked";
-export type PlayerKickedPayload = { roomId: string; playerId: string };
+export type PlayerKickedPayload = {
+	roomId: string;
+	kickedUserId: string;
+	players: PlayerState[];
+};
 
 export const GAME_STARTED = "game.started";
 export type GameStartedPayload = { room: GameState };

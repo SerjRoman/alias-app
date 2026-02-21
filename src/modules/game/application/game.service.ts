@@ -1,6 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { CreateGameDto } from "./dto/body/create-game.dto";
-import { UserFromToken } from "../../../common/types/user-from-token";
 import {
 	GAME_REPOSITORY,
 	type IGameRepository,
@@ -18,23 +17,22 @@ import {
 	GAME_UPDATED,
 	GameStartedPayload,
 	GameUpdatedPayload,
-	PLAYER_GAME_READY_UPDATE,
-	PLAYER_KICKED,
-	PLAYER_ROUND_READY_UPDATE,
-	PlayerGameReadyPayload,
-	PlayerKickedPayload,
-	PlayerRoundReadyPayload,
+	PLAYERS_UPDATED,
+	PlayersUpdatedPayload,
 	TEAMS_UPDATED,
 	TeamsUpdatedPayload,
 } from "../events/game.events";
 import {
 	CreateTeamDto,
 	DeleteTeamDto,
+	GetRoomCodeDto,
 	JoinGameDto,
 	KickPlayerDto,
 	MoveToTeamDto,
+	PlayerLeftRoomDto,
 	UpdateGameSettingsDto,
 } from "./dto/body";
+import { UserDto } from "../../auth/dto/user.dto";
 
 @Injectable()
 export class GameService {
@@ -52,19 +50,19 @@ export class GameService {
 		}
 		return result;
 	}
-	async create(createGameDto: CreateGameDto, user: UserFromToken) {
+	async create(createGameDto: CreateGameDto, user: UserDto) {
 		const code = createGameDto.isPrivate ? this.generateRoomCode(6) : null;
 		const settings: GameSettings = {
+			name: createGameDto.name,
 			roundTimeSeconds: createGameDto.timeLimit,
 			pointsToWin: createGameDto.pointsToWin,
-			roomName: createGameDto.name,
 			code: code,
 			isPrivate: createGameDto.isPrivate || false,
 		};
 		const newRoom = GameEntity.create(user.id, settings);
 
 		await this.repository.save(newRoom);
-		return newRoom.toPrimitives();
+		return { room: newRoom.toPrimitives(), code };
 	}
 
 	async findAll() {
@@ -75,7 +73,7 @@ export class GameService {
 		return (await this.repository.findById(id))?.toPrimitives();
 	}
 
-	async delete(id: string, user: UserFromToken) {
+	async delete(id: string, user: UserDto) {
 		const room = await this.repository.findById(id);
 		if (!room) throw new RoomNotFoundError(id);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
@@ -87,14 +85,16 @@ export class GameService {
 		if (!room.settings.code || !room.settings.isPrivate) return true;
 		return room.settings.code === code;
 	}
-	async joinGame(dto: JoinGameDto, user: UserFromToken) {
+	async joinGame(dto: JoinGameDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		if (room.settings.isPrivate && room.settings.code) {
-			if (room.settings.code !== dto.code) throw new InvalidGameCode();
+			if (!(await this.validateCode(dto.roomId, dto.code)))
+				throw new InvalidGameCode();
 		}
 		room.addPlayer(user.id, user.name);
 		await this.repository.save(room);
+		await this.repository.setUserRoom(user.id, room.id);
 		const roomPrimitives = room.toPrimitives();
 		const eventPayload: GameUpdatedPayload = {
 			room: roomPrimitives,
@@ -102,46 +102,62 @@ export class GameService {
 		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 		return roomPrimitives;
 	}
-	async toggleReady(roomId: string, user: UserFromToken) {
+	async toggleReady(roomId: string, user: UserDto) {
 		const room = await this.repository.findById(roomId);
 		if (!room) throw new RoomNotFoundError(roomId);
 		room.togglePlayerReady(user.id);
 		await this.repository.save(room);
-		const eventPayload: PlayerGameReadyPayload = {
+		const eventPayload: PlayersUpdatedPayload = {
 			roomId: room.id,
-			player: room.players.find((p) => p.id === user.id)!.toPrimitives(),
+			players: room.players.map((p) => p.toPrimitives()),
 		};
-		this.eventEmitter.emit(PLAYER_GAME_READY_UPDATE, eventPayload);
+		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayload);
 		return room.toPrimitives();
 	}
-	async toggleRoundReady(roomId: string, user: UserFromToken) {
+	async toggleRoundReady(roomId: string, user: UserDto) {
 		const room = await this.repository.findById(roomId);
 		if (!room) throw new RoomNotFoundError(roomId);
 		room.togglePlayerRoundReady(user.id);
 		await this.repository.save(room);
-		const eventPayload: PlayerRoundReadyPayload = {
+		const eventPayload: PlayersUpdatedPayload = {
 			roomId: room.id,
-			player: room.players.find((p) => p.id === user.id)!.toPrimitives(),
+			players: room.players.map((p) => p.toPrimitives()),
 		};
-		this.eventEmitter.emit(PLAYER_ROUND_READY_UPDATE, eventPayload);
+		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayload);
 		return room.toPrimitives();
 	}
-	async kickPlayer(dto: KickPlayerDto, user: UserFromToken) {
+	async playerLeftRoom(dto: PlayerLeftRoomDto) {
+		const room = await this.repository.findById(dto.roomId);
+		if (!room) throw new RoomNotFoundError(dto.roomId);
+		room.removePlayer(dto.playerId);
+		await this.repository.save(room);
+		await this.repository.removeUserRoom(dto.playerId);
+		const roomPrimitives = room.toPrimitives();
+		const eventPayloadTeams: TeamsUpdatedPayload = {
+			roomId: room.id,
+			teams: roomPrimitives.teams,
+		};
+		const eventPayloadPlayers: PlayersUpdatedPayload = {
+			roomId: room.id,
+			players: roomPrimitives.players,
+		};
+		this.eventEmitter.emit(TEAMS_UPDATED, eventPayloadTeams);
+		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayloadPlayers);
+		return room.toPrimitives();
+	}
+	async kickPlayer(dto: KickPlayerDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
 		if (room.ownerId === dto.playerId)
 			throw new GameError("Owner cannot kick himself");
-		room.removePlayer(dto.playerId);
-		await this.repository.save(room);
-		const eventPayload: PlayerKickedPayload = {
-			roomId: room.id,
+		const roomPrimitives = await this.playerLeftRoom({
+			roomId: dto.roomId,
 			playerId: dto.playerId,
-		};
-		this.eventEmitter.emit(PLAYER_KICKED, eventPayload);
-		return room.toPrimitives();
+		});
+		return roomPrimitives;
 	}
-	async updateGameSettings(dto: UpdateGameSettingsDto, user: UserFromToken) {
+	async updateGameSettings(dto: UpdateGameSettingsDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
@@ -154,7 +170,7 @@ export class GameService {
 		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 		return roomPrimitives;
 	}
-	async startGame(roomId: string, user: UserFromToken) {
+	async startGame(roomId: string, user: UserDto) {
 		const room = await this.repository.findById(roomId);
 		if (!room) throw new RoomNotFoundError(roomId);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
@@ -167,7 +183,7 @@ export class GameService {
 		this.eventEmitter.emit(GAME_STARTED, eventPayload);
 		return roomPrimitives;
 	}
-	async moveToTeam(dto: MoveToTeamDto, user: UserFromToken) {
+	async moveToTeam(dto: MoveToTeamDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		room.movePlayerToTeam(user.id, dto.teamId);
@@ -180,7 +196,7 @@ export class GameService {
 		this.eventEmitter.emit(TEAMS_UPDATED, eventPayload);
 		return roomPrimitives;
 	}
-	async deleteTeam(dto: DeleteTeamDto, user: UserFromToken) {
+	async deleteTeam(dto: DeleteTeamDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
@@ -194,7 +210,7 @@ export class GameService {
 		this.eventEmitter.emit(TEAMS_UPDATED, eventPayload);
 		return room.toPrimitives();
 	}
-	async createTeam(dto: CreateTeamDto, user: UserFromToken) {
+	async createTeam(dto: CreateTeamDto, user: UserDto) {
 		const room = await this.repository.findById(dto.roomId);
 		if (!room) throw new RoomNotFoundError(dto.roomId);
 		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
@@ -207,5 +223,22 @@ export class GameService {
 		};
 		this.eventEmitter.emit(TEAMS_UPDATED, eventPayload);
 		return roomPrimitives;
+	}
+	async getRoomCode(dto: GetRoomCodeDto, user: UserDto) {
+		const room = await this.repository.findById(dto.roomId);
+		if (!room) throw new RoomNotFoundError(dto.roomId);
+		if (room.ownerId !== user.id) throw new NotRoomOwnerError();
+		return { code: room.settings.code };
+	}
+	async getCurrentGameId(userId: string) {
+		const roomId = await this.repository.getUserRoom(userId);
+		if (roomId) {
+			const room = await this.repository.findById(roomId);
+			if (!room) {
+				await this.repository.removeUserRoom(userId);
+				return { roomId: null };
+			}
+		}
+		return { roomId };
 	}
 }

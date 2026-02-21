@@ -10,8 +10,34 @@ import { RoundStateDto } from "../round.dto";
 
 type GameSettings = Pick<
 	DetailsGameSettings,
-	"roomName" | "roundTimeSeconds" | "pointsToWin" | "isPrivate"
+	"name" | "roundTimeSeconds" | "pointsToWin" | "isPrivate"
 >;
+export class GameSettingsDto implements GameSettings {
+	@ApiProperty({
+		description: "The name of the game room",
+		example: "My Awesome Game Room",
+	})
+	@Expose()
+	name: string;
+	@ApiProperty({
+		description: "The round time in seconds",
+		example: 60,
+	})
+	@Expose()
+	roundTimeSeconds: number;
+	@ApiProperty({
+		description: "The points needed to win",
+		example: 10,
+	})
+	@Expose()
+	pointsToWin: number;
+	@ApiProperty({
+		description: "Whether the game is private",
+		example: false,
+	})
+	@Expose()
+	isPrivate: boolean;
+}
 export class GameResponseDto {
 	@ApiProperty({
 		description: "The unique identifier of the game",
@@ -20,28 +46,33 @@ export class GameResponseDto {
 	@Expose()
 	id: string;
 	@ApiProperty({
-		description: "The name of the game",
-		example: "My Awesome Game",
-	})
-	@Expose()
-	name: string;
-	@ApiProperty({
-		enum: GameStatus,
-	})
-	@ApiProperty({
 		type: "string",
 		example: "123e4567-e89b-12d3-a456-426614174000",
 	})
 	@Expose()
 	ownerId: string;
+	@ApiProperty({
+		enum: GameStatus,
+	})
 	@Expose()
 	status: GameStatus;
+	@ApiProperty({
+		type: GameSettingsDto,
+		description: "Current game settings",
+	})
+	@Type(() => GameSettingsDto)
 	@Expose()
-	settings: GameSettings;
-	@Expose()
-	isGameStarted: boolean;
+	settings: GameSettingsDto;
+	@ApiProperty({
+		type: "number",
+	})
 	@Expose()
 	playersCount: number;
+	@ApiProperty({
+		type: "number",
+	})
+	@Expose()
+	createdAt: number;
 }
 
 export class GameResponseDetailsDto extends GameResponseDto {

@@ -5,6 +5,9 @@ export interface IGameRepository {
 	findAll(): Promise<GameEntity[]>;
 	save(room: GameEntity): Promise<void>;
 	delete(roomId: string): Promise<void>;
+	setUserRoom(userId: string, roomId: string): Promise<void>;
+	getUserRoom(userId: string): Promise<string | null>;
+	removeUserRoom(userId: string): Promise<void>;
 }
 
 export const GAME_REPOSITORY = "GameRepository";
