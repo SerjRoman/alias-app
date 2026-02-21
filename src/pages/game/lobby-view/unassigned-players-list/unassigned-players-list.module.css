@@ -1,0 +1,21 @@
+.container {
+	display: flex;
+	flex-direction: row;
+	gap: var(--spacing-small);
+	padding: var(--spacing-small);
+	border: 1px solid #ccc;
+	border-radius: 8;
+}
+.list {
+	display: flex;
+	gap: var(--spacing-small);
+	flex-wrap: wrap;
+}
+.item {
+	display: flex;
+	align-items: center;
+	gap: 5;
+	background: #eee;
+	padding: 4px 8px;
+	border-radius: 12;
+}
