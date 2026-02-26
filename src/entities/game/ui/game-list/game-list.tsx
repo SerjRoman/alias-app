@@ -1,4 +1,4 @@
-import type { GameState } from "../model";
+import type { GameState } from "../../model";
 import styles from "./game-list.module.css";
 
 type GameListProps = {

@@ -1,0 +1,128 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-large);
+	width: 100%;
+}
+
+.teamContainer {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+}
+
+.teamListHeader {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--spacing-medium);
+	margin-bottom: var(--spacing-small);
+}
+
+.teamListHeader h2 {
+	color: var(--color-text);
+	margin: 0;
+}
+
+.createTeamWrapper {
+	display: flex;
+	gap: var(--spacing-small);
+	width: 100%;
+	max-width: 400px;
+	justify-content: center;
+}
+
+.teamNameInput {
+	flex: 1;
+	padding: var(--spacing-small) var(--spacing-medium);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	font-size: 1rem;
+	transition: border-color 0.2s;
+	background-color: var(--color-surface);
+}
+
+.teamNameInput:focus {
+	outline: none;
+	border-color: var(--color-primary);
+}
+
+.addTeamButton {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: var(--spacing-small) var(--spacing-large);
+	background-color: var(--color-primary);
+	color: var(--color-text-light);
+	border: none;
+	border-radius: var(--border-radius);
+	font-weight: bold;
+	cursor: pointer;
+	transition:
+		background-color 0.2s,
+		opacity 0.2s;
+}
+
+.addTeamButton:hover:not(:disabled) {
+	background-color: var(--color-primary-hover);
+}
+
+.addTeamButton:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	filter: grayscale(1);
+}
+
+.teamsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: var(--spacing-medium);
+}
+
+.emptyMessage {
+	text-align: center;
+	color: #888;
+	font-style: italic;
+	padding: var(--spacing-large);
+}
+
+.startGameContainer {
+	display: flex;
+	justify-content: center;
+	margin-top: var(--spacing-medium);
+}
+
+.startGameButton {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	padding: var(--spacing-medium) calc(var(--spacing-large) * 2);
+	background-color: #28a745;
+	color: white;
+	border: none;
+	border-radius: var(--border-radius);
+	font-size: 1.1rem;
+	font-weight: bold;
+	cursor: pointer;
+	box-shadow: var(--box-shadow);
+	transition:
+		transform 0.2s,
+		background-color 0.2s;
+}
+
+.startGameButton:hover:not(:disabled) {
+	background-color: #218838;
+	transform: translateY(-2px);
+}
+
+.startGameButton:disabled {
+	background-color: var(--color-border);
+	cursor: not-allowed;
+	box-shadow: none;
+}
+
+.toggleReadyContainer {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}

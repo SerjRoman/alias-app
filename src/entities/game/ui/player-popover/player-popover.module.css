@@ -1,0 +1,39 @@
+.popoverContent {
+	all: unset;
+
+	display: flex;
+	flex-direction: column;
+	width: auto;
+
+	gap: var(--spacing-small);
+
+	border-radius: var(--border-radius);
+	padding: var(--spacing-small) var(--spacing-medium);
+
+	background-color: var(--color-surface);
+	color: var(--color-text);
+
+	box-shadow: var(--box-shadow);
+
+	border: 1px solid var(--color-border);
+}
+
+.popoverHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.popoverTitle {
+	font-weight: bold;
+	font-size: 1rem;
+}
+
+.popoverText {
+	font-size: 0.9rem;
+	color: #666;
+}
+
+.popoverArrow {
+	fill: var(--color-surface);
+}

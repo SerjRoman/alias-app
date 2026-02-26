@@ -7,3 +7,4 @@ export type {
 	PlayerState,
 } from "./game.types";
 export { useGameSlice } from "./game.slice";
+export { useGameSync } from "./use-game-sync";

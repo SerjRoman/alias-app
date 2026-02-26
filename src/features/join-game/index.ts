@@ -1,1 +1,1 @@
-export { joinGame } from "./model/join-game";
+export { joinGame } from "./api/join-game";

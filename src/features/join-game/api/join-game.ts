@@ -18,7 +18,6 @@ export function joinGame(
 		},
 		(data: GameStateDetails) => {
 			setGameState({ game: data });
-			console.log(data);
 			callback?.(data);
 		},
 	);

@@ -1,0 +1,90 @@
+import { type TeamState, useGameSlice } from "@entities/game/model";
+import { PlayerItem, PlayerPopover, TeamCard } from "@entities/game/ui";
+import { Trash2 } from "lucide-react";
+import { useLobbyActions } from "../../model/use-lobby-actions";
+import { KickButton } from "@features/kick-player";
+import styles from "./lobby-team-view.module.css";
+import { useAuth } from "@entities/auth/model";
+import { MovePlayerMenu } from "../move-player-menu/move-player-menu";
+
+export function LobbyTeamView({
+	team,
+}: Readonly<{
+	team: TeamState;
+}>) {
+	const currentUserId = useAuth((state) => state.user!.id);
+	const gameId = useGameSlice((state) => state.game!.id);
+	const ownerId = useGameSlice((state) => state.game!.ownerId);
+	const players = useGameSlice((state) => state.game!.players);
+
+	const isMyTeam = team.playerIds.includes(currentUserId);
+	const isOwner = currentUserId === ownerId;
+	const { deleteTeam, joinTeam } = useLobbyActions();
+	const playersMap = new Map(players.map((p) => [p.id, p]));
+	return (
+		<TeamCard
+			team={team}
+			playersMap={playersMap}
+			actionRight={
+				isOwner && (
+					<button
+						className={styles.deleteButton}
+						onClick={() => deleteTeam(gameId, team.id)}
+						title="Delete team"
+					>
+						<Trash2 size={16} />
+					</button>
+				)
+			}
+			footer={
+				isMyTeam ? (
+					<div className={styles.joinedText}>Joined</div>
+				) : (
+					<button
+						className={styles.joinButton}
+						onClick={() => joinTeam(gameId, team.id)}
+					>
+						Join Team
+					</button>
+				)
+			}
+			renderPlayer={(player) => {
+				return (
+					<PlayerPopover
+						key={player.id}
+						player={player}
+						renderTrigger={(player) => {
+							const isPlayerOwner = player.id === ownerId;
+							return (
+								<button
+									className={styles.triggerButton}
+									tabIndex={0}
+								>
+									<PlayerItem
+										id={player.id}
+										name={player.name}
+										isOwner={isPlayerOwner}
+										isReady={player.isReady}
+										isGuesser={false}
+									/>
+								</button>
+							);
+						}}
+						renderActions={(player) =>
+							isOwner && (
+								<div className={styles.playerActions}>
+									<KickButton
+										roomId={gameId}
+										playerId={player.id}
+										playerName={player.name}
+									/>
+									<MovePlayerMenu playerId={player.id} />
+								</div>
+							)
+						}
+					/>
+				);
+			}}
+		/>
+	);
+}

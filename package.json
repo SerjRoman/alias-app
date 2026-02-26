@@ -11,6 +11,7 @@
 		"gen:api": "npx openapi-typescript ./src/shared/api/api.yaml -o ./src/shared/api/v1.d.ts"
 	},
 	"dependencies": {
+		"@radix-ui/react-popover": "^1.1.15",
 		"@tanstack/react-query": "^5.90.21",
 		"lucide-react": "^0.575.0",
 		"openapi-react-query": "^0.5.4",
@@ -33,6 +34,7 @@
 		"globals": "^16.5.0",
 		"typescript": "~5.9.3",
 		"typescript-eslint": "^8.48.0",
-		"vite": "^7.3.1"
+		"vite": "^7.3.1",
+		"vite-tsconfig-paths": "^6.1.1"
 	}
 }
