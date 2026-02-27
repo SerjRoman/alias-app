@@ -20,7 +20,7 @@ export function useActiveGameActions() {
 		);
 	};
 	const nextRound = (roomId: string) => {
-		socketClient.emit("nextWord", { roomId });
+		socketClient.emit("nextRound", { roomId });
 	};
 	return { startRound, nextWord, nextRound };
 }

@@ -6,12 +6,14 @@
 }
 
 .loginCard {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
 	background-color: var(--color-surface);
 	padding: var(--spacing-large);
 	border-radius: var(--border-radius);
 	box-shadow: var(--box-shadow);
-	width: 100%;
-	max-width: 400px;
+	width: 400px;
 	text-align: center;
 }
 

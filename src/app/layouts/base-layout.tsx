@@ -18,7 +18,12 @@ export function BaseLayout() {
 		}
 
 		getMe(
-			{ headers: { Authorization: `Bearer ${token}` } },
+			{
+				headers: {
+					Authorization: `Bearer ${token}`,
+					"ngrok-skip-browser-warning": "true",
+				},
+			},
 			{
 				onSuccess: (data) => {
 					console.log(data);
@@ -39,6 +44,7 @@ export function BaseLayout() {
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
+					"ngrok-skip-browser-warning": "true",
 				},
 			},
 			{

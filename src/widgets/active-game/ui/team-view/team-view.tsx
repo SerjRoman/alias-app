@@ -8,6 +8,7 @@ export function ActiveGameTeamView({ team }: Readonly<{ team: TeamState }>) {
 	const currentRound = useGameSlice((state) => state.game!.currentRound!);
 	const playersMap = new Map(players.map((p) => [p.id, p]));
 	const isPlayingTeam = currentRound.teamId === team.id;
+
 	return (
 		<TeamCard
 			team={team}
@@ -21,8 +22,14 @@ export function ActiveGameTeamView({ team }: Readonly<{ team: TeamState }>) {
 				return (
 					<PlayerPopover
 						key={player.id}
-						player={player}
-						renderTrigger={(player) => {
+						playerId={player.id}
+						playerIsOnline={player.isOnline}
+						playerName={player.name}
+						playerScore={player.score}
+						renderTrigger={(playerId) => {
+							const player = playersMap.get(playerId);
+							if (!player) return null;
+
 							const isPlayerOwner = player.id === ownerId;
 							const isGuesser =
 								currentRound.guesserId === player.id;
@@ -37,6 +44,7 @@ export function ActiveGameTeamView({ team }: Readonly<{ team: TeamState }>) {
 										isOwner={isPlayerOwner}
 										isReady={player.isRoundReady}
 										isGuesser={isGuesser}
+										isOnline={player.isOnline}
 									/>
 								</button>
 							);

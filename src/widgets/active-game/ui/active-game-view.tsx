@@ -9,7 +9,7 @@ import { Play } from "lucide-react";
 import { Timer } from "@shared/ui/timer";
 
 export function ActiveGameView() {
-	const { game } = useGameSlice();
+	const { game, currentWord } = useGameSlice();
 	const { user } = useAuth();
 	const navigate = useNavigate();
 	const { startRound, nextWord, nextRound } = useActiveGameActions();
@@ -18,15 +18,17 @@ export function ActiveGameView() {
 		return null;
 	}
 	const currentRound = game.currentRound;
+	const playersMap = new Map(game.players.map((p) => [p.id, p]));
 
 	const mePlayer = game.players.find((p) => user.id === p.id);
 	const isGuesser = game.currentRound.guesserId === user.id;
-	const isAllReady = game.players.every((p) => p.isRoundReady);
 	const isOwner = game.ownerId === user.id;
 	const isMyTeamPlaying = game.teams.find(
 		(team) =>
-			team.id === currentRound.teamId &&
-			team.playerIds.includes(user.id),
+			team.id === currentRound.teamId && team.playerIds.includes(user.id),
+	);
+	const isAllReady = isMyTeamPlaying?.playerIds.every(
+		(pId) => playersMap.get(pId)?.isRoundReady,
 	);
 
 	return (
@@ -36,7 +38,7 @@ export function ActiveGameView() {
 					<ActiveGameTeamView key={team.id} team={team} />
 				))}
 			</div>
-			{isMyTeamPlaying && (
+			{isMyTeamPlaying && currentRound.status === RoundStatus.PENDING && (
 				<div className={styles.toggleReadyContainer}>
 					<ToggleRoundReadyButton
 						roomId={game.id}
@@ -65,6 +67,7 @@ export function ActiveGameView() {
 					<button onClick={() => nextWord(game.id, true)}>
 						Skip word
 					</button>
+					<span>{currentWord?.word}</span>
 				</div>
 			)}
 			{isOwner && currentRound.status === RoundStatus.FINISHED && (

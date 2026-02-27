@@ -17,6 +17,7 @@ export function UnassignedPlayersList({
 	roomId,
 }: Readonly<UnassignedPlayersListProps>) {
 	if (players.length === 0) return null;
+	const playersMap = new Map(players.map((p) => [p.id, p]));
 
 	return (
 		<div className={styles.container}>
@@ -25,8 +26,9 @@ export function UnassignedPlayersList({
 				{players.map((p) => (
 					<PlayerPopover
 						key={p.id}
-						player={p}
-						renderTrigger={(player) => {
+						playerId={p.id}
+						playerIsOnline={p.isOnline}
+						renderTrigger={(playerId) => {
 							return (
 								<button
 									className={styles.triggerButton}
@@ -37,13 +39,17 @@ export function UnassignedPlayersList({
 											size={14}
 											className={styles.icon}
 										/>
-										<span>{player.name}</span>
+										<span>
+											{playersMap.get(playerId)?.name}
+										</span>
 									</div>
 								</button>
 							);
 						}}
-						renderActions={(player) =>
-							isOwner && (
+						renderActions={(playerId) => {
+							const player = playersMap.get(playerId);
+							if (!player || !isOwner) return null;
+							return (
 								<div className={styles.playerActions}>
 									<KickButton
 										roomId={roomId}
@@ -52,8 +58,8 @@ export function UnassignedPlayersList({
 									/>
 									<MovePlayerMenu playerId={player.id} />
 								</div>
-							)
-						}
+							);
+						}}
 					/>
 				))}
 			</div>

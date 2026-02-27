@@ -1,22 +1,27 @@
 import * as Popover from "@radix-ui/react-popover";
-import type { PlayerState } from "@entities/game/model";
 import styles from "./player-popover.module.css";
 import type { ReactNode } from "react";
 
 interface PlayerPopoverProps {
-	player: PlayerState;
-	renderTrigger: (player: PlayerState) => ReactNode;
-	renderActions?: (player: PlayerState) => ReactNode;
+	renderTrigger: (playerId: string) => ReactNode;
+	renderActions?: (playerId: string) => ReactNode;
+	playerId: string;
+	playerScore?: number;
+	playerName?: string;
+	playerIsOnline?: boolean;
 }
 
 export function PlayerPopover({
-	player,
 	renderTrigger,
 	renderActions,
+	playerId,
+	playerIsOnline,
+	playerName,
+	playerScore,
 }: Readonly<PlayerPopoverProps>) {
 	return (
-		<Popover.Root key={player.id}>
-			<Popover.Trigger asChild>{renderTrigger(player)}</Popover.Trigger>
+		<Popover.Root key={playerId}>
+			<Popover.Trigger asChild>{renderTrigger(playerId)}</Popover.Trigger>
 
 			<Popover.Portal>
 				<Popover.Content
@@ -25,18 +30,21 @@ export function PlayerPopover({
 					sideOffset={5}
 				>
 					<div className={styles.popoverHeader}>
-						<p className={styles.popoverTitle}>{player.name}</p>
-						<p className={styles.popoverText}>
-							Score: <strong>{player.score}</strong>
-						</p>
-						<p className={styles.popoverText}>
-							Status:{" "}
-							{player.isReady ? "Ready ✅" : "Not Ready ⏳"}
-						</p>
-						<p className={styles.popoverText}>
-							{player.isOnline ? "Online ✅" : "Offline ❌"}
-						</p>
-						{renderActions?.(player)}
+						{playerName && (
+							<p className={styles.popoverTitle}>{playerName}</p>
+						)}
+						{playerScore != undefined && (
+							<p className={styles.popoverText}>
+								Score: <strong>{playerScore}</strong>
+							</p>
+						)}
+
+						{playerIsOnline && (
+							<p className={styles.popoverText}>
+								{playerIsOnline ? "Online ✅" : "Offline ❌"}
+							</p>
+						)}
+						{renderActions?.(playerId)}
 					</div>
 					<Popover.Arrow className={styles.popoverArrow} />
 				</Popover.Content>

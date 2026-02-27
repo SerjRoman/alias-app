@@ -13,7 +13,7 @@ export function LobbyTeamView({
 	team: TeamState;
 }>) {
 	const currentUserId = useAuth((state) => state.user!.id);
-	const gameId = useGameSlice((state) => state.game!.id);
+	const roomId = useGameSlice((state) => state.game!.id);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const players = useGameSlice((state) => state.game!.players);
 
@@ -29,7 +29,7 @@ export function LobbyTeamView({
 				isOwner && (
 					<button
 						className={styles.deleteButton}
-						onClick={() => deleteTeam(gameId, team.id)}
+						onClick={() => deleteTeam(roomId, team.id)}
 						title="Delete team"
 					>
 						<Trash2 size={16} />
@@ -42,7 +42,7 @@ export function LobbyTeamView({
 				) : (
 					<button
 						className={styles.joinButton}
-						onClick={() => joinTeam(gameId, team.id)}
+						onClick={() => joinTeam(roomId, team.id)}
 					>
 						Join Team
 					</button>
@@ -52,8 +52,12 @@ export function LobbyTeamView({
 				return (
 					<PlayerPopover
 						key={player.id}
-						player={player}
-						renderTrigger={(player) => {
+						playerId={player.id}
+						playerIsOnline={player.isOnline}
+						playerName={player.name}
+						renderTrigger={(playerId) => {
+							const player = playersMap.get(playerId);
+							if (!player) return null;
 							const isPlayerOwner = player.id === ownerId;
 							return (
 								<button
@@ -66,22 +70,25 @@ export function LobbyTeamView({
 										isOwner={isPlayerOwner}
 										isReady={player.isReady}
 										isGuesser={false}
+										isOnline={player.isOnline}
 									/>
 								</button>
 							);
 						}}
-						renderActions={(player) =>
-							isOwner && (
+						renderActions={(playerId) => {
+							const player = playersMap.get(playerId);
+							if (!player || !isOwner) return null;
+							return (
 								<div className={styles.playerActions}>
 									<KickButton
-										roomId={gameId}
+										roomId={roomId}
 										playerId={player.id}
 										playerName={player.name}
 									/>
 									<MovePlayerMenu playerId={player.id} />
 								</div>
-							)
-						}
+							);
+						}}
 					/>
 				);
 			}}

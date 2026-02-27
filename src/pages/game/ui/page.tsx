@@ -6,6 +6,7 @@ import { ActiveGameView } from "@widgets/active-game";
 import styles from "./page.module.css";
 import { useAuth } from "@entities/auth/model";
 import { useGameSync } from "@entities/game/model";
+import { socketClient } from "@shared/api/socket";
 
 export function GamePage() {
 	const [searchParams] = useSearchParams();
@@ -33,11 +34,15 @@ export function GamePage() {
 	if (!game) {
 		return <div>No such game. Go back to game list</div>;
 	}
-	console.log(game.status);
 	return (
 		<div className={styles.page}>
 			<div className={styles.container}>
 				<h1 className={styles.title}>{game.settings.name}</h1>
+				<button
+					onClick={() => socketClient.emit("leaveGame", { roomId })}
+				>
+					Leave game
+				</button>
 				{game.status === "LOBBY" ? <LobbyView /> : <ActiveGameView />}
 			</div>
 		</div>

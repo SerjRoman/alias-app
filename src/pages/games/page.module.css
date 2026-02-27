@@ -3,13 +3,19 @@
 	display: flex;
 	flex-direction: row;
 	padding-bottom: 40px;
-    justify-content: space-around;
+	justify-content: space-around;
+    gap: 30px;
+}
+@media (max-width: 800px) {
+	.pageContainer {
+		flex-direction: column;
+	}
 }
 .sectionList {
 	display: flex;
 	flex-direction: column;
 	flex: 0.5;
-    gap: var(--spacing-medium);
+	gap: var(--spacing-medium);
 }
 .sectionTitle {
 	font-size: 1.5rem;

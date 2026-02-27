@@ -7,15 +7,17 @@ interface PlayerItemProps {
 	isOwner: boolean;
 	isReady: boolean;
 	isGuesser: boolean;
+	isOnline: boolean;
 }
 
 export function PlayerItem({
 	name,
 	isGuesser,
 	isOwner,
+	isOnline,
 	isReady,
 }: Readonly<PlayerItemProps>) {
-	const itemClasses = `${styles.item} ${isReady ? styles.ready : ""}`;
+	const itemClasses = `${styles.item} ${isReady ? styles.ready : ""} ${isOnline ? "" : styles.offline}`;
 
 	return (
 		<li className={itemClasses}>

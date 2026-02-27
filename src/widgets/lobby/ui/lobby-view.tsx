@@ -96,12 +96,14 @@ export function LobbyView() {
 					<p className={styles.emptyMessage}>No teams created yet.</p>
 				)}
 			</div>
-			<div className={styles.toggleReadyContainer}>
-				<ToggleGameReadyButton
-					roomId={game.id}
-					isReady={mePlayer?.isReady || false}
-				/>
-			</div>
+			{allAssignedIds.has(user.id) && (
+				<div className={styles.toggleReadyContainer}>
+					<ToggleGameReadyButton
+						roomId={game.id}
+						isReady={mePlayer?.isReady || false}
+					/>
+				</div>
+			)}
 			{isOwner && (
 				<div className={styles.startGameContainer}>
 					<button

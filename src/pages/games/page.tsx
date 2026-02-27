@@ -13,7 +13,9 @@ export function GamesPage() {
 		isLoading,
 		refetch,
 		isFetching,
-	} = useQuery("get", "/games");
+	} = useQuery("get", "/games", {
+		headers: { "ngrok-skip-browser-warning": "true" },
+	});
 	const [code, setCode] = useState<string>("");
 	const navigate = useNavigate();
 
@@ -22,7 +24,7 @@ export function GamesPage() {
 		navigate(`/game?id=${game.id}${c}`);
 	}
 	const sortedGames = games
-		? [...games].sort((a, b) => a.createdAt - b.createdAt)
+		? [...games].sort((a, b) => b.createdAt - a.createdAt)
 		: [];
 
 	return (
