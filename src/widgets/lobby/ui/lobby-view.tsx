@@ -1,6 +1,6 @@
 import { useGameSlice } from "@entities/game/model";
 import { Plus, Play } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./lobby-view.module.css";
 import { SettingsPanel } from "./settings-panel/settings-panel";
 import { LobbyTeamView } from "./lobby-team-view/lobby-team-view";
@@ -9,6 +9,7 @@ import { useLobbyActions } from "../model";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@entities/auth/model";
 import { ToggleGameReadyButton } from "@features/toggle-ready/ui";
+import { socketClient } from "@shared/api/socket";
 
 export function LobbyView() {
 	const [newTeamName, setNewTeamName] = useState("");
@@ -16,6 +17,22 @@ export function LobbyView() {
 	const { user } = useAuth();
 	const { createTeam, startGame } = useLobbyActions();
 	const navigate = useNavigate();
+	useEffect(() => {
+		function handlePlayerKicked({
+			kickedUserId,
+		}: {
+			kickedUserId: string;
+		}) {
+			if (kickedUserId === user?.id) {
+				alert("You were kicked");
+				navigate("/games");
+			}
+		}
+		socketClient.on("playerKicked", handlePlayerKicked);
+		return () => {
+			socketClient.off("playerKicked", handlePlayerKicked);
+		};
+	}, [user, navigate]);
 	if (!game || !user) {
 		navigate("/games");
 		return null;
@@ -33,7 +50,6 @@ export function LobbyView() {
 		(p) => !allAssignedIds.has(p.id),
 	);
 	const isAllReady = game.players.every((p) => p.isReady);
-	console.log(isAllReady);
 
 	return (
 		<div className={styles.container}>

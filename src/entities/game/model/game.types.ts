@@ -3,9 +3,15 @@ export enum GameStatus {
 	IN_PROGRESS = "IN_PROGRESS",
 	FINISHED = "FINISHED",
 }
+export enum RoundStatus {
+	PENDING = "PENDING",
+	IN_PROGRESS = "IN_PROGRESS",
+	FINISHED = "FINISHED",
+}
 export interface WordState {
 	id: string;
 	word: string;
+	score: number;
 }
 export interface TeamState {
 	id: string;
@@ -20,16 +26,17 @@ export interface PlayerState {
 	isReady: boolean;
 	isRoundReady: boolean;
 	score: number;
+	isOnline: boolean;
 }
+
 export interface RoundState {
 	id: string;
 	guesserId: string;
 	teamId: string;
 	endTime: number;
-	guessedWords: WordState[];
-	skippedWords: WordState[];
-	isStarted: boolean;
+	status: RoundStatus;
 	currentWord: WordState | null;
+	words: WordState[];
 }
 export interface GameSettings {
 	roundTimeSeconds: number;
@@ -40,7 +47,7 @@ export interface GameSettings {
 export interface GameState {
 	id: string;
 	ownerId: string;
-	status: "LOBBY" | "IN_PROGRESS" | "FINISHED";
+	status: GameStatus;
 	settings: GameSettings;
 	playersCount: number;
 }

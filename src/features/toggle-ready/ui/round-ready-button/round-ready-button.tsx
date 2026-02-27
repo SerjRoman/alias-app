@@ -17,7 +17,7 @@ export function ToggleRoundReadyButton({
 			isReady={isReady}
 			disabled={disabled}
 			onClick={() => readyApi.toggleRoundReady(roomId)}
-			labelNotReady="Next Round"
+			labelNotReady="Ready For Next Round"
 		/>
 	);
 }

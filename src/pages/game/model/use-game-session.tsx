@@ -32,7 +32,7 @@ export function useGameSession(roomId: string | null, code: string | null) {
 		return () => {
 			const activeId = gameIdRef.current;
 			if (activeId) {
-				socketClient.emit("leaveGame", { roomId: activeId });
+				// socketClient.emit("leaveGame", { roomId: activeId });
 				clearGame();
 			}
 		};

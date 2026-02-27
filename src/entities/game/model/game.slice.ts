@@ -4,24 +4,32 @@ import type {
 	PlayerState,
 	GameStateDetails,
 	GameSettings,
+	RoundState,
+	WordState,
 } from "./game.types";
 
 export interface GameSliceState {
 	game: GameStateDetails | null;
+	currentWord: WordState | null;
+	setCurrentWord: (newWord: WordState) => void;
+	resetCurrentWord: () => void;
 	setGameState: (newGame: GameStateDetails) => void;
 	updateTeams: (newTeams: TeamState[]) => void;
 	updatePlayer: (updatedPlayer: PlayerState) => void;
 	updatePlayers: (updatedPlayers: PlayerState[]) => void;
 	updateSettings: (settings: GameSettings) => void;
+	updateRound: (updatedRound: RoundState) => void;
 	clearGame: () => void;
 }
 
 export const useGameSlice = create<GameSliceState>((set) => ({
 	game: null,
-
+	currentWord: null,
 	setGameState: (newGameState: GameStateDetails) =>
 		set({ game: newGameState }),
-
+	setCurrentWord: (newWord: WordState) =>
+		set((state) => ({ ...state, currentWord: newWord })),
+	resetCurrentWord: () => set(() => ({})),
 	updateTeams: (newTeams: TeamState[]) =>
 		set((state) => {
 			if (!state.game) {
@@ -66,6 +74,16 @@ export const useGameSlice = create<GameSliceState>((set) => ({
 				game: {
 					...state.game,
 					settings: newSettings,
+				},
+			};
+		}),
+	updateRound: (updatedRound) =>
+		set((state) => {
+			if (!state.game) return {};
+			return {
+				game: {
+					...state.game,
+					currentRound: updatedRound,
 				},
 			};
 		}),

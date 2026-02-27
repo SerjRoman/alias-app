@@ -33,6 +33,9 @@ export function PlayerPopover({
 							Status:{" "}
 							{player.isReady ? "Ready ✅" : "Not Ready ⏳"}
 						</p>
+						<p className={styles.popoverText}>
+							{player.isOnline ? "Online ✅" : "Offline ❌"}
+						</p>
 						{renderActions?.(player)}
 					</div>
 					<Popover.Arrow className={styles.popoverArrow} />

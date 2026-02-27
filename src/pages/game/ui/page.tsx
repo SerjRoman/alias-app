@@ -33,7 +33,7 @@ export function GamePage() {
 	if (!game) {
 		return <div>No such game. Go back to game list</div>;
 	}
-
+	console.log(game.status);
 	return (
 		<div className={styles.page}>
 			<div className={styles.container}>

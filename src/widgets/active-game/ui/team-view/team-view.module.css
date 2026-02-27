@@ -1,0 +1,10 @@
+.triggerButton {
+	all: unset;
+	width: 100%;
+	cursor: pointer;
+	border-radius: var(--border-radius, 8px);
+}
+
+.triggerButton:focus-visible {
+	outline: 2px solid var(--color-primary, #4a90e2);
+}
