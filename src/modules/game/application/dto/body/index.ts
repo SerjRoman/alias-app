@@ -11,3 +11,8 @@ export {
 	PlayerLeaveRoomBodyDto,
 	PlayerLeftRoomDto,
 } from "./player-left-room.dto";
+export { StartRoundDto } from "./start-round.dto";
+export { NextRoundDto } from "./next-round.dto";
+export { NextWordDto } from "./next-word.dto";
+export { ChangeWordScoreDto } from "./change-word-score.dto";
+export { DeleteGameDto } from "./delete-game.dto";

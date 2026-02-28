@@ -18,16 +18,19 @@ import { TeamError } from "../errors/team.errors";
 import {
 	GameInProgressError,
 	GameNotInProgressError,
-	NotRoundGuesserError,
 	PlayerNotFoundError,
 	PlayersNotReadyError,
-	RoundAlreadyActiveError,
-	RoundNotActiveError,
 	TeamNameExistsError,
 } from "../errors/game.errors";
 import { PlayerEntity } from "./player.entity";
-import { RoundEntity } from "./round.entity";
+import { RoundEntity, RoundStatus } from "./round.entity";
 import { v4 as uuidv4 } from "uuid";
+import {
+	RoundAlreadyActiveError,
+	RoundIsNotFinished,
+	RoundIsNotInProgress,
+	RoundNotActiveError,
+} from "../errors/round.errors";
 /*
 TeamEntity
 Создать команду в игру
@@ -60,6 +63,7 @@ export enum GameStatus {
 	IN_PROGRESS = "IN_PROGRESS",
 	FINISHED = "FINISHED",
 }
+export type GameWordsLevel = "easy" | "medium" | "hard";
 
 export interface GameSettings {
 	name: string;
@@ -67,6 +71,7 @@ export interface GameSettings {
 	pointsToWin: number;
 	code: string | null;
 	isPrivate: boolean;
+	level: GameWordsLevel;
 }
 type TeamState = ReturnType<TeamEntity["toPrimitives"]>;
 type PlayerState = ReturnType<PlayerEntity["toPrimitives"]>;
@@ -80,7 +85,7 @@ export interface GameState {
 	currentRound: RoundState | null;
 	players: PlayerState[];
 	winnerTeamId: string | null;
-	lastTeamIndex: number;
+	lastTeamPlayedIndex: number;
 	createdAt: number;
 }
 
@@ -141,6 +146,16 @@ export class GameEntity {
 		const player = PlayerEntity.create(id, name);
 		this._players.push(player);
 	}
+	setPlayerOffline(playerId: string) {
+		const player = this._players.find((p) => p.id === playerId);
+		if (!player) throw new PlayerNotFoundError(playerId);
+		player.isOnline = false;
+	}
+	setPlayerOnline(playerId: string) {
+		const player = this._players.find((p) => p.id === playerId);
+		if (!player) throw new PlayerNotFoundError(playerId);
+		player.isOnline = true;
+	}
 	removePlayer(playerId: string) {
 		this._players = this._players.filter((p) => p.id !== playerId);
 		this.teams.forEach((t) => t.removePlayer(playerId));
@@ -153,7 +168,7 @@ export class GameEntity {
 	togglePlayerRoundReady(playerId: string) {
 		const player = this._players.find((p) => p.id === playerId);
 		if (!player) throw new PlayerNotFoundError(playerId);
-		player.setRoundReady(false);
+		player.toggleRoundReady();
 	}
 	createTeam(name: string) {
 		if (this.state.status !== GameStatus.LOBBY) {
@@ -201,53 +216,67 @@ export class GameEntity {
 		if (this._currentRound) throw new RoundAlreadyActiveError();
 
 		const nextTeamIndex =
-			(this.state.lastTeamIndex + 1) % this.teams.length;
+			(this.state.lastTeamPlayedIndex + 1) % this.teams.length;
+		this.state.lastTeamPlayedIndex = nextTeamIndex;
 		const team = this.teams[nextTeamIndex];
 		const guesserId = team.getNextGuesserId();
-		const round = RoundEntity.create(team.id, guesserId, 0);
+		const round = RoundEntity.create(guesserId, team.id, 0);
+		this._currentRound = round;
 		return round;
 	}
-	startRound(teamId: string, startTime: number) {
+	changeWordScore(wordId: string, delta: number) {
+		if (!this._currentRound) throw new RoundNotActiveError();
+		if (this._currentRound.status !== RoundStatus.FINISHED)
+			throw new RoundIsNotFinished();
+		this._currentRound.changeWordScore(wordId, delta);
+	}
+
+	startRound(startTime: number) {
 		if (this.state.status !== GameStatus.IN_PROGRESS)
 			throw new GameNotInProgressError();
-		if (!this._currentRound) throw new RoundAlreadyActiveError();
-
-		const team = this.teams.find((t) => t.id === teamId);
-		if (!team) throw new TeamNotFoundError(teamId);
+		if (!this._currentRound) throw new RoundNotActiveError();
+		const currentTeamId = this._currentRound.teamId;
+		const team = this.teams.find((t) => t.id === currentTeamId);
+		if (!team) throw new TeamNotFoundError(currentTeamId);
 		team.playerIds.forEach((id) => {
 			const player = this.players.find((p) => p.id === id);
 			if (!player || !player.isReady || !player.isRoundReady) {
 				throw new PlayersNotReadyError();
 			}
 		});
+		this._currentRound.startRound();
 
-		this._currentRound.endTime = startTime;
+		this._currentRound.endTime =
+			startTime + this.state.settings.roundTimeSeconds * 1000;
+		this._players.forEach((p) => p.setRoundReady(false));
 	}
-	processWord(isSkipped: boolean, isGuessed: boolean) {
+	nextWord(text: string, wasSkipped: boolean = false) {
 		if (!this._currentRound) throw new RoundNotActiveError();
-		if (isGuessed) {
-			this._currentRound.addGuessedWord();
-		} else if (isSkipped) {
-			this._currentRound.addSkippedWord();
-		}
-	}
-	nextWord(word: string) {
-		if (!this._currentRound) throw new RoundNotActiveError();
-		this._currentRound.nextWord(word);
+		if (this._currentRound.status !== RoundStatus.IN_PROGRESS)
+			throw new RoundIsNotInProgress();
+		return this._currentRound.nextWord(text, wasSkipped);
 	}
 	finishRound() {
-		if (!this._currentRound) return;
+		if (!this._currentRound) throw new RoundNotActiveError();
+		this._currentRound.finishRound();
+	}
+	calculateRoundPoints() {
+		if (!this._currentRound) throw new RoundNotActiveError();
+		if (this._currentRound.status !== RoundStatus.FINISHED)
+			throw new RoundIsNotFinished();
 		const round = this._currentRound;
-		const guessed = round.guessedWords.length;
+		const words = this._currentRound.words;
 		const team = this.teams.find((t) => t.id === round.teamId);
 		if (!team) throw new TeamNotFoundError(round.teamId);
-		team.addScore(guessed);
+		const score = words.reduce((acc, current) => acc + current.score, 0);
+		console.log(score);
+		team.addScore(score);
 		const player = this.players.find((p) => p.id === round.guesserId);
 		if (!player) throw new PlayerNotFoundError(round.guesserId);
-		player.addScore(guessed);
-		player.setRoundReady(false);
-		this._currentRound = null;
+
+		player.addScore(score);
 		this.checkWinCondition();
+		this._currentRound = null;
 	}
 	private checkWinCondition() {
 		const winner = this.teams.find(
@@ -281,7 +310,7 @@ export class GameEntity {
 				status: GameStatus.LOBBY,
 				settings,
 				winnerTeamId: null,
-				lastTeamIndex: -1,
+				lastTeamPlayedIndex: -1,
 				createdAt: Date.now(),
 			},
 			[],

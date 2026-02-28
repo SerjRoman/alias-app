@@ -4,11 +4,13 @@ import { GameController } from "./application/game.controller";
 import { GAME_REPOSITORY } from "./repository/game.repository.interface";
 import { RedisGameRepository } from "./repository/redis-game.repository";
 import { GameGateway } from "./application/game.gateway";
+import { DictionaryService } from "./application/dictionary.service";
 
 @Module({
 	providers: [
 		GameGateway,
 		GameService,
+		DictionaryService,
 		{
 			provide: GAME_REPOSITORY,
 			useClass: RedisGameRepository,

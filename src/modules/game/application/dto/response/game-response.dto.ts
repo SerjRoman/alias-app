@@ -3,10 +3,11 @@ import { Expose, Type } from "class-transformer";
 import {
 	type GameSettings as DetailsGameSettings,
 	GameStatus,
+	type GameWordsLevel,
 } from "../../../domain/entities/game.entity";
-import { TeamStateDto } from "../team.dto";
 import { PlayerResponseDto } from "./player.dto";
-import { RoundStateDto } from "../round.dto";
+import { RoundResponseDto } from "./round-response.dto";
+import { TeamResponseDto } from "./team-response.dto";
 
 type GameSettings = Pick<
 	DetailsGameSettings,
@@ -37,6 +38,12 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	isPrivate: boolean;
+	@ApiProperty({
+		description: "The difficulty level of the words used in the game",
+		example: "medium",
+	})
+	@Expose()
+	level: GameWordsLevel;
 }
 export class GameResponseDto {
 	@ApiProperty({
@@ -84,19 +91,19 @@ export class GameResponseDetailsDto extends GameResponseDto {
 	@Type(() => PlayerResponseDto)
 	players: PlayerResponseDto[];
 
-	@ApiProperty({ type: [TeamStateDto], description: "List of teams" })
+	@ApiProperty({ type: [TeamResponseDto], description: "List of teams" })
 	@Expose()
-	@Type(() => TeamStateDto)
-	teams: TeamStateDto[];
+	@Type(() => TeamResponseDto)
+	teams: TeamResponseDto[];
 
 	@ApiPropertyOptional({
-		type: RoundStateDto,
+		type: RoundResponseDto,
 		nullable: true,
 		description: "Current active round",
 	})
 	@Expose()
-	@Type(() => RoundStateDto)
-	currentRound: RoundStateDto | null;
+	@Type(() => RoundResponseDto)
+	currentRound: RoundResponseDto | null;
 
 	@ApiPropertyOptional({
 		type: String,
@@ -112,5 +119,5 @@ export class GameResponseDetailsDto extends GameResponseDto {
 		description: "Index of the last team that played",
 	})
 	@Expose()
-	lastTeamIndex: number;
+	lastTeamPlayedIndex: number;
 }

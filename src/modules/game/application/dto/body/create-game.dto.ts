@@ -8,6 +8,7 @@ import {
 	MaxLength,
 	MinLength,
 } from "class-validator";
+import type { GameWordsLevel } from "../../../domain/entities/game.entity";
 
 export class CreateGameDto {
 	@ApiProperty({
@@ -43,4 +44,13 @@ export class CreateGameDto {
 	@IsNumber()
 	@IsPositive()
 	pointsToWin: number = 30;
+
+	@ApiProperty({
+		description: "The difficulty level of the words used in the game",
+		example: "medium",
+		enum: ["easy", "medium", "hard"],
+	})
+	@IsString()
+	@IsOptional()
+	level: GameWordsLevel = "easy";
 }

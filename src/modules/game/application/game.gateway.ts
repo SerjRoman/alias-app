@@ -20,24 +20,38 @@ import {
 	type TeamsUpdatedPayload,
 	PLAYERS_UPDATED,
 	type PlayersUpdatedPayload,
+	ROUND_UPDATED,
+	type RoundUpdatedPayload,
+	GAME_FINISHED,
+	type GameFinishedPayload,
 } from "../events/game.events";
 import { plainToInstance } from "class-transformer";
-import { GameResponseDetailsDto } from "./dto/response";
+import {
+	GameResponseDetailsDto,
+	RoundResponseDto,
+	TeamResponseDto,
+	WordResponseDto,
+} from "./dto/response";
 import { PlayerResponseDto } from "./dto/response/player.dto";
 import type { GameServer, GameSocket } from "./game.socket-types";
 import {
+	ChangeWordScoreDto,
 	CreateTeamDto,
+	DeleteGameDto,
 	DeleteTeamDto,
 	JoinGameDto,
 	KickPlayerDto,
 	MoveToTeamDto,
+	NextRoundDto,
+	NextWordDto,
 	PlayerLeaveRoomBodyDto,
+	StartRoundDto,
 	UpdateGameSettingsDto,
 } from "./dto/body";
-import { TeamStateDto } from "./dto/team.dto";
 import { GameWsExceptionFilter } from "../filters/game-exception.filter";
 import { TeamWsExceptionFilter } from "../filters/team-exception.filter";
 import { AuthenticatedSocket } from "../../../common/types/socket";
+import { RoundWsExceptionFilter } from "../filters/round-exception.filter";
 
 @WebSocketGateway({
 	cors: {
@@ -45,7 +59,11 @@ import { AuthenticatedSocket } from "../../../common/types/socket";
 	},
 	namespace: "game-ws",
 })
-@UseFilters(new GameWsExceptionFilter(), new TeamWsExceptionFilter())
+@UseFilters(
+	new GameWsExceptionFilter(),
+	new TeamWsExceptionFilter(),
+	new RoundWsExceptionFilter(),
+)
 export class GameGateway implements OnGatewayDisconnect {
 	@WebSocketServer() server: GameServer;
 
@@ -62,9 +80,19 @@ export class GameGateway implements OnGatewayDisconnect {
 		);
 		await this.gameService.toggleReady(data.roomId, client.data.user);
 	}
+	@SubscribeMessage("toggleRoundReady")
+	async toggleRoundReady(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() data: { roomId: string },
+	) {
+		this.logger.log(
+			`Received toggleRoundReady from client ${client.id} UserID ${client.data.user.name}`,
+		);
+		await this.gameService.toggleRoundReady(data.roomId, client.data.user);
+	}
 
 	@SubscribeMessage("joinGame")
-	async join(
+	async joinGame(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: JoinGameDto,
 	) {
@@ -73,9 +101,31 @@ export class GameGateway implements OnGatewayDisconnect {
 		);
 		const room = await this.gameService.joinGame(dto, client.data.user);
 		await client.join(dto.roomId);
-		return plainToInstance(GameResponseDetailsDto, room, {
+		const publicState = plainToInstance(GameResponseDetailsDto, room, {
 			excludeExtraneousValues: true,
 		});
+
+		client.emit("gameUpdated", publicState);
+
+		const privateState = await this.gameService.getPrivatePlayerState(
+			dto.roomId,
+			client.data.user.id,
+		);
+
+		if (privateState?.word) {
+			client.emit(
+				"privateWord",
+				plainToInstance(WordResponseDto, privateState.word, {
+					excludeExtraneousValues: true,
+				}),
+			);
+
+			this.logger.log(
+				`Resent private word to guesser ${client.data.user.name}`,
+			);
+		}
+
+		return publicState;
 	}
 	@SubscribeMessage("kickPlayer")
 	async kickPlayer(
@@ -127,26 +177,61 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received leaveGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		console.log(body);
 		await this.gameService.playerLeftRoom({
 			playerId: client.data.user.id,
 			roomId: body.roomId,
 		});
+		return { success: true };
+	}
+
+	@SubscribeMessage("nextWord")
+	async nextWord(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: NextWordDto,
+	) {
+		const data = await this.gameService.nextWord(dto, client.data.user);
+		return plainToInstance(WordResponseDto, data.newWord, {
+			excludeExtraneousValues: true,
+		});
+	}
+	@SubscribeMessage("nextRound")
+	async nextRound(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: NextRoundDto,
+	) {
+		await this.gameService.nextRound(dto, client.data.user);
+	}
+	@SubscribeMessage("startRound")
+	async startRound(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: StartRoundDto,
+	) {
+		const data = await this.gameService.startRound(dto, client.data.user);
+		return plainToInstance(WordResponseDto, data.word, {
+			excludeExtraneousValues: true,
+		});
+	}
+
+	@SubscribeMessage("changeWordScore")
+	async changeWordScore(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: ChangeWordScoreDto,
+	) {
+		await this.gameService.changeWordScore(dto, client.data.user);
+	}
+	@SubscribeMessage("deleteGame")
+	async deleteGame(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: DeleteGameDto,
+	) {
+		await this.gameService.deleteGame(dto, client.data.user);
 	}
 
 	@OnEvent(PLAYER_KICKED)
-	async handlePlayerKicked(payload: PlayerKickedPayload) {
-		const sockets = await this.server.in(payload.roomId).fetchSockets();
-		const targetSocket = sockets.find(
-			(socket) =>
-				(socket as unknown as GameSocket).data.user.id ===
-				payload.kickedUserId,
-		);
-		if (targetSocket) {
-			targetSocket.leave(payload.roomId);
-		}
-
-		this.server.to(payload.roomId).emit("playerKicked", payload.players);
+	handlePlayerKicked(payload: PlayerKickedPayload) {
+		this.server
+			.to(payload.roomId)
+			.emit("playerKicked", { kickedUserId: payload.kickedUserId });
 	}
 	@OnEvent(GAME_STARTED)
 	handleGameStarted(payload: GameStartedPayload) {
@@ -161,7 +246,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	handleTeamUpdated(payload: TeamsUpdatedPayload) {
 		this.server.to(payload.roomId).emit(
 			"teamsUpdated",
-			plainToInstance(TeamStateDto, payload.teams, {
+			plainToInstance(TeamResponseDto, payload.teams, {
 				excludeExtraneousValues: true,
 			}),
 		);
@@ -185,6 +270,19 @@ export class GameGateway implements OnGatewayDisconnect {
 			}),
 		);
 	}
+	@OnEvent(ROUND_UPDATED)
+	handleRoundUpdated(payload: RoundUpdatedPayload) {
+		this.server.to(payload.roomId).emit(
+			"roundUpdated",
+			plainToInstance(RoundResponseDto, payload.round, {
+				excludeExtraneousValues: true,
+			}),
+		);
+	}
+	@OnEvent(GAME_FINISHED)
+	handleGameFinished(payload: GameFinishedPayload) {
+		this.server.to(payload.room.id).emit("gameFinished");
+	}
 	async handleDisconnect(client: AuthenticatedSocket) {
 		this.logger.log(
 			`Received disconnet from client ${client.id} UserID ${client.data.user.name}`,
@@ -193,25 +291,19 @@ export class GameGateway implements OnGatewayDisconnect {
 			client.data.user.id,
 		);
 		if (!roomId) return;
-		await this.gameService.playerLeftRoom({
-			roomId: roomId,
-			playerId: client.data.user.id,
-		});
-		await this.disconnectSocketFromRoom(roomId, client);
+		await this.gameService.setPlayerOffline(roomId, client.data.user.id);
+		await this.removePlayerFromRoom(roomId, client.data.user.id);
 	}
 
-	private async disconnectSocketFromRoom(
-		roomId: string,
-		client: AuthenticatedSocket,
-	) {
+	private async removePlayerFromRoom(roomId: string, playerId: string) {
 		const sockets = await this.server.in(roomId).fetchSockets();
 		const targetSocket = sockets.find(
 			(socket) =>
 				(socket as unknown as AuthenticatedSocket).data.user.id ===
-				client.data.user.id,
+				playerId,
 		);
 		if (targetSocket) {
-			targetSocket.leave(client.data.user.id);
+			targetSocket.leave(playerId);
 		}
 	}
 }

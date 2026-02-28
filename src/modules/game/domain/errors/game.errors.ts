@@ -59,26 +59,19 @@ export class PlayerNotFoundError extends GameError {
 	}
 }
 
-export class RoundAlreadyActiveError extends GameError {
-	constructor() {
-		super("A round is already active");
-	}
-}
-
 export class PlayersNotReadyError extends GameError {
 	constructor() {
 		super("Not all players are ready");
 	}
 }
 
-export class RoundNotActiveError extends GameError {
-	constructor() {
-		super("No active round");
-	}
-}
-
 export class InvalidGameCode extends GameError {
 	constructor() {
 		super("Code is invalid");
+	}
+}
+export class GameNotFinishedError extends GameError {
+	constructor() {
+		super("Game is not finished yet");
 	}
 }

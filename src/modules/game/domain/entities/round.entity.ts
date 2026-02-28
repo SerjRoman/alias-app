@@ -1,25 +1,28 @@
 import { v4 as uuidv4 } from "uuid";
+import { WordInRoundNotFound } from "../errors/round.errors";
+
+export enum RoundStatus {
+	PENDING = "PENDING",
+	IN_PROGRESS = "IN_PROGRESS",
+	FINISHED = "FINISHED",
+}
 
 export interface RoundState {
 	id: string;
 	guesserId: string;
 	teamId: string;
 	endTime: number;
-	guessedWords: WordState[];
-	skippedWords: WordState[];
-	isStarted: boolean;
+	status: RoundStatus;
 	currentWord: WordState | null;
+	words: WordState[];
 }
 export class RoundEntity {
 	private readonly state: RoundState;
-	private constructor(state: Omit<RoundState, "id">) {
-		this.state = { ...state, id: uuidv4() };
+	private constructor(state: RoundState) {
+		this.state = { ...state };
 	}
-	get guessedWords() {
-		return this.state.guessedWords;
-	}
-	get skippedWords() {
-		return this.state.skippedWords;
+	get words() {
+		return this.state.words;
 	}
 	get teamId() {
 		return this.state.teamId;
@@ -27,19 +30,45 @@ export class RoundEntity {
 	get guesserId() {
 		return this.state.guesserId;
 	}
+	get status() {
+		return this.state.status;
+	}
+	get currentWord() {
+		return this.state.currentWord;
+	}
 	set endTime(time: number) {
 		this.state.endTime = time;
 	}
-	addGuessedWord() {
-		if (!this.state.currentWord) return;
-		this.state.guessedWords.push(this.state.currentWord);
+	private addWord(word: WordState) {
+		this.state.words.push(word);
 	}
-	addSkippedWord() {
-		if (!this.state.currentWord) return;
-		this.state.skippedWords.push(this.state.currentWord);
+	public finishRound() {
+		this.state.status = RoundStatus.FINISHED;
+		if (this.state.currentWord) {
+			this.state.currentWord.score = 0;
+			this.addWord(this.state.currentWord);
+		}
 	}
-	nextWord(word: string) {
-		this.state.currentWord = new WordEntity(uuidv4(), word);
+	public startRound() {
+		this.state.status = RoundStatus.IN_PROGRESS;
+	}
+	nextWord(text: string, wasSkipped: boolean) {
+		if (this.state.currentWord) {
+			this.state.currentWord.score = wasSkipped ? -1 : 1;
+			this.addWord(this.state.currentWord);
+		}
+		const newWord: WordState = {
+			id: uuidv4(),
+			text: text,
+			score: 0,
+		};
+		this.state.currentWord = newWord;
+		return newWord;
+	}
+	changeWordScore(wordId: string, delta: number) {
+		const word = this.state.words.find(({ id }) => id === wordId);
+		if (!word) throw new WordInRoundNotFound(wordId);
+		word.score = Math.max(-1, Math.min(1, word.score + delta));
 	}
 	toPrimitives() {
 		return {
@@ -53,26 +82,29 @@ export class RoundEntity {
 	}
 	static create(guesserId: string, teamId: string, endTime: number) {
 		return new RoundEntity({
+			id: uuidv4(),
 			guesserId,
 			teamId,
 			endTime,
-			isStarted: false,
-			guessedWords: [],
-			skippedWords: [],
+			status: RoundStatus.PENDING,
+			words: [],
 			currentWord: null,
 		});
 	}
 }
 export interface WordState {
 	id: string;
-	word: string;
+	text: string;
+	score: number;
 }
 
 export class WordEntity {
 	id: string;
-	word: string;
-	public constructor(id: string, word: string) {
+	text: string;
+	score: number;
+	public constructor(id: string, text: string, score: number = 0) {
 		this.id = id;
-		this.word = word;
+		this.text = text;
+		this.score = score;
 	}
 }

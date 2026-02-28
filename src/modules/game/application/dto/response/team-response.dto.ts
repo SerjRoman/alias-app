@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 
-export class TeamStateDto {
+export class TeamResponseDto {
 	@ApiProperty({ example: "uuid-team-1" })
 	@Expose()
 	id: string;

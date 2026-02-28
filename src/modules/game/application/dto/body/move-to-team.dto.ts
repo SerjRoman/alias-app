@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsUUID } from "class-validator";
+import { Expose } from "class-transformer";
+import { IsOptional, IsString, IsUUID } from "class-validator";
 
 export class MoveToTeamDto {
 	@ApiProperty({
@@ -16,4 +17,14 @@ export class MoveToTeamDto {
 	@IsString()
 	@IsUUID()
 	teamId: string;
+
+	@ApiProperty({
+		type: "string",
+		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+	})
+	@Expose()
+	@IsString()
+	@IsUUID()
+	@IsOptional()
+	playerId?: string;
 }

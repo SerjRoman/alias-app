@@ -6,6 +6,7 @@ export interface PlayerState {
 	isReady: boolean;
 	isRoundReady: boolean;
 	score: number;
+	isOnline: boolean;
 }
 
 export class PlayerEntity {
@@ -28,13 +29,25 @@ export class PlayerEntity {
 	get isRoundReady() {
 		return this.state.isRoundReady;
 	}
+	get isOnline() {
+		return this.state.isOnline;
+	}
+	set isOnline(value: boolean) {
+		this.state.isOnline = value;
+	}
 
 	toggleReady() {
 		this.state.isReady = !this.state.isReady;
 	}
+	toggleRoundReady() {
+		this.state.isRoundReady = !this.state.isRoundReady;
+	}
 
 	setRoundReady(status: boolean) {
 		this.state.isRoundReady = status;
+	}
+	setReady(status: boolean) {
+		this.state.isReady = status;
 	}
 
 	addScore(points: number) {
@@ -62,6 +75,7 @@ export class PlayerEntity {
 			isReady: false,
 			isRoundReady: false,
 			score: 0,
+			isOnline: true,
 		});
 	}
 }

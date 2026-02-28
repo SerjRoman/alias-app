@@ -24,4 +24,11 @@ export class PlayerResponseDto {
 	@ApiProperty({ example: 10, description: "Player's individual score" })
 	@Expose()
 	score: number;
+
+	@ApiProperty({
+		example: false,
+		description: "Is player online",
+	})
+	@Expose()
+	isOnline: boolean;
 }
