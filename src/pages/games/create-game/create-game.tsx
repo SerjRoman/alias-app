@@ -3,6 +3,7 @@ import styles from "./create-game.module.css";
 import { useMutation } from "../../../shared/api";
 import { useAuth } from "../../../entities/auth/model";
 import { useNavigate } from "react-router-dom";
+import type { GameWordsLevel } from "@entities/game/model";
 
 export function CreateGameForm() {
 	const { mutate: createGame, isPending } = useMutation("post", "/games");
@@ -12,6 +13,7 @@ export function CreateGameForm() {
 	const [gameTimeLimit, setGameTimeLimit] = useState<number>(60);
 	const [pointsToWin, setPointsToWin] = useState<number>(30);
 	const [isPrivate, setIsPrivate] = useState<boolean>(false);
+	const [level, setLevel] = useState<string>("easy");
 	return (
 		<div className={styles.formCard}>
 			<h3 className={styles.title}>Create New Game</h3>
@@ -61,7 +63,7 @@ export function CreateGameForm() {
 							name="isPrivate"
 							checked={isPrivate === true}
 							onChange={() => setIsPrivate(true)}
-						/>
+						/>{" "}
 						Yes
 					</label>
 
@@ -72,9 +74,23 @@ export function CreateGameForm() {
 							name="isPrivate"
 							checked={isPrivate === false}
 							onChange={() => setIsPrivate(false)}
-						/>
+						/>{" "}
 						No
 					</label>
+					<select>
+						{["easy", "medium", "hard"].map((lvl) => (
+							<option
+								key={lvl}
+								value={lvl}
+								selected={level === lvl}
+								onChange={(event) =>
+									setLevel(event.target.value)
+								}
+							>
+								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
+							</option>
+						))}
+					</select>
 				</div>
 			</div>
 			<button
@@ -87,7 +103,8 @@ export function CreateGameForm() {
 								name: gameName,
 								timeLimit: gameTimeLimit,
 								isPrivate: isPrivate,
-								pointsToWin: 30,
+								pointsToWin: pointsToWin,
+								level: level as GameWordsLevel,
 							},
 							headers: { Authorization: `Bearer ${token}` },
 						},

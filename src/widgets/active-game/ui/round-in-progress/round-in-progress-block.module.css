@@ -1,0 +1,79 @@
+.wordCard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--spacing-large);
+	width: 100%;
+}
+.wordList {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+
+	gap: var(--spacing-small);
+	width: 100%;
+}
+.wordItem {
+	display: flex;
+	justify-content: center;
+	flex-direction: row;
+	gap: var(--spacing-small);
+	font-size: 1.2em;
+	border: 1px solid var(--color-border);
+	padding: var(--spacing-small);
+}
+
+.secretWord {
+	font-size: 3rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	color: var(--color-primary);
+	text-align: center;
+	word-break: break-word;
+	background: var(--color-background);
+	padding: 40px 20px;
+	border-radius: 16px;
+	width: 100%;
+	border: 2px dashed var(--color-primary);
+}
+
+.actionButtons {
+	display: flex;
+	gap: var(--spacing-medium);
+	width: 100%;
+}
+
+.btnNext,
+.btnSkip {
+	flex: 1;
+	padding: 20px;
+	font-size: 1.2rem;
+	font-weight: bold;
+	border: none;
+	border-radius: 12px;
+	cursor: pointer;
+	color: white;
+	transition:
+		transform 0.2s,
+		filter 0.2s;
+}
+
+.btnNext {
+	background-color: #28a745;
+	box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.btnSkip {
+	background-color: var(--color-error);
+	box-shadow: 0 4px 15px rgba(245, 34, 45, 0.4);
+}
+
+.btnNext:hover,
+.btnSkip:hover {
+	transform: translateY(-2px);
+	filter: brightness(1.1);
+}
+
+.btnNext:active,
+.btnSkip:active {
+	transform: translateY(1px);
+}

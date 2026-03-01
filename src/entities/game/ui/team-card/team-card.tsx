@@ -5,7 +5,7 @@ import type { PlayerState, TeamState } from "../../model";
 interface TeamCardProps {
 	team: TeamState;
 	playersMap: Map<string, PlayerState>;
-	actionRight?: ReactNode;
+	sectionRight?: ReactNode;
 	footer?: ReactNode;
 	renderPlayer: (player: PlayerState) => ReactNode;
 }
@@ -14,15 +14,15 @@ export function TeamCard({
 	team,
 	playersMap,
 	renderPlayer,
-	actionRight,
+	sectionRight,
 	footer,
 }: Readonly<TeamCardProps>) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.header}>
 				<h3 className={styles.title}>{team.name}</h3>
-				{actionRight && (
-					<div className={styles.actionRight}>{actionRight}</div>
+				{sectionRight && (
+					<div className={styles.sectionRight}>{sectionRight}</div>
 				)}
 			</div>
 

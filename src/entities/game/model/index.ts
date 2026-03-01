@@ -6,6 +6,7 @@ export type {
 	RoundState,
 	PlayerState,
 	WordState,
+	GameWordsLevel,
 } from "./game.types";
 export { GameStatus, RoundStatus } from "./game.types";
 export { useGameSlice } from "./game.slice";

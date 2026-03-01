@@ -183,6 +183,11 @@ export interface components {
              * @example false
              */
             isPrivate: boolean;
+            /**
+             * @description The difficulty level of the words used in the game
+             * @example medium
+             */
+            level: string;
         };
         GameResponseDto: {
             /**
@@ -221,6 +226,12 @@ export interface components {
              * @example 30
              */
             pointsToWin: number;
+            /**
+             * @description The difficulty level of the words used in the game
+             * @example medium
+             * @enum {string}
+             */
+            level: "easy" | "medium" | "hard";
         };
         CreateGameResponseDto: {
             /**

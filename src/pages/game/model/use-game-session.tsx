@@ -26,7 +26,7 @@ export function useGameSession(roomId: string | null, code: string | null) {
 				setIsLoading(false);
 			});
 		}
-	}, [roomId, code, game?.id]);
+	}, [roomId, code, game]);
 
 	useEffect(() => {
 		return () => {

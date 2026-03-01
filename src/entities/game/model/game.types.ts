@@ -8,9 +8,11 @@ export enum RoundStatus {
 	IN_PROGRESS = "IN_PROGRESS",
 	FINISHED = "FINISHED",
 }
+export type GameWordsLevel = "easy" | "medium" | "hard";
+
 export interface WordState {
 	id: string;
-	word: string;
+	text: string;
 	score: number;
 }
 export interface TeamState {
@@ -43,6 +45,7 @@ export interface GameSettings {
 	pointsToWin: number;
 	name: string;
 	isPrivate: boolean;
+	level: GameWordsLevel;
 }
 export interface GameState {
 	id: string;

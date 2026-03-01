@@ -63,7 +63,10 @@ export function GameList({
 						<button
 							className={styles.joinButton}
 							onClick={() => onJoin(game)}
-							disabled={!isLobby}
+							disabled={
+								!isLobby ||
+								(game.settings.isPrivate && code.length === 0)
+							}
 						>
 							{isLobby ? "Join Game" : "Started"}
 						</button>

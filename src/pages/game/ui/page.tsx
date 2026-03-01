@@ -6,7 +6,7 @@ import { ActiveGameView } from "@widgets/active-game";
 import styles from "./page.module.css";
 import { useAuth } from "@entities/auth/model";
 import { useGameSync } from "@entities/game/model";
-import { socketClient } from "@shared/api/socket";
+import { GameFinished } from "@widgets/game-finished/game-finished";
 
 export function GamePage() {
 	const [searchParams] = useSearchParams();
@@ -38,12 +38,13 @@ export function GamePage() {
 		<div className={styles.page}>
 			<div className={styles.container}>
 				<h1 className={styles.title}>{game.settings.name}</h1>
-				<button
-					onClick={() => socketClient.emit("leaveGame", { roomId })}
-				>
-					Leave game
-				</button>
-				{game.status === "LOBBY" ? <LobbyView /> : <ActiveGameView />}
+				{game.status === "LOBBY" ? (
+					<LobbyView />
+				) : game.status === "IN_PROGRESS" ? (
+					<ActiveGameView />
+				) : (
+					<GameFinished />
+				)}
 			</div>
 		</div>
 	);

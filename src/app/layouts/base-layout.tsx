@@ -1,12 +1,14 @@
 import { useEffect } from "react";
-import { useNavigate, Outlet, Link, useLocation } from "react-router-dom";
+import { useNavigate, Outlet, useLocation } from "react-router-dom";
 import { useMutation } from "../../shared/api";
 import { useAuth } from "../../entities/auth/model";
 import styles from "./base-layout.module.css";
 import { socketClient } from "../../shared/api/socket";
+import { Header } from "@widgets/header";
 
 export function BaseLayout() {
-	const { token, user, setUser, setToken } = useAuth();
+	const { token, setUser, setToken } = useAuth();
+
 	const { mutate: getMe } = useMutation("get", "/auth/me");
 	const { mutate: checkActiveGame } = useMutation("get", "/games/current");
 	const navigate = useNavigate();
@@ -14,6 +16,7 @@ export function BaseLayout() {
 	useEffect(() => {
 		if (!token) {
 			navigate("/login");
+			setUser(null);
 			return;
 		}
 
@@ -75,16 +78,7 @@ export function BaseLayout() {
 
 	return (
 		<div className={styles.layout}>
-			<header className={styles.header}>
-				<Link to="/games" className={styles.logo}>
-					Alias Game
-				</Link>
-				{user && (
-					<div>
-						<span>Welcome, {user.name}!</span>
-					</div>
-				)}
-			</header>
+			<Header />
 			<main className={styles.main}>
 				<Outlet />
 			</main>

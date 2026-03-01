@@ -25,7 +25,7 @@ export function LobbyTeamView({
 		<TeamCard
 			team={team}
 			playersMap={playersMap}
-			actionRight={
+			sectionRight={
 				isOwner && (
 					<button
 						className={styles.deleteButton}

@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { type GameState } from "../../entities/game/model";
-import { useQuery } from "../../shared/api";
-import { GameList } from "../../entities/game/ui";
 import { useState } from "react";
 import { CreateGameForm } from "./create-game/create-game";
 import styles from "./page.module.css";
 import { RefreshCcw } from "lucide-react";
+import type { GameState } from "@entities/game/model";
+import { GameList } from "@entities/game/ui";
+import { useQuery } from "@shared/api";
 
 export function GamesPage() {
 	const {
@@ -49,7 +49,7 @@ export function GamesPage() {
 				) : (
 					games && (
 						<GameList
-							games={sortedGames}
+							games={sortedGames as GameState[]}
 							onJoin={handleJoin}
 							code={code}
 							setCode={setCode}

@@ -1,0 +1,96 @@
+.panel {
+	padding: var(--spacing-medium);
+	background-color: var(--color-surface);
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--spacing-medium);
+}
+.copyButton {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	padding: var(--spacing-small) 12px;
+	background-color: var(--color-background);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	font-size: 0.85rem;
+	font-weight: 500;
+	color: var(--color-text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+.copyButton:hover {
+	background-color: #e5e7eb;
+	border-color: #999;
+}
+
+.copyButton:active {
+	transform: scale(0.98);
+}
+
+.copyButton.copied {
+	background-color: #d1fae5;
+	color: #065f46;
+	border-color: #34d399;
+}
+.title {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	color: var(--color-text);
+	font-size: 1.1rem;
+}
+
+.formGroup {
+	display: flex;
+	gap: var(--spacing-large);
+	flex-wrap: wrap;
+}
+
+.label {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	font-size: 0.9rem;
+	color: var(--color-text);
+	font-weight: 500;
+}
+
+.inputField {
+	padding: var(--spacing-small);
+	border: 1px solid var(--color-border);
+	border-radius: 6px;
+	font-size: 0.95rem;
+	font-family: inherit;
+	background-color: #fff;
+	color: var(--color-text);
+	transition: all 0.2s ease;
+	min-width: 120px;
+}
+
+.inputField:focus {
+	outline: none;
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+.inputField:disabled {
+	background-color: var(--color-background);
+	color: #888;
+	cursor: not-allowed;
+}
+
+select.inputField {
+	cursor: pointer;
+}
+
+select.inputField:disabled {
+	cursor: not-allowed;
+}

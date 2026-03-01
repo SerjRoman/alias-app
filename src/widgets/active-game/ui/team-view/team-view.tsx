@@ -1,23 +1,29 @@
 import { useGameSlice, type TeamState } from "@entities/game/model";
 import { PlayerItem, PlayerPopover, TeamCard } from "@entities/game/ui";
 import styles from "./team-view.module.css";
+import { KickButton } from "@features/kick-player";
 
-export function ActiveGameTeamView({ team }: Readonly<{ team: TeamState }>) {
+interface TeamViewProps {
+	team: TeamState;
+	isOwner: boolean;
+	roomId: string;
+}
+
+export function ActiveGameTeamView({
+	team,
+	isOwner,
+	roomId,
+}: Readonly<TeamViewProps>) {
 	const players = useGameSlice((state) => state.game!.players);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const currentRound = useGameSlice((state) => state.game!.currentRound!);
 	const playersMap = new Map(players.map((p) => [p.id, p]));
-	const isPlayingTeam = currentRound.teamId === team.id;
 
 	return (
 		<TeamCard
 			team={team}
+			sectionRight={<span>Score: {team.score}</span>}
 			playersMap={playersMap}
-			footer={
-				isPlayingTeam && (
-					<div>The team {team.name} plays in the round</div>
-				)
-			}
 			renderPlayer={(player) => {
 				return (
 					<PlayerPopover
@@ -26,6 +32,19 @@ export function ActiveGameTeamView({ team }: Readonly<{ team: TeamState }>) {
 						playerIsOnline={player.isOnline}
 						playerName={player.name}
 						playerScore={player.score}
+						renderActions={(playerId) => {
+							const player = playersMap.get(playerId);
+							if (!player || !isOwner) return null;
+							return (
+								<div className={styles.playerActions}>
+									<KickButton
+										roomId={roomId}
+										playerId={player.id}
+										playerName={player.name}
+									/>
+								</div>
+							);
+						}}
 						renderTrigger={(playerId) => {
 							const player = playersMap.get(playerId);
 							if (!player) return null;
