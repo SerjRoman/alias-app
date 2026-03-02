@@ -124,6 +124,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/games/validate-code": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate a game room code */
+        post: operations["GameController_validateCode"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -273,6 +290,17 @@ export interface components {
              * @example 123e4567-e89b-12d3-a456-426614174000
              */
             roomId: string;
+        };
+        ValidateCodeDto: {
+            code: string;
+            /**
+             * @description The unique identifier of the game room
+             * @example 123e4567-e89b-12d3-a456-426614174000
+             */
+            roomId: string;
+        };
+        ValidateCodeResponseDto: {
+            valid: boolean;
         };
     };
     responses: never;
@@ -508,6 +536,38 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["CurrentGameResponseDto"];
                 };
+            };
+        };
+    };
+    GameController_validateCode: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The code and room ID to validate. */
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValidateCodeDto"];
+            };
+        };
+        responses: {
+            /** @description Returns whether the code is valid for the specified room. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidateCodeResponseDto"];
+                };
+            };
+            /** @description The game room with the specified ID was not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

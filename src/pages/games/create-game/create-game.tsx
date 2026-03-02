@@ -19,7 +19,7 @@ export function CreateGameForm() {
 			<h3 className={styles.title}>Create New Game</h3>
 			<div className={styles.row}>
 				<label className={styles.label}>
-					Game name:
+					Game name:{" "}
 					<input
 						className={styles.input}
 						type="text"

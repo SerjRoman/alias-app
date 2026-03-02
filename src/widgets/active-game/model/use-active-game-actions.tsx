@@ -1,26 +1,27 @@
 import { useGameSlice, type WordState } from "@entities/game/model";
 import { socketClient } from "@shared/api/socket";
+import { nextWord as nextWordApi } from "../api/next-word";
+import { startRound as startRoundApi } from "../api/start-round";
+import { changeWordScore as changeWordScoreApi } from "../api/change-word-score";
 
 export function useActiveGameActions() {
 	const { setCurrentWord } = useGameSlice();
 	const startRound = (roomId: string) => {
-		socketClient.emit("startRound", { roomId }, (word: WordState) => {
-			console.log(word);
+		startRoundApi(roomId, (word: WordState) => {
 			setCurrentWord(word);
 		});
 	};
 	const nextWord = (roomId: string, wasSkipped: boolean) => {
-		socketClient.emit(
-			"nextWord",
-			{ roomId, wasSkipped },
-			(word: WordState) => {
-				console.log(word);
-				setCurrentWord(word);
-			},
-		);
+		nextWordApi(roomId, wasSkipped, (word: WordState) => {
+			setCurrentWord(word);
+		});
 	};
+	const changeWordScore = (roomId: string, wordId: string, delta: number) => {
+		changeWordScoreApi(roomId, wordId, delta);
+	};
+
 	const nextRound = (roomId: string) => {
 		socketClient.emit("nextRound", { roomId });
 	};
-	return { startRound, nextWord, nextRound };
+	return { startRound, nextWord, nextRound, changeWordScore };
 }

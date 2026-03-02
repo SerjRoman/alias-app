@@ -1,5 +1,3 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import { CreateGameForm } from "./create-game/create-game";
 import styles from "./page.module.css";
 import { RefreshCcw } from "lucide-react";
@@ -16,13 +14,7 @@ export function GamesPage() {
 	} = useQuery("get", "/games", {
 		headers: { "ngrok-skip-browser-warning": "true" },
 	});
-	const [code, setCode] = useState<string>("");
-	const navigate = useNavigate();
 
-	function handleJoin(game: GameState) {
-		const c: string | null = code.length === 0 ? "" : `&code=${code}`;
-		navigate(`/game?id=${game.id}${c}`);
-	}
 	const sortedGames = games
 		? [...games].sort((a, b) => b.createdAt - a.createdAt)
 		: [];
@@ -47,14 +39,7 @@ export function GamesPage() {
 				{isLoading ? (
 					<div>Loading games...</div>
 				) : (
-					games && (
-						<GameList
-							games={sortedGames as GameState[]}
-							onJoin={handleJoin}
-							code={code}
-							setCode={setCode}
-						/>
-					)
+					games && <GameList games={sortedGames as GameState[]} />
 				)}
 			</div>
 			<CreateGameForm />

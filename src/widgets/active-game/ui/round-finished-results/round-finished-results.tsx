@@ -1,7 +1,7 @@
 import type { WordState } from "@entities/game/model";
 import styles from "./round-finished-results.module.css";
 import { Minus, Plus } from "lucide-react";
-import { socketClient } from "@shared/api/socket";
+import { useActiveGameActions } from "../../model/use-active-game-actions";
 
 export interface RoundFinishedResultsProps {
 	roomId: string;
@@ -14,6 +14,7 @@ export function RoundFinishedResults({
 	words,
 	isOwner,
 }: Readonly<RoundFinishedResultsProps>) {
+	const { changeWordScore, nextRound } = useActiveGameActions();
 	const scoreColor = (score: number) => {
 		if (score > 0) return "#5fca78";
 		if (score < 0) return "#e57373";
@@ -37,11 +38,7 @@ export function RoundFinishedResults({
 							<button
 								className={styles.scoreBtn}
 								onClick={() => {
-									socketClient.emit("changeWordScore", {
-										roomId,
-										wordId: word.id,
-										delta: 1,
-									});
+									changeWordScore(roomId, word.id, 1);
 								}}
 							>
 								<Plus />
@@ -49,11 +46,7 @@ export function RoundFinishedResults({
 							<button
 								className={styles.scoreBtn}
 								onClick={() => {
-									socketClient.emit("changeWordScore", {
-										roomId,
-										wordId: word.id,
-										delta: -1,
-									});
+									changeWordScore(roomId, word.id, -1);
 								}}
 							>
 								<Minus />
@@ -65,7 +58,7 @@ export function RoundFinishedResults({
 			{isOwner && (
 				<button
 					onClick={() => {
-						socketClient.emit("nextRound", { roomId });
+						nextRound(roomId);
 					}}
 					className={styles.nextRoundBtn}
 				>

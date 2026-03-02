@@ -27,7 +27,9 @@ export function GameFinished() {
 						socketClient.emit("deleteGame", { roomId: game.id });
 						navigate("/games");
 					}}
-				></button>
+				>
+					Delete game
+				</button>
 			)}
 			<img src={winnerImage} alt="Winner" />
 		</div>
