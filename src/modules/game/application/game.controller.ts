@@ -25,9 +25,15 @@ import {
 	CurrentGameResponseDto,
 	GameResponseDto,
 	GetRoomCodeResponseDto,
+	ValidateCodeResponseDto,
 } from "./dto/response";
 import { JwtAuthGuard } from "../../../common/guards/auth.guard";
-import { CreateGameDto, GetRoomCodeDto, JoinGameDto } from "./dto/body";
+import {
+	CreateGameDto,
+	GetRoomCodeDto,
+	JoinGameDto,
+	ValidateCodeDto,
+} from "./dto/body";
 import { UserDto } from "../../auth/dto/user.dto";
 
 @ApiTags("Games")
@@ -74,6 +80,7 @@ export class GameController {
 		@GetUserFromToken() user: UserDto,
 	) {
 		const { room, code } = await this.service.create(body, user);
+		console.log("Created game room with ID:", room.id, "and code:", code);
 		return plainToInstance(
 			CreateGameResponseDto,
 			{ ...room, code },
@@ -184,7 +191,32 @@ export class GameController {
 	async getMyCurrentGame(@GetUserFromToken() user: UserDto) {
 		return plainToInstance(
 			CurrentGameResponseDto,
-			await this.service.getCurrentGameId(user.id),
+			await this.service.getGameIdByUserId(user.id),
+			{ excludeExtraneousValues: true },
+		);
+	}
+	@Post("validate-code")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Validate a game room code" })
+	@ApiBody({
+		type: ValidateCodeDto,
+		description: "The code and room ID to validate.",
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description:
+			"Returns whether the code is valid for the specified room.",
+		type: ValidateCodeResponseDto,
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: "The game room with the specified ID was not found.",
+	})
+	async validateCode(@Body() dto: ValidateCodeDto) {
+		return plainToInstance(
+			ValidateCodeResponseDto,
+			{ valid: await this.service.validateCode(dto.roomId, dto.code) },
 			{ excludeExtraneousValues: true },
 		);
 	}

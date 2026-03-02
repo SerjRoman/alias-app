@@ -11,7 +11,7 @@ export class RoomNotFoundError extends GameError {
 	}
 }
 
-export class NotRoomOwnerError extends GameError {
+export class PlayerNotRoomOwnerError extends GameError {
 	constructor() {
 		super("User is not the owner of the room");
 	}
@@ -73,5 +73,10 @@ export class InvalidGameCode extends GameError {
 export class GameNotFinishedError extends GameError {
 	constructor() {
 		super("Game is not finished yet");
+	}
+}
+export class GameNotInLobbyError extends GameError {
+	constructor() {
+		super("Game is not in lobby");
 	}
 }

@@ -1,10 +1,9 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, Length } from "class-validator";
 import { GameResponseDto } from "./game-response.dto";
+import { Expose } from "class-transformer";
 
 export class CreateGameResponseDto extends GameResponseDto {
 	@ApiProperty({ type: "string" })
-	@IsString()
-	@Length(6)
+	@Expose()
 	code: string | null;
 }

@@ -4,6 +4,11 @@ export class TeamError extends Error {
 		this.name = this.constructor.name;
 	}
 }
+export class TeamNotFoundError extends TeamError {
+	constructor(teamId: string) {
+		super(`Team with id ${teamId} not found`);
+	}
+}
 
 export class TeamIsEmptyError extends TeamError {
 	constructor() {

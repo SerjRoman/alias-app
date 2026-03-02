@@ -1,6 +1,9 @@
-import { PlayerAlreadyInTeamError } from "../../../../common/errors/team.errors";
 import { v4 as uuidv4 } from "uuid";
-import { TeamIsEmptyError, TeamNameEmptyError } from "../errors/team.errors";
+import {
+	PlayerAlreadyInTeamError,
+	TeamIsEmptyError,
+	TeamNameEmptyError,
+} from "../errors/team.errors";
 
 export interface TeamState {
 	id: string;

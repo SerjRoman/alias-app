@@ -16,3 +16,4 @@ export { NextRoundDto } from "./next-round.dto";
 export { NextWordDto } from "./next-word.dto";
 export { ChangeWordScoreDto } from "./change-word-score.dto";
 export { DeleteGameDto } from "./delete-game.dto";
+export { ValidateCodeDto } from "./validate-code.dto";

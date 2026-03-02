@@ -12,13 +12,16 @@ Game
 Если очков достаточно для победы, тогда игра заканчивается и есть победитель
 */
 
-import { TeamNotFoundError } from "../../../../common/errors/team.errors";
 import { TeamEntity } from "./team.entity";
-import { TeamError } from "../errors/team.errors";
+import { TeamError, TeamNotFoundError } from "../errors/team.errors";
 import {
-	GameInProgressError,
+	GameError,
+	GameNotFinishedError,
+	GameNotInLobbyError,
 	GameNotInProgressError,
+	PlayerAlreadyInGameError,
 	PlayerNotFoundError,
+	PlayerNotRoomOwnerError,
 	PlayersNotReadyError,
 	TeamNameExistsError,
 } from "../errors/game.errors";
@@ -26,7 +29,7 @@ import { PlayerEntity } from "./player.entity";
 import { RoundEntity, RoundStatus } from "./round.entity";
 import { v4 as uuidv4 } from "uuid";
 import {
-	RoundAlreadyActiveError,
+	RoundAlreadyStarted,
 	RoundIsNotFinished,
 	RoundIsNotInProgress,
 	RoundNotActiveError,
@@ -110,6 +113,7 @@ export class GameEntity {
 		this.state = { ...initial };
 	}
 
+	// Getters
 	get id() {
 		return this.state.id;
 	}
@@ -123,10 +127,10 @@ export class GameEntity {
 		return { ...this.state.settings };
 	}
 	get players() {
-		return this._players;
+		return [...this._players];
 	}
 	get teams() {
-		return this._teams;
+		return [...this._teams];
 	}
 	get currentRound() {
 		return this._currentRound;
@@ -134,73 +138,45 @@ export class GameEntity {
 	get winnerTeamId() {
 		return this.state.winnerTeamId;
 	}
-
-	updateSettings(newSettings: Partial<GameSettings>) {
-		if (this.state.status !== GameStatus.LOBBY) {
-			throw new GameInProgressError();
-		}
-		this.state.settings = { ...this.state.settings, ...newSettings };
-	}
-	addPlayer(id: string, name: string) {
-		if (this._players.some((p) => p.id === id)) return;
-		const player = PlayerEntity.create(id, name);
-		this._players.push(player);
-	}
-	setPlayerOffline(playerId: string) {
+	private getPlayerOrThrow(playerId: string) {
 		const player = this._players.find((p) => p.id === playerId);
 		if (!player) throw new PlayerNotFoundError(playerId);
-		player.isOnline = false;
+		return player;
 	}
-	setPlayerOnline(playerId: string) {
-		const player = this._players.find((p) => p.id === playerId);
-		if (!player) throw new PlayerNotFoundError(playerId);
-		player.isOnline = true;
-	}
-	removePlayer(playerId: string) {
-		this._players = this._players.filter((p) => p.id !== playerId);
-		this.teams.forEach((t) => t.removePlayer(playerId));
-	}
-	togglePlayerReady(playerId: string) {
-		const player = this._players.find((p) => p.id === playerId);
-		if (!player) throw new PlayerNotFoundError(playerId);
-		player.toggleReady();
-	}
-	togglePlayerRoundReady(playerId: string) {
-		const player = this._players.find((p) => p.id === playerId);
-		if (!player) throw new PlayerNotFoundError(playerId);
-		player.toggleRoundReady();
-	}
-	createTeam(name: string) {
-		if (this.state.status !== GameStatus.LOBBY) {
-			throw new GameInProgressError();
-		}
-		if (this.teams.some((t) => t.name === name)) {
-			throw new TeamNameExistsError(name);
-		}
-		const team = TeamEntity.create(name);
-		this._teams.push(team);
+	private getTeamOrThrow(teamId: string) {
+		const team = this._teams.find((t) => t.id === teamId);
+		if (!team) throw new TeamNotFoundError(teamId);
 		return team;
 	}
-	deleteTeam(teamId: string) {
-		if (this.state.status !== GameStatus.LOBBY) {
-			throw new GameInProgressError();
+	private getRoundOrThrow() {
+		if (!this._currentRound) throw new RoundNotActiveError();
+		return this._currentRound;
+	}
+	// Guards
+	assertRoomOwner(actorId: string) {
+		if (this.state.ownerId !== actorId) {
+			throw new PlayerNotRoomOwnerError();
 		}
-		this._teams = this._teams.filter((t) => t.id !== teamId);
 	}
-
-	movePlayerToTeam(playerId: string, teamId: string) {
-		const player = this._players.find((p) => p.id === playerId);
-		if (!player) throw new PlayerNotFoundError(playerId);
-
-		const targetTeam = this.teams.find((t) => t.id === teamId);
-		if (!targetTeam) throw new TeamNotFoundError(teamId);
-		if (targetTeam.playerIds.has(playerId)) return;
-
-		this.teams.forEach((t) => t.removePlayer(playerId));
-		targetTeam.addPlayer(playerId);
+	assertGameInLobby() {
+		if (this.state.status !== GameStatus.LOBBY) {
+			throw new GameNotInLobbyError();
+		}
 	}
-	startGame() {
-		if (this.teams.length < 2) {
+	assertGameInProgress() {
+		console.log(
+			"Asserting game in progress. Current status:",
+			this.state.status,
+		);
+		if (this.state.status !== GameStatus.IN_PROGRESS) {
+			throw new GameNotInProgressError();
+		}
+	}
+	assertCanStartGame(actorId: string) {
+		this.assertGameInLobby();
+		this.assertRoomOwner(actorId);
+
+		if (this._teams.length < 2) {
 			throw new TeamError("Need at least 2 teams to start");
 		}
 		const allReady =
@@ -208,93 +184,215 @@ export class GameEntity {
 		if (!allReady) {
 			throw new PlayersNotReadyError();
 		}
+	}
+	assertIsRoundActive() {
+		if (!this._currentRound) throw new RoundNotActiveError();
+	}
+	assertIsRoundNotActive() {
+		if (this._currentRound) throw new RoundAlreadyStarted();
+	}
+	assertIsGuesser(playerId: string) {
+		const round = this.getRoundOrThrow();
+		if (round.guesserId !== playerId) {
+			throw new PlayerNotFoundError(playerId);
+		}
+	}
+	assertRoundInProgress() {
+		const round = this.getRoundOrThrow();
+		if (round.status !== RoundStatus.IN_PROGRESS) {
+			throw new RoundIsNotInProgress();
+		}
+	}
+	assertRoundIsFinished() {
+		const round = this.getRoundOrThrow();
+		if (round.status !== RoundStatus.FINISHED) {
+			throw new RoundIsNotFinished();
+		}
+	}
+	assertGameFinished() {
+		if (this.state.status !== GameStatus.FINISHED) {
+			throw new GameNotFinishedError();
+		}
+	}
+
+	// Actions
+
+	updateSettings(actorId: string, newSettings: Partial<GameSettings>) {
+		this.assertRoomOwner(actorId);
+		this.assertGameInLobby();
+		this.state.settings = { ...this.state.settings, ...newSettings };
+	}
+	joinRoom(playerId: string, name: string) {
+		this.assertGameInLobby();
+		if (this._players.some((p) => p.id === playerId)) {
+			throw new PlayerAlreadyInGameError(playerId);
+		}
+		const player = PlayerEntity.create(playerId, name);
+		this._players.push(player);
+	}
+	setPlayerOffline(playerId: string) {
+		const player = this.getPlayerOrThrow(playerId);
+		player.isOnline = false;
+	}
+	setPlayerOnline(playerId: string) {
+		const player = this.getPlayerOrThrow(playerId);
+		player.isOnline = true;
+	}
+	removePlayer(actorId: string, playerId: string) {
+		this.assertRoomOwner(actorId);
+		this.getPlayerOrThrow(playerId);
+		this._players = this._players.filter((p) => p.id !== playerId);
+		this._teams.forEach((t) => t.removePlayer(playerId));
+	}
+	playerLeftGame(playerId: string) {
+		this.getPlayerOrThrow(playerId);
+		this._players = this._players.filter((p) => p.id !== playerId);
+		this._teams.forEach((t) => t.removePlayer(playerId));
+	}
+	togglePlayerReady(playerId: string) {
+		const player = this.getPlayerOrThrow(playerId);
+		player.toggleReady();
+	}
+	togglePlayerRoundReady(playerId: string) {
+		const player = this.getPlayerOrThrow(playerId);
+		player.toggleRoundReady();
+	}
+	createTeam(actorId: string, name: string) {
+		this.assertRoomOwner(actorId);
+		this.assertGameInLobby();
+		if (this.teams.some((t) => t.name === name)) {
+			throw new TeamNameExistsError(name);
+		}
+		const team = TeamEntity.create(name);
+		this._teams.push(team);
+		return team;
+	}
+	deleteTeam(actorId: string, teamId: string) {
+		this.assertRoomOwner(actorId);
+		this.assertGameInLobby();
+		this.getTeamOrThrow(teamId);
+		this._teams = this._teams.filter((t) => t.id !== teamId);
+	}
+
+	movePlayerToTeam(playerId: string, teamId: string, actorId?: string) {
+		if (actorId) {
+			this.assertRoomOwner(actorId);
+		}
+		this.assertGameInLobby();
+		this.getPlayerOrThrow(playerId);
+		const targetTeam = this.getTeamOrThrow(teamId);
+		if (targetTeam.playerIds.has(playerId)) return;
+
+		this._teams.forEach((t) => t.removePlayer(playerId));
+		targetTeam.addPlayer(playerId);
+	}
+	kickPlayer(actorId: string, playerId: string) {
+		this.assertRoomOwner(actorId);
+		this.getPlayerOrThrow(playerId);
+		if (this.state.ownerId === playerId) {
+			throw new GameError("Owner cannot kick himself");
+		}
+		this.playerLeftGame(playerId);
+	}
+	startGame(actorId: string) {
+		this.assertCanStartGame(actorId);
 		this.state.status = GameStatus.IN_PROGRESS;
 	}
 	createRound() {
-		if (this.state.status !== GameStatus.IN_PROGRESS)
-			throw new GameNotInProgressError();
-		if (this._currentRound) throw new RoundAlreadyActiveError();
+		this.assertGameInProgress();
+		this.assertIsRoundNotActive();
 
 		const nextTeamIndex =
-			(this.state.lastTeamPlayedIndex + 1) % this.teams.length;
+			(this.state.lastTeamPlayedIndex + 1) % this._teams.length;
 		this.state.lastTeamPlayedIndex = nextTeamIndex;
-		const team = this.teams[nextTeamIndex];
+		const team = this._teams[nextTeamIndex];
 		const guesserId = team.getNextGuesserId();
 		const round = RoundEntity.create(guesserId, team.id, 0);
 		this._currentRound = round;
 		return round;
 	}
-	changeWordScore(wordId: string, delta: number) {
-		if (!this._currentRound) throw new RoundNotActiveError();
-		if (this._currentRound.status !== RoundStatus.FINISHED)
-			throw new RoundIsNotFinished();
-		this._currentRound.changeWordScore(wordId, delta);
+	changeWordScore(actorId: string, wordId: string, delta: number) {
+		this.assertGameInProgress();
+		this.assertRoundIsFinished();
+		this.getPlayerOrThrow(actorId);
+		const currentRound = this.getRoundOrThrow();
+		currentRound.changeWordScore(wordId, delta);
 	}
 
-	startRound(startTime: number) {
-		if (this.state.status !== GameStatus.IN_PROGRESS)
-			throw new GameNotInProgressError();
-		if (!this._currentRound) throw new RoundNotActiveError();
-		const currentTeamId = this._currentRound.teamId;
-		const team = this.teams.find((t) => t.id === currentTeamId);
-		if (!team) throw new TeamNotFoundError(currentTeamId);
+	startRound(actorId: string, startTime: number) {
+		this.assertGameInProgress();
+		const currentRound = this.getRoundOrThrow();
+		this.assertIsGuesser(actorId);
+		const currentTeamId = currentRound.teamId;
+		const team = this.getTeamOrThrow(currentTeamId);
 		team.playerIds.forEach((id) => {
-			const player = this.players.find((p) => p.id === id);
-			if (!player || !player.isReady || !player.isRoundReady) {
+			const player = this.getPlayerOrThrow(id);
+			if (!player.isReady || !player.isRoundReady) {
 				throw new PlayersNotReadyError();
 			}
 		});
-		this._currentRound.startRound();
-
-		this._currentRound.endTime =
+		currentRound.startRound();
+		currentRound.endTime =
 			startTime + this.state.settings.roundTimeSeconds * 1000;
 		this._players.forEach((p) => p.setRoundReady(false));
 	}
-	nextWord(text: string, wasSkipped: boolean = false) {
-		if (!this._currentRound) throw new RoundNotActiveError();
-		if (this._currentRound.status !== RoundStatus.IN_PROGRESS)
-			throw new RoundIsNotInProgress();
-		return this._currentRound.nextWord(text, wasSkipped);
+	nextWord(actorId: string, text: string, wasSkipped: boolean = false) {
+		this.assertGameInProgress();
+		this.assertIsGuesser(actorId);
+		const currentRound = this.getRoundOrThrow();
+		this.assertRoundInProgress();
+		return currentRound.nextWord(text, wasSkipped);
 	}
 	finishRound() {
-		if (!this._currentRound) throw new RoundNotActiveError();
-		this._currentRound.finishRound();
+		const currentRound = this.getRoundOrThrow();
+		currentRound.finishRound();
 	}
-	calculateRoundPoints() {
-		if (!this._currentRound) throw new RoundNotActiveError();
-		if (this._currentRound.status !== RoundStatus.FINISHED)
-			throw new RoundIsNotFinished();
-		const round = this._currentRound;
-		const words = this._currentRound.words;
-		const team = this.teams.find((t) => t.id === round.teamId);
-		if (!team) throw new TeamNotFoundError(round.teamId);
-		const score = words.reduce((acc, current) => acc + current.score, 0);
-		console.log(score);
-		team.addScore(score);
-		const player = this.players.find((p) => p.id === round.guesserId);
-		if (!player) throw new PlayerNotFoundError(round.guesserId);
+	nextRound(actorId: string) {
+		this.assertRoomOwner(actorId);
+		this.assertGameInProgress();
+		if (this._currentRound) {
+			const currentRound = this.getRoundOrThrow();
+			this.assertRoundIsFinished();
+			const words = currentRound.words;
+			const score = words.reduce(
+				(acc, current) => acc + current.score,
+				0,
+			);
 
-		player.addScore(score);
-		this.checkWinCondition();
-		this._currentRound = null;
+			const team = this.getTeamOrThrow(currentRound.teamId);
+			const player = this.getPlayerOrThrow(currentRound.guesserId);
+
+			team.addScore(score);
+			player.addScore(score);
+
+			this._currentRound = null;
+			this.checkWinCondition();
+		}
+		if (this.state.status === GameStatus.FINISHED) {
+			this._currentRound = null;
+		} else {
+			this.createRound();
+		}
 	}
+
 	private checkWinCondition() {
-		const winner = this.teams.find(
+		const winner = this._teams.find(
 			(t) => t.score >= this.state.settings.pointsToWin,
 		);
 		if (winner) {
 			this.state.status = GameStatus.FINISHED;
 			this.state.winnerTeamId = winner.id;
 		}
+		return winner;
 	}
 	toPrimitives(): GameState {
 		return {
 			...this.state,
-			teams: this.teams.map((t) => t.toPrimitives()),
+			teams: this._teams.map((t) => t.toPrimitives()),
 			currentRound: this._currentRound
 				? this._currentRound.toPrimitives()
 				: null,
-			players: this.players.map((p) => p.toPrimitives()),
+			players: this._players.map((p) => p.toPrimitives()),
 		};
 	}
 	static fromPrimitives(state: GameState): GameEntity {

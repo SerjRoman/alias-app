@@ -1,5 +1,3 @@
-import { NegativePointsError } from "../errors/game.errors";
-
 export interface PlayerState {
 	id: string;
 	name: string;
@@ -51,7 +49,6 @@ export class PlayerEntity {
 	}
 
 	addScore(points: number) {
-		if (points < 0) throw new NegativePointsError(points);
 		this.state.score += points;
 	}
 

@@ -21,6 +21,9 @@ export class RoundEntity {
 	private constructor(state: RoundState) {
 		this.state = { ...state };
 	}
+	get id() {
+		return this.state.id;
+	}
 	get words() {
 		return this.state.words;
 	}

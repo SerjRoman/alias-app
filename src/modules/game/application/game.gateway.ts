@@ -287,7 +287,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received disconnet from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		const { roomId } = await this.gameService.getCurrentGameId(
+		const { roomId } = await this.gameService.getGameIdByUserId(
 			client.data.user.id,
 		);
 		if (!roomId) return;

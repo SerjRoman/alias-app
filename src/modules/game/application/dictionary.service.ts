@@ -1,6 +1,7 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { readFile } from "node:fs/promises";
 import { GameWordsLevel } from "../domain/entities/game.entity";
+
 @Injectable()
 export class DictionaryService {
 	private readonly words: Map<string, string[]> = new Map();
@@ -10,14 +11,12 @@ export class DictionaryService {
 
 	private async loadWords(length: number, level: GameWordsLevel) {
 		try {
-			const data = (
-				await readFile(
-					`src/modules/game/repository/words-${level}.txt`,
-					"utf-8",
-				)
-			).split("\n");
-			const endIndex = Math.floor(Math.random() * data.length);
-			return data.slice(endIndex - length, endIndex);
+			const data: { words: string[] } = JSON.parse(
+				await readFile(`./words/words-${level}.json`, "utf-8"),
+			);
+			const words = data.words;
+			const endIndex = Math.floor(Math.random() * words.length);
+			return words.slice(endIndex - length, endIndex);
 		} catch (error) {
 			this.logger.error("Failed to load dictionary words", error);
 			throw new Error("Failed to load dictionary words");
@@ -31,20 +30,22 @@ export class DictionaryService {
 		const words = await this.loadWords(wordCount, level);
 		this.words.set(roomId, words);
 	}
-	public removeWordsForGame(roomId: string, wordsToDelete: string[]) {
+	public popWordForGame(roomId: string): string {
 		const words = this.words.get(roomId);
 		if (!words) throw new Error("No words found for this game");
-		const updatedWords = words.filter((w) => !wordsToDelete.includes(w));
-		this.words.set(roomId, updatedWords);
+		if (words.length === 0)
+			throw new Error("No more words available for this game");
+		const word = words.pop()!;
+		this.words.set(roomId, words);
+		return word;
 	}
-	public getWordForGame(roomId: string): string | null {
+	public getLastWordForGame(roomId: string): string | null {
 		const words = this.words.get(roomId);
 		if (!words) throw new Error("No words found for this game");
 		if (words.length === 0) {
 			return null;
 		}
-		const randomIndex = Math.floor(Math.random() * words.length);
-		return words[randomIndex];
+		return words.at(-1) || null;
 	}
 	public getWordsForGame(roomId: string): string[] {
 		const words = this.words.get(roomId);

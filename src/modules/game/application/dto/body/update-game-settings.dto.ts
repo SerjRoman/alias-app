@@ -7,6 +7,7 @@ import {
 	IsBoolean,
 	IsNumber,
 	IsPositive,
+	IsUUID,
 } from "class-validator";
 
 export class UpdateGameSettingsDto {
@@ -15,6 +16,7 @@ export class UpdateGameSettingsDto {
 		example: "123e4567-e89b-12d3-a456-426614174000",
 	})
 	@IsString()
+	@IsUUID()
 	roomId: string;
 	@ApiProperty({
 		description: "The name of the game",
