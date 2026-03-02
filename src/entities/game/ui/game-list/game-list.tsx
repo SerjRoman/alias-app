@@ -1,15 +1,16 @@
 import { useState } from "react";
 import type { GameState } from "../../model";
 import styles from "./game-list.module.css";
-import { useNavigate } from "react-router-dom";
-import { useMutation } from "@shared/api";
-import { useAuth } from "@entities/auth/model";
 
 type GameListProps = {
 	games: GameState[];
+	onJoin: (
+		game: GameState,
+		code: string | null,
+	) => Promise<string | null | void>;
 };
 
-export function GameList({ games }: Readonly<GameListProps>) {
+export function GameList({ games, onJoin }: Readonly<GameListProps>) {
 	if (games.length === 0) {
 		return (
 			<div style={{ textAlign: "center", color: "#888" }}>
@@ -21,7 +22,7 @@ export function GameList({ games }: Readonly<GameListProps>) {
 	return (
 		<div className={styles.grid}>
 			{games.map((game) => (
-				<GameCard key={game.id} game={game} />
+				<GameCard onJoin={onJoin} key={game.id} game={game} />
 			))}
 		</div>
 	);
@@ -29,51 +30,23 @@ export function GameList({ games }: Readonly<GameListProps>) {
 
 function GameCard({
 	game,
+	onJoin,
 }: Readonly<{
 	game: GameState;
+	onJoin: (
+		game: GameState,
+		code: string | null,
+	) => Promise<string | null | void>;
 }>) {
-	const { token } = useAuth();
-	const { mutate: validateCode } = useMutation(
-		"post",
-		"/games/validate-code",
-	);
 	const [code, setCode] = useState<string>("");
 	const isLobby = game.status === "LOBBY";
 	const statusClass = isLobby ? styles.statusLobby : styles.statusInProgress;
-	const navigate = useNavigate();
 	const [error, setError] = useState<string | null>(null);
-
-	async function handleJoin(game: GameState, code: string | null) {
-		if (game.settings.isPrivate) {
-			if (!code || code.length === 0) {
-				setError("Access code is required");
-				return;
-			}
-			validateCode(
-				{
-					body: {
-						code,
-						roomId: game.id,
-					},
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				},
-				{
-					onSuccess: ({ valid }) => {
-						if (!valid) {
-							setError("Invalid access code");
-							return;
-						}
-						const c: string =
-							!code || code.length === 0 ? "" : `&code=${code}`;
-						navigate(`/game?id=${game.id}${c}`);
-					},
-					onError() {
-						setError("Failed to validate code. Please try again.");
-					},
-				},
-			);
+	async function handleJoin() {
+		setError(null);
+		const result = await onJoin(game, code);
+		if (result) {
+			setError(result);
 		}
 	}
 	return (
@@ -102,7 +75,7 @@ function GameCard({
 
 			<button
 				className={styles.joinButton}
-				onClick={() => handleJoin(game, code)}
+				onClick={handleJoin}
 				disabled={
 					!isLobby || (game.settings.isPrivate && code.length === 0)
 				}

@@ -1,1 +1,1 @@
-export { GamesPage } from "./page";
+export { GamesPage } from "./ui/page";

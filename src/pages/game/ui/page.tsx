@@ -1,13 +1,13 @@
 import { useGameSession } from "../model/use-game-session";
 import { useSearchParams } from "react-router-dom";
-import { LobbyView } from "@widgets/lobby";
-import { ActiveGameView } from "@widgets/active-game";
+import { LobbyView } from "@pages/game/ui/lobby";
 import styles from "./page.module.css";
-import { useAuth } from "@entities/auth/model";
-import { useGameSync } from "@entities/game/model";
-import { GameFinished } from "@widgets/game-finished/game-finished";
 import { Blocks } from "react-loader-spinner";
 import { useKickHandler } from "../model/use-kick-handler";
+import { useAuth } from "@entities/auth";
+import { useGameSync } from "@entities/game";
+import { ActiveGameView } from "@pages/game/ui/active-game";
+import { GameFinished } from "@pages/game/ui/game-finished";
 
 export function GamePage() {
 	const [searchParams] = useSearchParams();

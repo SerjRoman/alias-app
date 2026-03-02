@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@entities/auth/model";
-import { socketClient } from "@shared/api/socket";
+import { socketClient } from "@shared/api";
+import { useAuth } from "@entities/auth";
 
 export function useKickHandler() {
 	const { user } = useAuth();

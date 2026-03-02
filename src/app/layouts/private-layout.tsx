@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
-import { useAuth } from "../../entities/auth/model";
 import { useEffect } from "react";
+import { useAuth } from "@entities/auth";
 
 export function PrivateLayout() {
 	const { user, token } = useAuth();

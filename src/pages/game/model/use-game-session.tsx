@@ -1,10 +1,10 @@
-import { useGameSlice } from "@entities/game/model";
-import { joinGame } from "@features/join-game";
-import { socketClient } from "@shared/api/socket";
+import { useGameSlice } from "@entities/game";
+import { socketClient } from "@shared/api";
 import { useEffect, useRef, useState } from "react";
+import { joinGame } from "../api/join-game";
 
 export function useGameSession(roomId: string | null, code: string | null) {
-	const { game, clearGame } = useGameSlice();
+	const { game, clearGame, setGameState } = useGameSlice();
 	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	const gameIdRef = useRef(game?.id);
@@ -22,11 +22,12 @@ export function useGameSession(roomId: string | null, code: string | null) {
 
 		if (roomId) {
 			setIsLoading(true);
-			joinGame(roomId, code, () => {
+			joinGame(roomId, code, (gameData) => {
+				setGameState(gameData);
 				setIsLoading(false);
 			});
 		}
-	}, [roomId, code, game]);
+	}, [roomId, code, game, setGameState]);
 
 	useEffect(() => {
 		return () => {

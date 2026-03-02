@@ -1,10 +1,9 @@
 import { useEffect } from "react";
 import { useNavigate, Outlet, useLocation } from "react-router-dom";
-import { useMutation } from "../../shared/api";
-import { useAuth } from "../../entities/auth/model";
 import styles from "./base-layout.module.css";
-import { socketClient } from "../../shared/api/socket";
 import { Header } from "@widgets/header";
+import { useAuth } from "@entities/auth";
+import { socketClient, useMutation } from "@shared/api";
 
 export function BaseLayout() {
 	const { token, setUser, setToken } = useAuth();

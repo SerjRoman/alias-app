@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { socketClient } from "../../../shared/api/socket";
 import { useGameSlice } from "./game.slice";
+import { socketClient } from "@shared/api";
 
 export function useGameSync() {
 	const {
