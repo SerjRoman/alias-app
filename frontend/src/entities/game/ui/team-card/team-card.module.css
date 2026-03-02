@@ -1,0 +1,81 @@
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-medium);
+	background-color: var(--color-surface);
+
+	max-height: 400px;
+	height: 100%;
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.title {
+	color: var(--color-text);
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.sectionRight {
+	display: flex;
+	align-items: center;
+}
+
+.playerList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+
+	list-style: none;
+
+	flex-grow: 1;
+	overflow-y: auto;
+
+	scrollbar-width: thin;
+	scrollbar-color: var(--color-border) transparent;
+
+	padding: var(--spacing-small) 0;
+}
+
+.playerList::-webkit-scrollbar {
+	width: 6px;
+}
+
+.playerList::-webkit-scrollbar-thumb {
+	background-color: var(--color-border);
+	border-radius: 4px;
+}
+
+.emptyState {
+	color: #999;
+	font-size: 0.9rem;
+	text-align: center;
+	padding: var(--spacing-small) 0;
+}
+
+.footer {
+	display: flex;
+	flex-direction: column;
+	flex-shrink: 0;
+}
+
+.triggerButton {
+	all: unset;
+	display: block;
+	width: 100%;
+	cursor: pointer;
+	border-radius: var(--border-radius);
+}
+
+.triggerButton:focus-visible {
+	outline: 2px solid var(--color-primary);
+}

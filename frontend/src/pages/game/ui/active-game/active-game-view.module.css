@@ -1,0 +1,94 @@
+/* active-game-view.module.css */
+
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-large);
+	width: 100%;
+}
+
+.teamsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+	gap: var(--spacing-medium);
+	margin-bottom: var(--spacing-medium);
+}
+
+.playZone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--spacing-large);
+	padding: var(--spacing-large);
+	background-color: var(--color-surface);
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+	box-shadow: var(--box-shadow);
+}
+
+.historyContainer {
+	width: 100%;
+	max-width: 600px;
+}
+
+.historyTitle {
+	text-align: center;
+	margin-bottom: var(--spacing-medium);
+	color: var(--color-text);
+}
+
+.historyList {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.historyItem {
+	display: flex;
+	justify-content: space-between;
+	padding: 12px 16px;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 1.1rem;
+}
+
+.historyItem.positive {
+	background-color: #d1fae5;
+	color: #065f46;
+	border: 1px solid #34d399;
+}
+
+.historyItem.negative {
+	background-color: #fee2e2;
+	color: #991b1b;
+	border: 1px solid #f87171;
+}
+
+/* --- Утилиты --- */
+.spectatorMessage {
+	font-size: 1.2rem;
+	color: #666;
+	font-style: italic;
+	text-align: center;
+}
+
+.startBtn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 16px 32px;
+	font-size: 1.2rem;
+	font-weight: bold;
+	background-color: var(--color-primary);
+	color: white;
+	border: none;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+}
+
+.startBtn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	filter: grayscale(1);
+}

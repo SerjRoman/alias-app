@@ -1,0 +1,61 @@
+.deleteButton {
+	background: none;
+	border: none;
+	color: var(--color-error, #f5222d);
+	cursor: pointer;
+	padding: 4px;
+	border-radius: 4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: background-color 0.2s ease;
+}
+
+.deleteButton:hover {
+	background-color: rgba(245, 34, 45, 0.1);
+}
+
+.joinedText {
+	text-align: center;
+	color: var(--color-success, #28a745);
+	font-size: 0.9rem;
+	font-weight: bold;
+	padding: var(--spacing-small) 0;
+}
+
+.joinButton {
+	width: 100%;
+	padding: 8px 16px;
+	background-color: var(--color-background, #f0f2f5);
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: var(--border-radius, 4px);
+	color: var(--color-text, #333);
+	font-size: 0.9rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.joinButton:hover {
+	background-color: #e5e7eb;
+	border-color: #999;
+}
+
+.triggerButton {
+	all: unset;
+	width: 100%;
+	cursor: pointer;
+	border-radius: var(--border-radius, 8px);
+}
+
+.triggerButton:focus-visible {
+	outline: 2px solid var(--color-primary, #4a90e2);
+}
+
+.playerActions {
+	padding-top: 8px;
+	border-top: 1px solid var(--color-border, #eee);
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}

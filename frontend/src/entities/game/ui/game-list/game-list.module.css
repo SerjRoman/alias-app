@@ -1,0 +1,89 @@
+.grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: var(--spacing-medium);
+	align-items: start;
+}
+
+.card {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-medium);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+	justify-content: space-between;
+	transition:
+		transform 0.2s,
+		box-shadow 0.2s;
+}
+.cardContent {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+}
+.card:hover {
+	transform: translateY(-2px);
+	box-shadow: var(--box-shadow);
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.gameName {
+	font-weight: bold;
+	font-size: 1.1rem;
+	color: var(--color-text);
+}
+
+.statusBadge {
+	font-size: 0.8rem;
+	padding: 4px 8px;
+	border-radius: 12px;
+	background-color: #eee;
+	color: #666;
+}
+
+.statusLobby {
+	background-color: #e6f7ff;
+	color: #1890ff;
+}
+
+.statusInProgress {
+	background-color: #fff1f0;
+	color: #f5222d;
+}
+
+.codeInput {
+	width: 100%;
+	padding: 8px;
+	border: 1px solid var(--color-border);
+	border-radius: 4px;
+	font-size: 0.9rem;
+}
+
+.joinButton {
+	width: 100%;
+	padding: 10px;
+	background-color: var(--color-primary);
+	color: white;
+	border: none;
+	border-radius: var(--border-radius);
+	cursor: pointer;
+	font-weight: bold;
+}
+
+.joinButton:disabled {
+	background-color: #ccc;
+	cursor: not-allowed;
+}
+
+.errorText {
+	color: var(--color-error);
+	font-size: 0.9rem;
+	margin-top: 8px;
+}
