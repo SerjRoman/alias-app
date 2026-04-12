@@ -4,7 +4,7 @@ import {
 	type GameSettings as DetailsGameSettings,
 	GameStatus,
 	type GameWordsLevel,
-} from "../../../domain/entities/game.entity";
+} from "../../domain/entities/game.entity";
 import { PlayerResponseDto } from "./player.dto";
 import { RoundResponseDto } from "./round-response.dto";
 import { TeamResponseDto } from "./team-response.dto";

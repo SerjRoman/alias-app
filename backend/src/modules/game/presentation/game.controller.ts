@@ -17,8 +17,8 @@ import {
 	ApiResponse,
 	ApiTags,
 } from "@nestjs/swagger";
-import { GameService } from "./game.service";
-import { GetUserFromToken } from "../../../common/decorators/get-user-from-token";
+import { GameService } from "../application/game.service";
+import { GetAuthenticatedUser } from "../../../common/decorators/get-authenticated-user";
 import { plainToInstance } from "class-transformer";
 import {
 	CreateGameResponseDto,
@@ -26,14 +26,14 @@ import {
 	GameResponseDto,
 	GetRoomCodeResponseDto,
 	ValidateCodeResponseDto,
-} from "./dto/response";
+} from "../dto/response";
 import { JwtAuthGuard } from "../../../common/guards/auth.guard";
 import {
 	CreateGameDto,
 	GetRoomCodeDto,
 	JoinGameDto,
 	ValidateCodeDto,
-} from "./dto/body";
+} from "../dto/body";
 import { UserDto } from "../../auth/dto/user.dto";
 
 @ApiTags("Games")
@@ -77,7 +77,7 @@ export class GameController {
 	})
 	async create(
 		@Body() body: CreateGameDto,
-		@GetUserFromToken() user: UserDto,
+		@GetAuthenticatedUser() user: UserDto,
 	) {
 		const { room, code } = await this.service.create(body, user);
 		console.log("Created game room with ID:", room.id, "and code:", code);
@@ -111,7 +111,10 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is not the owner of the game room.",
 	})
-	delete(@Param() { id }: { id: string }, @GetUserFromToken() user: UserDto) {
+	delete(
+		@Param() { id }: { id: string },
+		@GetAuthenticatedUser() user: UserDto,
+	) {
 		return this.service.delete(id, user);
 	}
 
@@ -137,7 +140,7 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is already in the game room.",
 	})
-	join(@Body() dto: JoinGameDto, @GetUserFromToken() user: UserDto) {
+	join(@Body() dto: JoinGameDto, @GetAuthenticatedUser() user: UserDto) {
 		return plainToInstance(
 			GameResponseDto,
 			this.service.joinGame(dto, user),
@@ -169,7 +172,10 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is not an owner.",
 	})
-	getCode(@Body() dto: GetRoomCodeDto, @GetUserFromToken() user: UserDto) {
+	getCode(
+		@Body() dto: GetRoomCodeDto,
+		@GetAuthenticatedUser() user: UserDto,
+	) {
 		return plainToInstance(
 			GetRoomCodeResponseDto,
 			this.service.getRoomCode(dto, user),
@@ -188,7 +194,7 @@ export class GameController {
 		status: 200,
 		description: "Returns roomId or null",
 	})
-	async getMyCurrentGame(@GetUserFromToken() user: UserDto) {
+	async getMyCurrentGame(@GetAuthenticatedUser() user: UserDto) {
 		return plainToInstance(
 			CurrentGameResponseDto,
 			await this.service.getGameIdByUserId(user.id),

@@ -1,9 +1,8 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { CreateGameDto } from "./dto/body/create-game.dto";
 import {
 	GAME_REPOSITORY,
 	type IGameRepository,
-} from "../repository/game.repository.interface";
+} from "./game.repository.interface";
 import {
 	GameError,
 	InvalidGameCode,
@@ -30,9 +29,10 @@ import {
 	type RoundUpdatedPayload,
 	TEAMS_UPDATED,
 	type TeamsUpdatedPayload,
-} from "../events/game.events";
+} from "./game.events";
 import {
 	ChangeWordScoreDto,
+	CreateGameDto,
 	CreateTeamDto,
 	DeleteGameDto,
 	DeleteTeamDto,
@@ -45,7 +45,7 @@ import {
 	PlayerLeftRoomDto,
 	StartRoundDto,
 	UpdateGameSettingsDto,
-} from "./dto/body";
+} from "../dto/body";
 import { UserDto } from "../../auth/dto/user.dto";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { RoundNotActiveError } from "../domain/errors/round.errors";
@@ -127,6 +127,8 @@ export class GameService {
 			code: code,
 			isPrivate: createGameDto.isPrivate || false,
 			level: createGameDto.level,
+			isOnlyOwnerCanNextRound: true,
+			isOnlyOwnerCanChangeScore: true,
 		};
 		const newRoom = GameEntity.create(user.id, settings);
 
@@ -194,7 +196,7 @@ export class GameService {
 	}
 	async toggleReady(roomId: string, user: UserDto) {
 		const room = await this.loadGame(roomId);
-		room.togglePlayerReady(user.id);
+		room.togglePlayerGameReady(user.id);
 		await this.repository.saveGame(room);
 		const eventPayload: PlayersUpdatedPayload = {
 			roomId: room.id,
@@ -216,7 +218,7 @@ export class GameService {
 	}
 	async playerLeftRoom(dto: PlayerLeftRoomDto) {
 		const room = await this.loadGame(dto.roomId);
-		room.playerLeftGame(dto.playerId);
+		room.leaveGame(dto.playerId);
 		await this.repository.saveGame(room);
 		await this.repository.removeUserRoom(dto.playerId);
 		const roomPrimitives = room.toPrimitives();
@@ -422,7 +424,7 @@ export class GameService {
 		const room = await this.loadGame(dto.roomId);
 		if (!room.currentRound) throw new RoundNotActiveError();
 		room.assertRoundIsFinished();
-		room.changeWordScore(actor.id, dto.wordId, dto.delta);
+		room.changeWordScore(dto.wordId, dto.delta, actor.id);
 		await this.repository.saveGame(room);
 		const eventPayload: RoundUpdatedPayload = {
 			round: room.currentRound.toPrimitives(),

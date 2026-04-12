@@ -3,7 +3,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import { StringValue } from "ms";
 import { TokenPayload } from "./auth.types";
-import { UserFromToken } from "../../common/types/user-from-token";
+import { AuthenticatedUser } from "../../common/types/authenticated-user";
 
 @Injectable()
 export class TokenService {
@@ -22,9 +22,9 @@ export class TokenService {
 		return accesssToken;
 	}
 
-	async verifyAccessToken(accessToken: string): Promise<UserFromToken> {
+	async verifyAccessToken(accessToken: string): Promise<AuthenticatedUser> {
 		try {
-			return await this.jwtService.verifyAsync<UserFromToken>(
+			return await this.jwtService.verifyAsync<AuthenticatedUser>(
 				accessToken,
 				{
 					secret: this.configService.getOrThrow<string>(

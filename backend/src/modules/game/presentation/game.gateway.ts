@@ -1,5 +1,5 @@
 import { Logger, UseFilters } from "@nestjs/common";
-import { GameService } from "./game.service";
+import { GameService } from "../application/game.service";
 import {
 	ConnectedSocket,
 	MessageBody,
@@ -24,15 +24,15 @@ import {
 	type RoundUpdatedPayload,
 	GAME_FINISHED,
 	type GameFinishedPayload,
-} from "../events/game.events";
+} from "../application/game.events";
 import { plainToInstance } from "class-transformer";
 import {
 	GameResponseDetailsDto,
 	RoundResponseDto,
 	TeamResponseDto,
 	WordResponseDto,
-} from "./dto/response";
-import { PlayerResponseDto } from "./dto/response/player.dto";
+} from "../dto/response";
+import { PlayerResponseDto } from "../dto/response/player.dto";
 import type { GameServer, GameSocket } from "./game.socket-types";
 import {
 	ChangeWordScoreDto,
@@ -47,11 +47,11 @@ import {
 	PlayerLeaveRoomBodyDto,
 	StartRoundDto,
 	UpdateGameSettingsDto,
-} from "./dto/body";
-import { GameWsExceptionFilter } from "../filters/game-exception.filter";
-import { TeamWsExceptionFilter } from "../filters/team-exception.filter";
+} from "../dto/body";
+import { GameWsExceptionFilter } from "./filters/game-exception.filter";
+import { TeamWsExceptionFilter } from "./filters/team-exception.filter";
 import { AuthenticatedSocket } from "../../../common/types/socket";
-import { RoundWsExceptionFilter } from "../filters/round-exception.filter";
+import { RoundWsExceptionFilter } from "./filters/round-exception.filter";
 
 @WebSocketGateway({
 	cors: {

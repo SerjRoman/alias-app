@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 import { createParamDecorator, type ExecutionContext } from "@nestjs/common";
 
-export const GetUserFromToken = createParamDecorator(
+export const GetAuthenticatedUser = createParamDecorator(
 	(data: unknown, ctx: ExecutionContext) => {
 		if (ctx.getType() === "http") {
 			const request = ctx.switchToHttp().getRequest();

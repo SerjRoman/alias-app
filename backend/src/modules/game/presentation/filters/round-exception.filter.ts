@@ -1,6 +1,6 @@
 import { Catch, ArgumentsHost, WsExceptionFilter } from "@nestjs/common";
-import { RoundError } from "../domain/errors/round.errors";
 import { Socket } from "socket.io";
+import { RoundError } from "../../domain/errors/round.errors";
 
 @Catch(RoundError)
 export class RoundWsExceptionFilter implements WsExceptionFilter {

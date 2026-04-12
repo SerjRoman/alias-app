@@ -33,6 +33,9 @@ export class PlayerEntity {
 	set isOnline(value: boolean) {
 		this.state.isOnline = value;
 	}
+	get name() {
+		return this.state.name;
+	}
 
 	toggleReady() {
 		this.state.isReady = !this.state.isReady;

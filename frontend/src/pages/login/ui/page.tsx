@@ -7,7 +7,6 @@ export function LoginPage() {
 	const { setToken, setUser } = useAuth();
 	const { mutate, isPending } = useMutation("post", "/auth/login");
 	const [name, setName] = useState<string>("");
-
 	const handleLogin = () => {
 		if (!name.trim()) return;
 

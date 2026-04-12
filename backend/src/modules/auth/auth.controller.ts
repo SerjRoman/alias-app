@@ -17,7 +17,7 @@ import {
 import { LoginResponseDto } from "./dto/login-response.dto";
 import { plainToInstance } from "class-transformer";
 import { MeDtoResponse } from "./dto/me.dto";
-import { GetUserFromToken } from "../../common/decorators/get-user-from-token";
+import { GetAuthenticatedUser } from "../../common/decorators/get-authenticated-user";
 import { UserDto } from "./dto/user.dto";
 import { JwtAuthGuard } from "../../common/guards/auth.guard";
 
@@ -54,7 +54,7 @@ export class AuthController {
 	})
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)
-	me(@GetUserFromToken() user: UserDto): MeDtoResponse {
+	me(@GetAuthenticatedUser() user: UserDto): MeDtoResponse {
 		return plainToInstance(
 			MeDtoResponse,
 			{

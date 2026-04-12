@@ -20,6 +20,9 @@
 		"noFallthroughCasesInSwitch": false,
 		"strictPropertyInitialization": false,
 		"rootDir": "./",
-		"outDir": "./dist"
+		"outDir": "./dist",
+		"paths": {
+			"@common/*": ["./src/common/*"]
+		}
 	}
 }

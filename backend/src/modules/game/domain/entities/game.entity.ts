@@ -34,6 +34,8 @@ import {
 	RoundIsNotInProgress,
 	RoundNotActiveError,
 } from "../errors/round.errors";
+import { BaseEntity } from "@common/domain/base-entity";
+import { RoundStartedEvent } from "../events/round-started.event";
 /*
 TeamEntity
 Создать команду в игру
@@ -75,6 +77,8 @@ export interface GameSettings {
 	code: string | null;
 	isPrivate: boolean;
 	level: GameWordsLevel;
+	isOnlyOwnerCanNextRound: boolean;
+	isOnlyOwnerCanChangeScore: boolean;
 }
 type TeamState = ReturnType<TeamEntity["toPrimitives"]>;
 type PlayerState = ReturnType<PlayerEntity["toPrimitives"]>;
@@ -92,7 +96,7 @@ export interface GameState {
 	createdAt: number;
 }
 
-export class GameEntity {
+export class GameEntity extends BaseEntity {
 	private readonly state: Omit<
 		GameState,
 		"teams" | "players" | "currentRound"
@@ -106,6 +110,8 @@ export class GameEntity {
 		players: PlayerState[],
 		currentRound: RoundState | null,
 	) {
+		super();
+
 		this._players = players.map((p) => PlayerEntity.fromPrimitives(p));
 		this._teams = teams.map((t) => TeamEntity.fromPrimitives(t));
 		this._currentRound =
@@ -217,7 +223,7 @@ export class GameEntity {
 
 	// Actions
 
-	updateSettings(actorId: string, newSettings: Partial<GameSettings>) {
+	updateSettings(newSettings: Partial<GameSettings>, actorId: string) {
 		this.assertRoomOwner(actorId);
 		this.assertGameInLobby();
 		this.state.settings = { ...this.state.settings, ...newSettings };
@@ -244,16 +250,22 @@ export class GameEntity {
 		this._players = this._players.filter((p) => p.id !== playerId);
 		this._teams.forEach((t) => t.removePlayer(playerId));
 	}
-	playerLeftGame(playerId: string) {
+	leaveGame(playerId: string) {
 		this.getPlayerOrThrow(playerId);
 		this._players = this._players.filter((p) => p.id !== playerId);
 		this._teams.forEach((t) => t.removePlayer(playerId));
 	}
-	togglePlayerReady(playerId: string) {
+	togglePlayerGameReady(playerId: string, actorId?: string) {
+		if (actorId) {
+			this.assertRoomOwner(actorId);
+		}
 		const player = this.getPlayerOrThrow(playerId);
 		player.toggleReady();
 	}
-	togglePlayerRoundReady(playerId: string) {
+	togglePlayerRoundReady(playerId: string, actorId?: string) {
+		if (actorId) {
+			this.assertRoomOwner(actorId);
+		}
 		const player = this.getPlayerOrThrow(playerId);
 		player.toggleRoundReady();
 	}
@@ -292,7 +304,7 @@ export class GameEntity {
 		if (this.state.ownerId === playerId) {
 			throw new GameError("Owner cannot kick himself");
 		}
-		this.playerLeftGame(playerId);
+		this.leaveGame(playerId);
 	}
 	startGame(actorId: string) {
 		this.assertCanStartGame(actorId);
@@ -311,10 +323,16 @@ export class GameEntity {
 		this._currentRound = round;
 		return round;
 	}
-	changeWordScore(actorId: string, wordId: string, delta: number) {
+	changeWordScore(wordId: string, delta: number, actorId?: string) {
+		if (this.settings.isOnlyOwnerCanChangeScore) {
+			if (actorId) {
+				this.assertRoomOwner(actorId);
+			} else {
+				throw new PlayerNotFoundError("No actor ID provided");
+			}
+		}
 		this.assertGameInProgress();
 		this.assertRoundIsFinished();
-		this.getPlayerOrThrow(actorId);
 		const currentRound = this.getRoundOrThrow();
 		currentRound.changeWordScore(wordId, delta);
 	}
@@ -335,6 +353,7 @@ export class GameEntity {
 		currentRound.endTime =
 			startTime + this.state.settings.roundTimeSeconds * 1000;
 		this._players.forEach((p) => p.setRoundReady(false));
+		this.addDomainEvent(new RoundStartedEvent(this.id, actorId));
 	}
 	nextWord(actorId: string, text: string, wasSkipped: boolean = false) {
 		this.assertGameInProgress();
@@ -347,8 +366,23 @@ export class GameEntity {
 		const currentRound = this.getRoundOrThrow();
 		currentRound.finishRound();
 	}
-	nextRound(actorId: string) {
-		this.assertRoomOwner(actorId);
+	finishGame(actorId?: string) {
+		if (actorId) {
+			this.assertRoomOwner(actorId);
+		}
+		this.assertGameInProgress();
+		this.state.status = GameStatus.FINISHED;
+		this.state.winnerTeamId = this.checkWinCondition()?.id || null;
+		this._currentRound = null;
+	}
+	nextRound(actorId?: string) {
+		if (this.settings.isOnlyOwnerCanNextRound) {
+			if (actorId) {
+				this.assertRoomOwner(actorId);
+			} else {
+				throw new PlayerNotFoundError("No actor ID provided");
+			}
+		}
 		this.assertGameInProgress();
 		if (this._currentRound) {
 			const currentRound = this.getRoundOrThrow();

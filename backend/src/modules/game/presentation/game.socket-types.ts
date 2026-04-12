@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import type { UserFromToken } from "../../../common/types/user-from-token";
+import type { AuthenticatedUser } from "../../../common/types/authenticated-user";
 import type {
 	ChangeWordScoreDto,
 	JoinGameDto,
@@ -8,14 +8,14 @@ import type {
 	StartRoundDto,
 	ToggleGameReadyDto,
 	UpdateGameSettingsDto,
-} from "./dto/body";
+} from "../dto/body";
 import type {
 	GameResponseDetailsDto,
 	PlayerResponseDto,
 	RoundResponseDto,
 	TeamResponseDto,
 	WordResponseDto,
-} from "./dto/response";
+} from "../dto/response";
 
 interface ServerToClientEvents {
 	gameUpdated: (data: GameResponseDetailsDto) => void;
@@ -44,7 +44,7 @@ export type GameSocket = Socket<
 	ServerToClientEvents,
 	object,
 	{
-		user: UserFromToken;
+		user: AuthenticatedUser;
 	}
 >;
 export type GameServer = Server<ClientToServerEvents, ServerToClientEvents>;

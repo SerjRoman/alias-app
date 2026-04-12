@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { IGameRepository } from "./game.repository.interface";
+import { IGameRepository } from "../application/game.repository.interface";
 import { RedisService } from "../../../common/infrastructure/redis/redis.service";
 import { GameEntity, GameState } from "../domain/entities/game.entity";
 import { PlayerEntity, PlayerState } from "../domain/entities/player.entity";

@@ -1,10 +1,10 @@
 import { Catch, ArgumentsHost, WsExceptionFilter } from "@nestjs/common";
-import { GameError } from "../domain/errors/game.errors";
 import { Socket } from "socket.io";
+import { TeamError } from "../../domain/errors/team.errors";
 
-@Catch(GameError)
-export class GameWsExceptionFilter implements WsExceptionFilter {
-	catch(exception: GameError, host: ArgumentsHost) {
+@Catch(TeamError)
+export class TeamWsExceptionFilter implements WsExceptionFilter {
+	catch(exception: TeamError, host: ArgumentsHost) {
 		const client = host.switchToWs().getClient<Socket>();
 
 		const errorResponse = {

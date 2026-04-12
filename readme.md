@@ -51,7 +51,7 @@ Alias Game is a real-time multiplayer word-guessing game built with modern web t
 #### 7. **Security Layer** (`common/`)
 - `JwtStrategy` - Passport JWT strategy
 - `JwtAuthGuard` - Route protection
-- `GetUserFromToken` - User extraction from JWT
+- `GetAuthenticatedUser` - User extraction from JWT
 
 ### Data Flow
 
