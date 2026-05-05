@@ -5,8 +5,6 @@ import {
 	GAME_REPOSITORY,
 	type IGameRepository,
 } from "./game.repository.interface";
-import { EventEmitter2 } from "@nestjs/event-emitter";
-import { SchedulerRegistry } from "@nestjs/schedule";
 import { DictionaryService } from "./dictionary.service";
 import { RoundEntity } from "../domain/entities/round.entity";
 import { RoundNotActiveError } from "../domain/errors/round.errors";
@@ -15,8 +13,6 @@ import { RoundNotActiveError } from "../domain/errors/round.errors";
 export class GameSharedService {
 	constructor(
 		@Inject(GAME_REPOSITORY) private readonly repository: IGameRepository,
-		private readonly eventEmitter: EventEmitter2,
-		private readonly schedulerRegistry: SchedulerRegistry,
 		private readonly dictionaryService: DictionaryService,
 	) {}
 	public async loadGame(gameId: string): Promise<GameEntity> {

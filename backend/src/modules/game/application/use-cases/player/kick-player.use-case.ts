@@ -1,6 +1,6 @@
 import { type EventEmitter2 } from "@nestjs/event-emitter";
-import { type KickPlayerDto } from "../../dto/body";
-import { type GameSharedService } from "../game-shared.service";
+import { type KickPlayerDto } from "../../../dto/body";
+import { type GameSharedService } from "../../game-shared.service";
 import {
 	type PlayerKickedPayload,
 	type TeamsUpdatedPayload,
@@ -8,8 +8,8 @@ import {
 	PLAYER_KICKED,
 	TEAMS_UPDATED,
 	PLAYERS_UPDATED,
-} from "../game.events";
-import { type IGameRepository } from "../game.repository.interface";
+} from "../../game.events";
+import { type IGameRepository } from "../../game.repository.interface";
 
 export class KickPlayerUseCase {
 	constructor(

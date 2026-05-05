@@ -1,7 +1,7 @@
 import { type EventEmitter2 } from "@nestjs/event-emitter";
-import { type GameSharedService } from "../game-shared.service";
-import { type PlayersUpdatedPayload, PLAYERS_UPDATED } from "../game.events";
-import { type IGameRepository } from "../game.repository.interface";
+import { type GameSharedService } from "../../game-shared.service";
+import { type PlayersUpdatedPayload, PLAYERS_UPDATED } from "../../game.events";
+import { type IGameRepository } from "../../game.repository.interface";
 
 export class ToggleRoundReadyUseCase {
 	constructor(

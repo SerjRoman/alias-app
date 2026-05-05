@@ -17,7 +17,8 @@ import {
 	ApiResponse,
 	ApiTags,
 } from "@nestjs/swagger";
-import { GameService } from "../application/game.service";
+import { GameFacade } from "../application/facades/game.facade";
+import { PlayerFacade } from "../application/facades/player.facade";
 import { GetAuthenticatedUser } from "../../../common/decorators/get-authenticated-user";
 import { plainToInstance } from "class-transformer";
 import {
@@ -39,7 +40,10 @@ import { UserDto } from "../../auth/dto/user.dto";
 @ApiTags("Games")
 @Controller("games")
 export class GameController {
-	constructor(private readonly service: GameService) {}
+	constructor(
+		private readonly gameFacade: GameFacade,
+		private readonly playerFacade: PlayerFacade,
+	) {}
 
 	@Get()
 	@HttpCode(HttpStatus.OK)
@@ -50,7 +54,7 @@ export class GameController {
 		type: [GameResponseDto],
 	})
 	async getAll() {
-		const rooms = await this.service.findAll();
+		const rooms = await this.gameFacade.findAll();
 		return plainToInstance(
 			GameResponseDto,
 			rooms.map((r) => ({ ...r, playersCount: r.players.length })),
@@ -79,7 +83,7 @@ export class GameController {
 		@Body() body: CreateGameDto,
 		@GetAuthenticatedUser() user: UserDto,
 	) {
-		const { room, code } = await this.service.create(body, user);
+		const { room, code } = await this.gameFacade.create(body, user);
 		console.log("Created game room with ID:", room.id, "and code:", code);
 		return plainToInstance(
 			CreateGameResponseDto,
@@ -115,7 +119,7 @@ export class GameController {
 		@Param() { id }: { id: string },
 		@GetAuthenticatedUser() user: UserDto,
 	) {
-		return this.service.delete(id, user);
+		return this.gameFacade.delete(id, user);
 	}
 
 	@Post("join")
@@ -143,7 +147,7 @@ export class GameController {
 	join(@Body() dto: JoinGameDto, @GetAuthenticatedUser() user: UserDto) {
 		return plainToInstance(
 			GameResponseDto,
-			this.service.joinGame(dto, user),
+			this.gameFacade.joinGame(dto, user),
 			{
 				excludeExtraneousValues: true,
 			},
@@ -178,7 +182,7 @@ export class GameController {
 	) {
 		return plainToInstance(
 			GetRoomCodeResponseDto,
-			this.service.getRoomCode(dto, user),
+			this.gameFacade.getRoomCode(dto, user),
 			{ excludeExtraneousValues: true },
 		);
 	}
@@ -197,7 +201,7 @@ export class GameController {
 	async getMyCurrentGame(@GetAuthenticatedUser() user: UserDto) {
 		return plainToInstance(
 			CurrentGameResponseDto,
-			await this.service.getGameIdByUserId(user.id),
+			await this.playerFacade.getGameIdByUserId(user.id),
 			{ excludeExtraneousValues: true },
 		);
 	}
@@ -222,7 +226,7 @@ export class GameController {
 	async validateCode(@Body() dto: ValidateCodeDto) {
 		return plainToInstance(
 			ValidateCodeResponseDto,
-			{ valid: await this.service.validateCode(dto.roomId, dto.code) },
+			{ valid: await this.gameFacade.validateCode(dto.roomId, dto.code) },
 			{ excludeExtraneousValues: true },
 		);
 	}

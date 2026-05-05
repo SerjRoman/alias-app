@@ -1,5 +1,8 @@
 import { Logger, UseFilters } from "@nestjs/common";
-import { GameService } from "../application/game.service";
+import { GameFacade } from "../application/facades/game.facade";
+import { PlayerFacade } from "../application/facades/player.facade";
+import { RoundFacade } from "../application/facades/round.facade";
+import { TeamFacade } from "../application/facades/team.facade";
 import {
 	ConnectedSocket,
 	MessageBody,
@@ -68,7 +71,12 @@ export class GameGateway implements OnGatewayDisconnect {
 	@WebSocketServer() server: GameServer;
 
 	private readonly logger = new Logger(GameGateway.name);
-	constructor(private readonly gameService: GameService) {}
+	constructor(
+		private readonly gameFacade: GameFacade,
+		private readonly playerFacade: PlayerFacade,
+		private readonly roundFacade: RoundFacade,
+		private readonly teamFacade: TeamFacade,
+	) {}
 
 	@SubscribeMessage("toggleGameReady")
 	async toggleGameReady(
@@ -78,7 +86,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received toggleGameReady from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		await this.gameService.toggleReady(data.roomId, client.data.user);
+		await this.gameFacade.toggleReady(data.roomId, client.data.user);
 	}
 	@SubscribeMessage("toggleRoundReady")
 	async toggleRoundReady(
@@ -88,7 +96,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received toggleRoundReady from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		await this.gameService.toggleRoundReady(data.roomId, client.data.user);
+		await this.roundFacade.toggleRoundReady(data.roomId, client.data.user);
 	}
 
 	@SubscribeMessage("joinGame")
@@ -99,7 +107,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received joinGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		const room = await this.gameService.joinGame(dto, client.data.user);
+		const room = await this.gameFacade.joinGame(dto, client.data.user);
 		await client.join(dto.roomId);
 		const publicState = plainToInstance(GameResponseDetailsDto, room, {
 			excludeExtraneousValues: true,
@@ -107,7 +115,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
 		client.emit("gameUpdated", publicState);
 
-		const privateState = await this.gameService.getPrivatePlayerState(
+		const privateState = await this.gameFacade.getPrivatePlayerState(
 			dto.roomId,
 			client.data.user.id,
 		);
@@ -132,42 +140,42 @@ export class GameGateway implements OnGatewayDisconnect {
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: KickPlayerDto,
 	) {
-		await this.gameService.kickPlayer(dto, client.data.user);
+		await this.playerFacade.kickPlayer(dto, client.data.user);
 	}
 	@SubscribeMessage("startGame")
 	async startGame(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: { roomId: string },
 	) {
-		await this.gameService.startGame(dto.roomId, client.data.user);
+		await this.gameFacade.startGame(dto.roomId, client.data.user);
 	}
 	@SubscribeMessage("updateGameSettings")
 	async updateGameSettings(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: UpdateGameSettingsDto,
 	) {
-		await this.gameService.updateGameSettings(dto, client.data.user);
+		await this.gameFacade.updateGameSettings(dto, client.data.user);
 	}
 	@SubscribeMessage("createTeam")
 	async createTeam(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: CreateTeamDto,
 	) {
-		await this.gameService.createTeam(dto, client.data.user);
+		await this.teamFacade.createTeam(dto, client.data.user);
 	}
 	@SubscribeMessage("moveToTeam")
 	async moveToTeam(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: MoveToTeamDto,
 	) {
-		await this.gameService.moveToTeam(dto, client.data.user);
+		await this.teamFacade.moveToTeam(dto, client.data.user);
 	}
 	@SubscribeMessage("deleteTeam")
 	async deleteTeam(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: DeleteTeamDto,
 	) {
-		await this.gameService.deleteTeam(dto, client.data.user);
+		await this.teamFacade.deleteTeam(dto, client.data.user);
 	}
 	@SubscribeMessage("leaveGame")
 	async leaveGame(
@@ -177,10 +185,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received leaveGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		await this.gameService.playerLeftRoom({
-			playerId: client.data.user.id,
-			roomId: body.roomId,
-		});
+		await this.gameFacade.leaveGame(body.roomId, client.data.user.id);
 		return { success: true };
 	}
 
@@ -189,7 +194,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: NextWordDto,
 	) {
-		const data = await this.gameService.nextWord(dto, client.data.user);
+		const data = await this.gameFacade.nextWord(dto, client.data.user);
 		return plainToInstance(WordResponseDto, data.newWord, {
 			excludeExtraneousValues: true,
 		});
@@ -199,14 +204,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: NextRoundDto,
 	) {
-		await this.gameService.nextRound(dto, client.data.user);
+		await this.gameFacade.nextRound(dto, client.data.user);
 	}
 	@SubscribeMessage("startRound")
 	async startRound(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: StartRoundDto,
 	) {
-		const data = await this.gameService.startRound(dto, client.data.user);
+		const data = await this.roundFacade.startRound(dto, client.data.user);
 		return plainToInstance(WordResponseDto, data.word, {
 			excludeExtraneousValues: true,
 		});
@@ -217,14 +222,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: ChangeWordScoreDto,
 	) {
-		await this.gameService.changeWordScore(dto, client.data.user);
+		await this.gameFacade.changeWordScore(dto, client.data.user);
 	}
 	@SubscribeMessage("deleteGame")
 	async deleteGame(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: DeleteGameDto,
 	) {
-		await this.gameService.deleteGame(dto, client.data.user);
+		await this.gameFacade.deleteGame(dto, client.data.user);
 	}
 
 	@OnEvent(PLAYER_KICKED)
@@ -287,11 +292,11 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received disconnet from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		const { roomId } = await this.gameService.getGameIdByUserId(
+		const { roomId } = await this.playerFacade.getGameIdByUserId(
 			client.data.user.id,
 		);
 		if (!roomId) return;
-		await this.gameService.setPlayerOffline(roomId, client.data.user.id);
+		await this.playerFacade.setPlayerOffline(roomId, client.data.user.id);
 		await this.removePlayerFromRoom(roomId, client.data.user.id);
 	}
 

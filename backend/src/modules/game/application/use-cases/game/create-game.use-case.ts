@@ -12,7 +12,7 @@ export class CreateGameUseCase {
 		private readonly repository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 	) {}
-	async create(createGameDto: CreateGameDto, user: UserDto) {
+	async execute(createGameDto: CreateGameDto, user: UserDto) {
 		const code = createGameDto.isPrivate
 			? this.gameSharedService.generateRoomCode(6)
 			: null;

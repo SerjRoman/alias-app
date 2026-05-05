@@ -23,6 +23,9 @@ export class StartRoundUseCase {
 		this.roundScheduler.scheduleRoundTimeout(
 			room.id,
 			room.settings.roundTimeSeconds * 1000,
+			() => {
+				void this.handleRoundTimeout(room.id);
+			},
 		);
 		const text = await this.gameSharedService.getWordForGameSession(room);
 
@@ -36,11 +39,23 @@ export class StartRoundUseCase {
 			roomId: room.id,
 		};
 		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
-		const events = room.pullDomainEvents();
-
-		for (const event of events) {
-			this.eventBus.publish(event);
-		}
 		return { word };
+	}
+
+	private async handleRoundTimeout(roomId: string) {
+		const room = await this.gameSharedService.loadGame(roomId);
+		if (!room.currentRound) {
+			throw new RoundNotActiveError();
+		}
+
+		await this.gameSharedService.checkAndSetWordsForGame(room);
+		room.finishRound();
+		await this.gameRepository.saveGame(room);
+
+		const eventPayload: RoundUpdatedPayload = {
+			round: room.currentRound.toPrimitives(),
+			roomId: room.id,
+		};
+		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
 	}
 }

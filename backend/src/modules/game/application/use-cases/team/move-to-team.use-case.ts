@@ -1,8 +1,8 @@
 import { type EventEmitter2 } from "@nestjs/event-emitter";
-import { type MoveToTeamDto } from "../../dto/body";
-import { type GameSharedService } from "../game-shared.service";
-import { TEAMS_UPDATED, type TeamsUpdatedPayload } from "../game.events";
-import { type IGameRepository } from "../game.repository.interface";
+import { type MoveToTeamDto } from "../../../dto/body";
+import { type GameSharedService } from "../../game-shared.service";
+import { TEAMS_UPDATED, type TeamsUpdatedPayload } from "../../game.events";
+import { type IGameRepository } from "../../game.repository.interface";
 
 export class MoveToTeamUseCase {
 	constructor(
