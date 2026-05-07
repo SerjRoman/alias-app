@@ -18,7 +18,7 @@ Alias Game is a real-time multiplayer word-guessing game built with modern web t
 
 #### 1. **Controller Layer** (`application/`)
 - `GameController` - REST API endpoints for game management
-- `AuthController` - Authentication endpoints
+- `UserController` - Authentication endpoints
 - Handles HTTP requests and response formatting
 
 #### 2. **Gateway Layer** (`application/`)

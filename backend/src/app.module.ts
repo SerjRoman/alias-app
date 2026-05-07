@@ -2,12 +2,14 @@ import { Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { RedisModule } from "./common/infrastructure/redis/redis.module";
 import { GameModule } from "./modules/game/game.module";
-import { AuthModule } from "./modules/auth/auth.module";
+import { UserModule } from "./modules/user/user.module";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./common/strategies/jwt.strategy";
 import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ScheduleModule } from "@nestjs/schedule";
+import { CloudinaryModule } from "@common/infrastructure/cloudinary";
+import { TypeOrmModule } from "@nestjs/typeorm";
 
 @Module({
 	providers: [JwtStrategy],
@@ -15,6 +17,20 @@ import { ScheduleModule } from "@nestjs/schedule";
 		ConfigModule.forRoot({ isGlobal: true }),
 		EventEmitterModule.forRoot({ global: true }),
 		ScheduleModule.forRoot({}),
+		TypeOrmModule.forRootAsync({
+			inject: [ConfigService],
+			useFactory: (configService: ConfigService) => ({
+				type: "postgres",
+				host: configService.getOrThrow<string>("DB_HOST"),
+				port: configService.get<number>("DB_PORT", 5432),
+				username: configService.getOrThrow<string>("DB_USERNAME"),
+				password: configService.getOrThrow<string>("DB_PASSWORD"),
+				database: configService.getOrThrow<string>("DB_NAME"),
+				autoLoadEntities: true,
+				synchronize: true,
+			}),
+		}),
+		CloudinaryModule,
 		RedisModule,
 		PassportModule,
 		JwtModule.registerAsync({
@@ -24,7 +40,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 				secret: configService.getOrThrow<string>("JWT_SECRET_KEY"),
 			}),
 		}),
-		AuthModule,
+		UserModule,
 		GameModule,
 	],
 })

@@ -6,9 +6,9 @@ import {
 	WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { AuthenticatedSocket } from "../../common/types/socket";
+import { AuthenticatedSocket } from "@common/types/socket";
 import { ConfigService } from "@nestjs/config";
-import { JwtPayload } from "../../common/types/jwt-payload";
+import { JwtPayload } from "@common/types/jwt-payload";
 
 @WebSocketGateway({
 	cors: {
@@ -16,8 +16,8 @@ import { JwtPayload } from "../../common/types/jwt-payload";
 	},
 	namespace: "game-ws",
 })
-export class AuthGateway implements OnGatewayConnection {
-	private readonly logger: Logger = new Logger(AuthGateway.name);
+export class UserGateway implements OnGatewayConnection {
+	private readonly logger: Logger = new Logger(UserGateway.name);
 	@WebSocketServer() server: Server;
 	constructor(
 		private readonly jwtService: JwtService,
@@ -44,6 +44,7 @@ export class AuthGateway implements OnGatewayConnection {
 			client.data.user = {
 				id: payload.sub,
 				name: payload.name,
+				role: payload.role,
 			};
 		} catch (error) {
 			this.logger.error(

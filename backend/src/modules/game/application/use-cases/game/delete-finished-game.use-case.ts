@@ -1,9 +1,6 @@
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import type { DeleteGameDto } from "../../../dto/body";
-import {
-	GAME_FINISHED,
-	type GameFinishedPayload,
-} from "../../game.events";
+import { GAME_FINISHED, type GameFinishedPayload } from "../../game.events";
 import type { GameSharedService } from "../../game-shared.service";
 import type { IGameRepository } from "../../game.repository.interface";
 
