@@ -8,7 +8,7 @@ export class MeDto {
 	accessToken: string;
 }
 export class MeDtoResponse extends UserDto {
-	@ApiProperty({ example: "registered" })
+	@ApiProperty({ example: "registered", enum: ["registered", "anonymous"] })
 	@Expose()
 	role: string;
 

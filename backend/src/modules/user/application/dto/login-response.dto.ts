@@ -1,3 +1,4 @@
+import { type UserRole } from "@common/types/authenticated-user";
 import { ApiProperty } from "@nestjs/swagger";
 class UserDto {
 	@ApiProperty({
@@ -8,6 +9,12 @@ class UserDto {
 
 	@ApiProperty({ description: "User name", example: "Alex" })
 	name: string;
+
+	@ApiProperty({
+		enum: ["anonymous", "registered"],
+		description: "User role",
+	})
+	role: UserRole;
 }
 
 export class LoginResponseDto {

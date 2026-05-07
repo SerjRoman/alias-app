@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/auth/login": {
+    "/user/login/anonymous": {
         parameters: {
             query?: never;
             header?: never;
@@ -13,15 +13,49 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** User login */
-        post: operations["AuthController_login"];
+        /** Anonymous user login */
+        post: operations["UserController_loginAnonymous"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
         trace?: never;
     };
-    "/auth/me": {
+    "/user/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registered user login */
+        post: operations["UserController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** User registration */
+        post: operations["UserController_register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/me": {
         parameters: {
             query?: never;
             header?: never;
@@ -29,8 +63,42 @@ export interface paths {
             cookie?: never;
         };
         /** Get current user info */
-        get: operations["AuthController_me"];
+        get: operations["UserController_me"];
         put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get user by ID */
+        get: operations["UserController_getUserById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Upload and update user avatar */
+        put: operations["UserController_updateAvatar"];
         post?: never;
         delete?: never;
         options?: never;
@@ -145,11 +213,8 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        LoginDto: {
-            /**
-             * @description Name of the user in the game
-             * @example Alex
-             */
+        AnonymousLoginDto: {
+            /** @example Guest_123 */
             name: string;
         };
         UserDto: {
@@ -163,6 +228,11 @@ export interface components {
              * @example Alex
              */
             name: string;
+            /**
+             * @description User role
+             * @enum {string}
+             */
+            role: "anonymous" | "registered";
         };
         LoginResponseDto: {
             /**
@@ -173,11 +243,44 @@ export interface components {
             /** @description User info */
             user: components["schemas"]["UserDto"];
         };
+        LoginDto: {
+            /** @example user@example.com */
+            email: string;
+            /** @example password123 */
+            password: string;
+        };
+        RegisterDto: {
+            /** @example user@example.com */
+            email: string;
+            /** @example John Doe */
+            name: string;
+            /** @example john_doe */
+            username: string;
+            /** @example password123 */
+            password: string;
+        };
         MeDtoResponse: {
             /** @example 123e4567-e89b-12d3-a456-426614174000 */
             id: string;
             /** @example John Doe */
             name: string;
+            /**
+             * @example registered
+             * @enum {string}
+             */
+            role: "registered" | "anonymous";
+            /** @example john_doe */
+            username?: string;
+            /** @example user@example.com */
+            email?: string;
+        };
+        UserShortInfoResponseDto: {
+            /** @description User's full name */
+            name: string;
+            /** @description User's internal username */
+            username: string;
+            /** @description User's avatar URL */
+            avatarUrl: string;
         };
         GameSettingsDto: {
             /**
@@ -311,7 +414,31 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    AuthController_login: {
+    UserController_loginAnonymous: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AnonymousLoginDto"];
+            };
+        };
+        responses: {
+            /** @description The anonymous user has been successfully logged in. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginResponseDto"];
+                };
+            };
+        };
+    };
+    UserController_login: {
         parameters: {
             query?: never;
             header?: never;
@@ -335,7 +462,31 @@ export interface operations {
             };
         };
     };
-    AuthController_me: {
+    UserController_register: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterDto"];
+            };
+        };
+        responses: {
+            /** @description The user has been successfully registered. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginResponseDto"];
+                };
+            };
+        };
+    };
+    UserController_me: {
         parameters: {
             query?: never;
             header?: never;
@@ -352,6 +503,50 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["MeDtoResponse"];
                 };
+            };
+        };
+    };
+    UserController_getUserById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user info has been successfully retrieved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserShortInfoResponseDto"];
+                };
+            };
+        };
+    };
+    UserController_updateAvatar: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": components["schemas"];
+            };
+        };
+        responses: {
+            /** @description Avatar has been successfully updated. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

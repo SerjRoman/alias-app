@@ -5,7 +5,7 @@ import { useMutation } from "@shared/api";
 
 export function LoginPage() {
 	const { setToken, setUser } = useAuth();
-	const { mutate, isPending } = useMutation("post", "/auth/login");
+	const { mutate, isPending } = useMutation("post", "/user/login/anonymous");
 	const [name, setName] = useState<string>("");
 	const handleLogin = () => {
 		if (!name.trim()) return;

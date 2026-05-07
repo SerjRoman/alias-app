@@ -13,7 +13,7 @@ import { socketClient, useMutation } from "@shared/api";
 export function BaseLayout() {
 	const { token, setUser, setToken } = useAuth();
 
-	const { mutate: getMe } = useMutation("get", "/auth/me");
+	const { mutate: getMe } = useMutation("get", "/user/me");
 	const { mutate: checkActiveGame } = useMutation("get", "/games/current");
 	const navigate = useNavigate();
 	const location = useLocation();
