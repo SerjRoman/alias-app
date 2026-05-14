@@ -19,3 +19,4 @@ export { DeleteGameDto } from "./delete-game.dto";
 export { ValidateCodeDto } from "./validate-code.dto";
 export { EndPointingDto } from "./end-pointing.dto";
 export { FinishRoundDto } from "./finish-round.dto";
+export { EndGameDto } from "./end-game.dto";

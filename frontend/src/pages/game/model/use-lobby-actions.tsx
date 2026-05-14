@@ -20,13 +20,5 @@ export function useLobbyActions() {
 		socketClient.emit("startGame", { roomId });
 	};
 
-	const assignPlayerToTeam = (
-		roomId: string,
-		teamId: string,
-		playerId: string,
-	) => {
-		socketClient.emit("moveToTeam", { roomId, teamId, playerId });
-	};
-
-	return { createTeam, deleteTeam, joinTeam, startGame, assignPlayerToTeam };
+	return { createTeam, deleteTeam, joinTeam, startGame };
 }

@@ -1,0 +1,155 @@
+.container {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-large);
+	padding: var(--spacing-medium);
+	width: 100%;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-large);
+	background-color: var(--color-surface);
+	padding: var(--spacing-large);
+	border-radius: var(--border-radius);
+	box-shadow: var(--box-shadow);
+	border: 1px solid var(--color-border);
+}
+
+.avatar {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	object-fit: cover;
+	border: 2px solid var(--color-primary);
+}
+
+.userInfo {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+}
+
+.name {
+	margin: 0;
+	font-size: 1.5rem;
+	color: var(--color-text);
+}
+
+.username {
+	margin: 0;
+	color: var(--color-text);
+	opacity: 0.7;
+	font-size: 1rem;
+}
+
+.stats {
+	display: flex;
+	gap: var(--spacing-medium);
+	margin-top: var(--spacing-small);
+	font-weight: bold;
+	color: var(--color-primary);
+	flex-wrap: wrap;
+}
+
+.content {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+}
+
+.content h2 {
+	font-size: 1.5rem;
+	color: var(--color-text);
+	border-bottom: 2px solid var(--color-border);
+	padding-bottom: var(--spacing-small);
+	margin: 0;
+}
+
+.gamesList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium);
+}
+
+.gameCard {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-medium);
+	box-shadow: var(--box-shadow);
+	transition: border-color 0.2s;
+}
+
+.gameCard:hover {
+	border-color: var(--color-primary);
+}
+
+.gameHeader {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	cursor: pointer;
+	user-select: none;
+}
+
+.gameMainInfo {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+}
+.gameName {
+	font-weight: bold;
+	color: var(--color-text);
+	font-size: 1.2rem;
+}
+.gameDate {
+	color: var(--color-text);
+	font-size: 1.1rem;
+}
+
+.expandIcon {
+	color: var(--color-primary);
+	font-size: 0.9rem;
+	transition: transform 0.2s;
+}
+
+.gameDetails {
+	margin-top: var(--spacing-medium);
+	padding-top: var(--spacing-medium);
+	border-top: 1px solid var(--color-border);
+}
+
+.gameDetails h4 {
+	margin: 0 0 var(--spacing-small) 0;
+	color: var(--color-text);
+}
+
+.roundsList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.roundItem {
+	padding: var(--spacing-small);
+	background-color: rgba(0, 0, 0, 0.03); /* Легкий фон для списка */
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+	font-size: 0.95rem;
+	color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+	.header {
+		flex-direction: column;
+		text-align: center;
+	}
+	.stats {
+		justify-content: center;
+	}
+}

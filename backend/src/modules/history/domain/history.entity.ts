@@ -46,12 +46,6 @@ export class HistoryGameEntity {
 	get settings() {
 		return { ...this.state.settings };
 	}
-	get teamsFinalState() {
-		return [...this.state.teamsFinalState];
-	}
-	get playersFinalState() {
-		return [...this.state.playersFinalState];
-	}
 	get createdAt() {
 		return this.state.createdAt;
 	}
@@ -82,14 +76,6 @@ export class HistoryGameEntity {
 	}
 	set winnerTeamId(winnerTeamId: string | null) {
 		this.state.winnerTeamId = winnerTeamId;
-	}
-	set playersFinalState(
-		playersFinalState: HistoryGameState["playersFinalState"],
-	) {
-		this.state.playersFinalState = playersFinalState;
-	}
-	set teamsFinalState(teamsFinalState: HistoryGameState["teamsFinalState"]) {
-		this.state.teamsFinalState = teamsFinalState;
 	}
 	set updatedAt(updatedAt: Date) {
 		this.state.updatedAt = updatedAt;

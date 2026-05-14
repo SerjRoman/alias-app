@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { RoundFinishedEvent } from "../../../game/domain/events/round.events";
 import { HistoryRoundEntity } from "../../domain/history-round.entity";
@@ -9,15 +9,22 @@ import {
 
 @Injectable()
 export class SaveRoundOnRoundFinishedHandler {
+	private readonly logger = new Logger(SaveRoundOnRoundFinishedHandler.name);
+
 	constructor(
 		@Inject(HISTORY_ROUND_REPOSITORY)
 		private readonly historyRoundRepository: IHistoryRoundRepository,
 	) {}
 	@OnEvent(RoundFinishedEvent.eventName)
 	async handle(event: RoundFinishedEvent) {
+		this.logger.log(
+			`Received RoundFinishedEvent with payload=${JSON.stringify(event)}`,
+		);
 		const currentRound = event.gameState.currentRound;
-        console.log('Round started event')
 		if (!currentRound) {
+			this.logger.warn(
+				`RoundFinishedEvent for gameId=${event.gameState.id} has no current round.`,
+			);
 			return;
 		}
 		const participants = event.gameState.teams.flatMap((team) =>

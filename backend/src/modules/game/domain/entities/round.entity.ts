@@ -47,6 +47,9 @@ export class RoundEntity {
 	set endTime(time: number) {
 		this.state.endTime = time;
 	}
+	set guesserId(guesserId: string) {
+		this.state.guesserId = guesserId;
+	}
 	private addWord(word: WordState) {
 		this.state.words.push(word);
 	}

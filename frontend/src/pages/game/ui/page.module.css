@@ -14,7 +14,46 @@
 .container {
 	flex: 0.5;
 }
-.loader {
-	align-self: center;
-    justify-self: center;
+
+.adminToggle {
+	position: fixed;
+	right: 20px;
+	top: 80px;
+	z-index: 1002;
+	padding: 8px 16px;
+	background-color: var(--color-surface, #fff);
+	color: var(--color-text, #333);
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: var(--border-radius, 8px);
+	cursor: pointer;
+	box-shadow: var(--box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
+	font-weight: bold;
+	transition: right 0.3s ease;
+}
+
+.sideMenu {
+	position: fixed;
+	top: 0;
+	right: 0px;
+	width: clamp(300px, 30%, 500px);
+	height: 100vh;
+	background-color: var(--color-surface, #fff);
+	box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+	transition: right 0.3s ease;
+	z-index: 1001;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.sideMenu.open {
+	right: 0;
+}
+
+.sideMenuContent {
+	padding: 20px;
+	display: flex;
+	flex-direction: column;
+
+	flex: 1;
 }

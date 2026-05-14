@@ -1,7 +1,10 @@
+import type { PaginatedResponse } from "@shared/lib";
+
 export enum GameStatus {
 	LOBBY = "LOBBY",
 	IN_PROGRESS = "IN_PROGRESS",
 	FINISHED = "FINISHED",
+	// CANCELLED = "CANCELLED",
 }
 export enum RoundStatus {
 	PENDING = "PENDING",
@@ -30,6 +33,7 @@ export interface PlayerState {
 	isRoundReady: boolean;
 	score: number;
 	isOnline: boolean;
+	role: "registered" | "anonymous";
 }
 
 export interface RoundState {
@@ -42,9 +46,9 @@ export interface RoundState {
 	words: WordState[];
 }
 export interface GameSettings {
+	name: string;
 	roundTimeSeconds: number;
 	pointsToWin: number;
-	name: string;
 	isPrivate: boolean;
 	level: GameWordsLevel;
 }
@@ -62,4 +66,68 @@ export interface GameStateDetails extends GameState {
 	players: PlayerState[];
 	winnerTeamId: string | null;
 	lastTeamIndex: number;
+}
+
+export interface ParticipantDisplayData {
+	isRegistered: boolean;
+	userId: string | null;
+	name: string;
+	avatarUrl: string;
+}
+
+export interface GameSummaryParticipant {
+	participantId: string;
+	teamId: string;
+	score: number;
+	displayData: ParticipantDisplayData;
+}
+
+export interface ParticipantStats {
+	participantId: string;
+	teamId: string;
+	scoreAfterRound: number;
+}
+
+// Раунды
+export interface RoundSummary {
+	id: string;
+	roundNumber: number;
+	teamId: string;
+	guesserParticipantId: string;
+}
+export interface TeamSummary {
+	id: string;
+	name: string;
+}
+export interface WordResponse {
+	id: string;
+	word: string;
+	isGuessed: boolean;
+}
+
+export interface RoundDetailsResponse {
+	roundId: string;
+	number: number;
+	words: WordResponse[];
+	participantsStats: ParticipantStats[];
+}
+
+export type PaginatedRoundDetailsResponse =
+	PaginatedResponse<RoundDetailsResponse>;
+
+export interface GameSummaryResponse {
+	id: string;
+	status: GameStatus | string;
+	createdAt: string;
+	settings: GameSettings;
+	participants: GameSummaryParticipant[];
+	roundsSummary: RoundSummary[];
+	teams: TeamSummary[];
+}
+
+export type PaginatedGameSummaryResponse =
+	PaginatedResponse<GameSummaryResponse>;
+
+export interface GameResponse extends GameState {
+	createdAt: string;
 }

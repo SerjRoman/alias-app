@@ -1,7 +1,5 @@
 import { type GameSettings } from "../../game/domain/entities/game.entity";
-import { PlayerState } from "../../game/domain/entities/player.entity";
-import { WordState } from "../../game/domain/entities/round.entity";
-import { TeamState } from "../../game/domain/entities/team.entity";
+import { type WordState } from "../../game/domain/entities/round.entity";
 
 export interface HistoryRoundParticipantState {
 	id: string;
@@ -40,8 +38,6 @@ export interface HistoryGameState {
 	status: string;
 	winnerTeamId: string | null;
 	settings: GameSettings;
-	teamsFinalState: TeamState[];
-	playersFinalState: PlayerState[];
 	createdAt: Date;
 	updatedAt: Date;
 	rounds: HistoryRoundState[];

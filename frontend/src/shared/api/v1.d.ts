@@ -89,6 +89,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/user/{id}/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get user profile by ID */
+        get: operations["UserController_getUserProfileById"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/short-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get users short info */
+        get: operations["UserController_getUsersShortInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/user/avatar": {
         parameters: {
             query?: never;
@@ -216,8 +250,42 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Get all completed games for a user */
+        /** Get all completed games summaries for a user */
         get: operations["HistoryController_getGamesByUserId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/history/games/{gameId}/rounds": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get paginated rounds for a specific game */
+        get: operations["HistoryController_getRoundsByGameId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/history/rounds/{roundId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get details for a specific round */
+        get: operations["HistoryController_getRoundDetails"];
         put?: never;
         post?: never;
         delete?: never;
@@ -290,14 +358,55 @@ export interface components {
             username?: string;
             /** @example user@example.com */
             email?: string;
+            /** @example https://example.com/avatar.jpg */
+            avatarUrl?: string;
         };
         UserShortInfoResponseDto: {
+            /** @description User's ID */
+            id: string;
             /** @description User's full name */
             name: string;
             /** @description User's internal username */
             username: string;
             /** @description User's avatar URL */
             avatarUrl: string;
+        };
+        UserProfileDto: {
+            /**
+             * @description User ID
+             * @example 123e4567-e89b-12d3-a456-426614174000
+             */
+            id: string;
+            /**
+             * @description Display name
+             * @example John Doe
+             */
+            name: string;
+            /**
+             * @description Username
+             * @example johndoe123
+             */
+            username: string;
+            /**
+             * @description Avatar URL
+             * @example https://example.com/avatar.jpg
+             */
+            avatarUrl: string;
+            /**
+             * @description Total games played
+             * @example 42
+             */
+            totalGamesPlayed: number;
+            /**
+             * @description Total wins
+             * @example 15
+             */
+            totalWins: number;
+            /**
+             * @description Total score
+             * @example 1250
+             */
+            totalScore: number;
         };
         UploadAvatarDto: {
             /**
@@ -433,87 +542,78 @@ export interface components {
         ValidateCodeResponseDto: {
             valid: boolean;
         };
-        HistoryTeamDto: {
-            /** @example team-1 */
-            id: string;
-            /** @example Team A */
-            name: string;
-        };
-        HistoryParticipantDto: {
-            /** @example participant-1 */
-            id: string;
-            /** @example user-1 */
+        ParticipantDisplayDataDto: {
+            isRegistered: boolean;
             userId: Record<string, never> | null;
-            /** @example Player 1 */
             name: string;
-            /** @example team-1 */
-            teamId: string;
-            /** @example 10 */
-            finalScore: number;
+            avatarUrl: string;
         };
-        HistoryRoundParticipantDto: {
-            /** @example rp-1 */
-            id: string;
-            /** @example round-1 */
-            roundId: string;
-            /** @example player-1 */
-            playerId: Record<string, never> | null;
-            /** @example team-1 */
+        GameSummaryParticipantDto: {
+            participantId: string;
             teamId: string;
-            /** @example 5 */
-            scoreAfterRound: number;
+            score: number;
+            displayData: components["schemas"]["ParticipantDisplayDataDto"];
         };
-        HistoryRoundDto: {
-            /** @example round-1 */
+        RoundSummaryDto: {
             id: string;
-            /** @example game-1 */
-            gameId: string;
-            /** @example team-1 */
-            teamId: string;
-            /** @example player-1 */
-            guesserId: string;
-            /**
-             * @description Words for the round with their status (e.g., guessed, skipped, etc.)
-             * @example [
-             *       {
-             *         "word": "apple",
-             *         "status": "guessed"
-             *       }
-             *     ]
-             */
-            words: Record<string, never>[][];
-            /** @example 1 */
             roundNumber: number;
-            participants: components["schemas"]["HistoryRoundParticipantDto"][];
+            teamId: string;
+            guesserParticipantId: string;
         };
-        GameHistoryDetailsResponseDto: {
-            /** @example game-1 */
+        GameSummaryTeamDto: {
             id: string;
-            /** @example user-1 */
-            ownerId: Record<string, never> | null;
-            /** @example completed */
+            name: string;
+        };
+        GameSummaryResponseDto: {
+            id: string;
             status: string;
-            /** @example team-1 */
-            winnerTeamId: Record<string, never> | null;
-            /**
-             * @description Game settings
-             * @example {
-             *       "wordsToWin": 50,
-             *       "roundDuration": 60
-             *     }
-             */
-            settings: components["schemas"]["GameSettingsDto"];
-            /** @description Final state of teams at the moment of game completion */
-            teamsFinalState: Record<string, never>[][];
-            /** @description Final state of players at the moment of game completion */
-            playersFinalState: Record<string, never>[][];
-            teams: components["schemas"]["HistoryTeamDto"][];
-            participants: components["schemas"]["HistoryParticipantDto"][];
-            rounds: components["schemas"]["HistoryRoundDto"][];
             /** Format: date-time */
             createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
+            settings: components["schemas"]["GameSettingsDto"];
+            participants: components["schemas"]["GameSummaryParticipantDto"][];
+            roundsSummary: components["schemas"]["RoundSummaryDto"][];
+            teams: components["schemas"]["GameSummaryTeamDto"][];
+        };
+        PaginatedGameSummaryResponse: {
+            items: components["schemas"]["GameSummaryResponseDto"][];
+            total: number;
+            limit: number;
+            offset: number;
+        };
+        WordResponseDto: {
+            /**
+             * @description Word ID
+             * @example uuid-word-1
+             */
+            id: string;
+            /**
+             * @description The word text
+             * @example Apple
+             */
+            text: string;
+            /**
+             * @description The word text
+             * @example Apple
+             */
+            score: number;
+        };
+        ParticipantStatsDto: {
+            participantId: string;
+            teamId: string;
+            scoreAfterRound: number;
+        };
+        RoundDetailsResponseDto: {
+            roundId: string;
+            number: number;
+            /** @description Words for the round */
+            words: components["schemas"]["WordResponseDto"][];
+            participantsStats: components["schemas"]["ParticipantStatsDto"][];
+        };
+        PaginatedRoundDetailsResponse: {
+            items: components["schemas"]["RoundDetailsResponseDto"][];
+            total: number;
+            limit: number;
+            offset: number;
         };
     };
     responses: never;
@@ -634,6 +734,51 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserShortInfoResponseDto"];
+                };
+            };
+        };
+    };
+    UserController_getUserProfileById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The user profile has been successfully retrieved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserProfileDto"];
+                };
+            };
+        };
+    };
+    UserController_getUsersShortInfo: {
+        parameters: {
+            query: {
+                /** @description Array of user IDs */
+                userIds: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The users short info has been successfully retrieved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserShortInfoResponseDto"][];
                 };
             };
         };
@@ -880,22 +1025,73 @@ export interface operations {
     };
     HistoryController_getGamesByUserId: {
         parameters: {
-            query?: never;
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
             header?: never;
             path: {
-                userId: string;
+                /** @description The ID of the user whose game history is being requested */
+                userId: unknown;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
-            /** @description List of games */
+            /** @description List of game summaries */
             200: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["GameHistoryDetailsResponseDto"][];
+                    "application/json": components["schemas"]["PaginatedGameSummaryResponse"];
+                };
+            };
+        };
+    };
+    HistoryController_getRoundsByGameId: {
+        parameters: {
+            query?: {
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path: {
+                gameId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of round details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRoundDetailsResponse"];
+                };
+            };
+        };
+    };
+    HistoryController_getRoundDetails: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                roundId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Round details */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoundDetailsResponseDto"];
                 };
             };
         };

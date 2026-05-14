@@ -3,6 +3,7 @@ import { useAuth } from "../../auth";
 import { type ChangeEvent, useRef } from "react";
 import styles from "./user-profile-popup.module.css";
 import { useMutation } from "@shared/api";
+import { useNavigate } from "react-router-dom";
 
 export function UserProfilePopup() {
 	const { user, setUser, token } = useAuth();
@@ -11,6 +12,7 @@ export function UserProfilePopup() {
 		"put",
 		"/user/avatar",
 	);
+	const navigate = useNavigate();
 
 	if (!user) return null;
 
@@ -84,6 +86,13 @@ export function UserProfilePopup() {
 						onClick={() => fileInputRef.current?.click()}
 					>
 						{isUploading ? "Uploading..." : "Upload Avatar"}
+					</button>
+					<button
+						className={styles.trigger}
+						aria-label="Profile"
+						onClick={() => navigate(`/profile/${user.id}`)}
+					>
+						Profile
 					</button>
 
 					<Popover.Arrow className="PopoverArrow" />

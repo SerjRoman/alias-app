@@ -12,6 +12,9 @@
 	--color-text-light: #ffffff;
 	--color-border: #d9d9d9;
 	--color-error: #f5222d;
+	--color-hover: #f0f0f0;
+	--color-success: #52c41a;
+	--color-active: #e6f7ff;
 
 	--spacing-small: 8px;
 	--spacing-medium: 16px;

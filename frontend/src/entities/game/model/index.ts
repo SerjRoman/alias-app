@@ -7,6 +7,9 @@ export type {
 	PlayerState,
 	WordState,
 	GameWordsLevel,
+	GameSummaryResponse,
+	ParticipantDisplayData,
+	TeamSummary,
 } from "./game.types";
 export { GameStatus, RoundStatus } from "./game.types";
 export { useGameSlice } from "./game.slice";

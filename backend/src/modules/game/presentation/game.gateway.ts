@@ -50,6 +50,7 @@ import {
 	DeleteGameDto,
 	EndPointingDto,
 	FinishRoundDto,
+	EndGameDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
@@ -58,6 +59,8 @@ import {
 	PlayerResponseDto,
 	RoundResponseDto,
 } from "../application/dto/response";
+import { ADMIN_EVENTS } from "./socket.events";
+import { SetGuesserDto } from "../application/use-cases/game/set-guesser.dto";
 
 @WebSocketGateway({
 	cors: {
@@ -138,13 +141,7 @@ export class GameGateway implements OnGatewayDisconnect {
 
 		return publicState;
 	}
-	@SubscribeMessage("kickPlayer")
-	async kickPlayer(
-		@ConnectedSocket() client: GameSocket,
-		@MessageBody() dto: KickPlayerDto,
-	) {
-		await this.playerFacade.kickPlayer(dto, client.data.user);
-	}
+
 	@SubscribeMessage("startGame")
 	async startGame(
 		@ConnectedSocket() client: GameSocket,
@@ -173,6 +170,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.teamFacade.moveToTeam(dto, client.data.user);
 	}
+
 	@SubscribeMessage("deleteTeam")
 	async deleteTeam(
 		@ConnectedSocket() client: GameSocket,
@@ -251,6 +249,35 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.roundFacade.finishRound(dto, client.data.user);
 	}
+
+	@SubscribeMessage(ADMIN_EVENTS.assignPlayerToTeam)
+	async assignPlayerToTeam(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: MoveToTeamDto,
+	) {
+		await this.teamFacade.moveToTeam(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.kickPlayer)
+	async kickPlayer(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: KickPlayerDto,
+	) {
+		await this.playerFacade.kickPlayer(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.endGame)
+	async endGame(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: EndGameDto,
+	) {
+		await this.gameFacade.endGame(dto, client.data.user);
+	}
+	// @SubscribeMessage(ADMIN_EVENTS.setGuesser)
+	// async setGuesser(
+	// 	@ConnectedSocket() client: GameSocket,
+	// 	@MessageBody() dto: SetGuesserDto,
+	// ) {
+	// 	await this.roundFacade.setGuesser(dto, client.data.user);
+	// }
 
 	@OnEvent(PLAYER_KICKED)
 	handlePlayerKicked(payload: PlayerKickedPayload) {

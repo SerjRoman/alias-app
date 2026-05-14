@@ -6,43 +6,49 @@ import { SaveHistoryOnGameFinishedHandler } from "./application/handlers/save-hi
 import { SaveRoundOnRoundFinishedHandler } from "./application/handlers/save-round-on-round-finished";
 import { HistoryController } from "./presentation/history.controller";
 import {
-    HISTORY_REPOSITORY,
-    HISTORY_ROUND_REPOSITORY,
+	HISTORY_REPOSITORY,
+	HISTORY_ROUND_REPOSITORY,
 } from "./application/history.repository";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import {
-    HistoryGameOrmEntity,
-    HistoryParticipantOrmEntity,
-    HistoryRoundOrmEntity,
-    HistoryRoundParticipantOrmEntity,
-    HistoryTeamOrmEntity,
+	HistoryGameOrmEntity,
+	HistoryParticipantOrmEntity,
+	HistoryRoundOrmEntity,
+	HistoryRoundParticipantOrmEntity,
+	HistoryTeamOrmEntity,
 } from "./infrastructure/entities";
 import { FindAllGamesByUserIdUseCase } from "./application/use-case/find-all-games-by-user-id";
+import { GetRoundDetailsUseCase } from "./application/use-case/get-round-details.use-case";
+import { FindRoundsByGameIdUseCase } from "./application/use-case/find-rounds-by-game-id.use-case";
+import { UserModule } from "../user/user.module";
 
 @Module({
-    imports: [
-        TypeOrmModule.forFeature([
-            HistoryGameOrmEntity,
-            HistoryRoundOrmEntity,
-            HistoryParticipantOrmEntity,
-            HistoryTeamOrmEntity,
-            HistoryRoundParticipantOrmEntity,
-        ]),
-    ],
-    providers: [
-        SaveGameOnGameStartHandler,
-        SaveHistoryOnGameFinishedHandler,
-        SaveRoundOnRoundFinishedHandler,
-        FindAllGamesByUserIdUseCase,
-        {
-            provide: HISTORY_REPOSITORY,
-            useClass: HistoryRepository,
-        },
-        {
-            provide: HISTORY_ROUND_REPOSITORY,
-            useClass: HistoryRoundRepository,
-        },
-    ],
-    controllers: [HistoryController],
+	imports: [
+		TypeOrmModule.forFeature([
+			HistoryGameOrmEntity,
+			HistoryRoundOrmEntity,
+			HistoryParticipantOrmEntity,
+			HistoryTeamOrmEntity,
+			HistoryRoundParticipantOrmEntity,
+		]),
+		UserModule,
+	],
+	providers: [
+		SaveGameOnGameStartHandler,
+		SaveHistoryOnGameFinishedHandler,
+		SaveRoundOnRoundFinishedHandler,
+		FindAllGamesByUserIdUseCase,
+		GetRoundDetailsUseCase,
+		FindRoundsByGameIdUseCase,
+		{
+			provide: HISTORY_REPOSITORY,
+			useClass: HistoryRepository,
+		},
+		{
+			provide: HISTORY_ROUND_REPOSITORY,
+			useClass: HistoryRoundRepository,
+		},
+	],
+	controllers: [HistoryController],
 })
-export class HistoryModule { }
+export class HistoryModule {}

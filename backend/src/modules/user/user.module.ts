@@ -19,6 +19,10 @@ import {
 } from "./application/user.repository.interface";
 import { UserRepository } from "./infrastructure/user.repository";
 import { ImageService } from "./application/image.service";
+import { GetUsersShortInfoUseCase } from "./application/use-case/get-users-short-info.use-case";
+import { ConfigService } from "@nestjs/config";
+import { GetUserProfileUseCase } from "./application/use-case/get-user-profile.use-case";
+import { UpdateUserStatOnGameFinishedHandler } from "./application/handlers/update-user-stat-on-game-finished";
 
 const useCaseProviders = [
 	{
@@ -47,14 +51,29 @@ const useCaseProviders = [
 	},
 	{
 		provide: RegisterUseCase,
-		useFactory: (repository: IUserRepository, tokenService: TokenService) =>
-			new RegisterUseCase(repository, tokenService),
-		inject: [USER_REPOSITORY, TokenService],
+		useFactory: (
+			repository: IUserRepository,
+			tokenService: TokenService,
+			configService: ConfigService,
+		) => new RegisterUseCase(repository, tokenService, configService),
+		inject: [USER_REPOSITORY, TokenService, ConfigService],
 	},
 	{
 		provide: UpdateAvatarUseCase,
 		useFactory: (repository: IUserRepository) =>
 			new UpdateAvatarUseCase(repository),
+		inject: [USER_REPOSITORY],
+	},
+	{
+		provide: GetUsersShortInfoUseCase,
+		useFactory: (repository: IUserRepository) =>
+			new GetUsersShortInfoUseCase(repository),
+		inject: [USER_REPOSITORY],
+	},
+	{
+		provide: GetUserProfileUseCase,
+		useFactory: (repository: IUserRepository) =>
+			new GetUserProfileUseCase(repository),
 		inject: [USER_REPOSITORY],
 	},
 ];
@@ -63,17 +82,18 @@ const useCaseProviders = [
 	imports: [TypeOrmModule.forFeature([UserOrmEntity])],
 	controllers: [UserController],
 	providers: [
+		{
+			provide: USER_REPOSITORY,
+			useClass: UserRepository,
+		},
 		TokenService,
 		UserGateway,
 		CloudinaryProvider,
 		CloudinaryService,
 		UserFacade,
 		ImageService,
+		UpdateUserStatOnGameFinishedHandler,
 		...useCaseProviders,
-		{
-			provide: USER_REPOSITORY,
-			useClass: UserRepository,
-		},
 	],
 	exports: [UserFacade],
 })

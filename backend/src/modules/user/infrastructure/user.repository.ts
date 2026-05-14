@@ -1,4 +1,4 @@
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { IUserRepository } from "../application/user.repository.interface";
 import { UserEntity } from "../domain/entities/user";
 import { UserOrmEntity } from "./entities/user";
@@ -12,6 +12,16 @@ export class UserRepository implements IUserRepository {
 		@InjectRepository(UserOrmEntity)
 		private readonly repository: Repository<UserOrmEntity>,
 	) {}
+
+	async findManyByIds(ids: string[]): Promise<UserEntity[]> {
+		if (!ids.length) {
+			return [];
+		}
+		const ormUsers = await this.repository.find({
+			where: { id: In(ids) },
+		});
+		return ormUsers.map((orm) => UserMapper.toDomain(orm));
+	}
 
 	async findById(id: string): Promise<UserEntity | null> {
 		const ormUser = await this.repository.findOne({ where: { id } });
@@ -28,5 +38,9 @@ export class UserRepository implements IUserRepository {
 	async save(user: UserEntity): Promise<void> {
 		const ormUser = UserMapper.toOrm(user);
 		await this.repository.save(ormUser);
+	}
+	async saveMany(users: UserEntity[]): Promise<void> {
+		const ormUsers = users.map((user) => UserMapper.toOrm(user));
+		await this.repository.save(ormUsers);
 	}
 }

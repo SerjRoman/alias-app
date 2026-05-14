@@ -9,6 +9,8 @@ import { LoginRegisteredUseCase } from "../use-case/login-registered.use-case";
 import { RegisterUseCase } from "../use-case/register.use-case";
 import { GetUserByIdUseCase } from "../use-case/get-user-by-id.use-case";
 import { UpdateAvatarUseCase } from "../use-case/update-avatar.use-case";
+import { GetUsersShortInfoUseCase } from "../use-case/get-users-short-info.use-case";
+import { GetUserProfileUseCase } from "../use-case/get-user-profile.use-case";
 
 @Injectable()
 export class UserFacade {
@@ -19,6 +21,8 @@ export class UserFacade {
 		private readonly registerUseCase: RegisterUseCase,
 		private readonly getUserByIdUseCase: GetUserByIdUseCase,
 		private readonly updateAvatarUseCase: UpdateAvatarUseCase,
+		private readonly getUsersShortInfoUseCase: GetUsersShortInfoUseCase,
+		private readonly getUserProfileUseCase: GetUserProfileUseCase,
 	) {}
 
 	async getMe(user: AuthenticatedUser) {
@@ -43,5 +47,13 @@ export class UserFacade {
 
 	async updateAvatar(userId: string, newAvatarUrl: string) {
 		return this.updateAvatarUseCase.execute(userId, newAvatarUrl);
+	}
+
+	async getUsersShortInfo(userIds: string[]) {
+		return this.getUsersShortInfoUseCase.execute(userIds);
+	}
+
+	async getUserProfile(userId: string) {
+		return this.getUserProfileUseCase.execute(userId);
 	}
 }

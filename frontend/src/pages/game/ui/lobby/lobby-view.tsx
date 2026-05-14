@@ -39,7 +39,6 @@ export function LobbyView() {
 			<UnassignedPlayersList
 				players={unassignedPlayers}
 				roomId={game.id}
-				isOwner={isOwner}
 			/>
 
 			<div className={styles.teamContainer}>

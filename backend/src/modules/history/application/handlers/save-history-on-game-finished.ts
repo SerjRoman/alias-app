@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { GameFinishedEvent } from "../../../game/domain/events/game.events";
 import {
@@ -8,6 +8,8 @@ import {
 
 @Injectable()
 export class SaveHistoryOnGameFinishedHandler {
+	private readonly logger = new Logger(SaveHistoryOnGameFinishedHandler.name);
+
 	constructor(
 		@Inject(HISTORY_REPOSITORY)
 		private readonly historyRepo: IHistoryRepository,
@@ -15,18 +17,14 @@ export class SaveHistoryOnGameFinishedHandler {
 
 	@OnEvent(GameFinishedEvent.eventName)
 	async handle(event: GameFinishedEvent) {
-		const game = await this.historyRepo.findById(event.roomId);
-		if (!game) {
-			console.warn(
-				`Game with id ${event.roomId} not found in history repository.`,
-			);
-			return;
-		}
-		game.status = event.gameState.status;
-		game.winnerTeamId = event.gameState.winnerTeamId;
-		game.teamsFinalState = event.gameState.teams;
-		game.playersFinalState = event.gameState.players;
-		game.updatedAt = new Date();
-		await this.historyRepo.save(game);
+		this.logger.log(
+			`Received GameFinishedEvent with payload=${JSON.stringify(event)}`,
+		);
+
+		await this.historyRepo.updateGameState(
+			event.roomId,
+			event.gameState.status,
+			event.gameState.winnerTeamId,
+		);
 	}
 }

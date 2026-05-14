@@ -1,23 +1,23 @@
-import { User } from "lucide-react";
 import styles from "./unassigned-players-list.module.css";
-import { MovePlayerMenu } from "../move-player-menu/move-player-menu";
 import { type PlayerState, PlayerPopover } from "@entities/game";
-import { KickButton } from "../../kick-button/kick-button";
+import { useQuery } from "@shared/api";
+import { USER_DEFAULT_AVATAR_URL } from "@shared/lib";
 
 interface UnassignedPlayersListProps {
 	players: PlayerState[];
 	roomId: string;
-	isOwner: boolean;
 }
-
 export function UnassignedPlayersList({
 	players,
-	isOwner,
-	roomId,
 }: Readonly<UnassignedPlayersListProps>) {
-	if (players.length === 0) return null;
+	const { data: playersData } = useQuery("get", "/user/short-info", {
+		params: {
+			query: { userIds: players.map((p) => p.id) },
+		},
+	});
+	if (players.length === 0 && playersData?.length === 0) return null;
 	const playersMap = new Map(players.map((p) => [p.id, p]));
-
+	const playersDataMap = new Map(playersData?.map((p) => [p.id, p]));
 	return (
 		<div className={styles.container}>
 			<h4>Spectators / Unassigned</h4>
@@ -27,6 +27,18 @@ export function UnassignedPlayersList({
 						key={p.id}
 						playerId={p.id}
 						playerIsOnline={p.isOnline}
+						playerAvatar={
+							playersDataMap.get(p.id)?.avatarUrl ||
+							USER_DEFAULT_AVATAR_URL
+						}
+						playerUsername={
+							playersDataMap.get(p.id)?.username || ""
+						}
+						playerName={
+							playersDataMap.get(p.id)?.name ||
+							playersMap.get(p.id)?.name ||
+							"Unknown Player"
+						}
 						renderTrigger={(playerId) => {
 							return (
 								<button
@@ -34,29 +46,25 @@ export function UnassignedPlayersList({
 									tabIndex={0}
 								>
 									<div key={p.id} className={styles.item}>
-										<User
-											size={14}
-											className={styles.icon}
+										<img
+											src={
+												playersDataMap.get(p.id)
+													?.avatarUrl ||
+												import.meta.env
+													.VITE_DEFAULT_AVATAR_URL
+											}
+											alt={playersDataMap.get(p.id)?.name}
+											className={styles.avatar}
 										/>
 										<span>
-											{playersMap.get(playerId)?.name}
+											{playersDataMap.get(playerId)
+												?.name ||
+												playersMap.get(playerId)
+													?.name ||
+												"Unknown Player"}
 										</span>
 									</div>
 								</button>
-							);
-						}}
-						renderActions={(playerId) => {
-							const player = playersMap.get(playerId);
-							if (!player || !isOwner) return null;
-							return (
-								<div className={styles.playerActions}>
-									<KickButton
-										roomId={roomId}
-										playerId={player.id}
-										playerName={player.name}
-									/>
-									<MovePlayerMenu playerId={player.id} />
-								</div>
 							);
 						}}
 					/>

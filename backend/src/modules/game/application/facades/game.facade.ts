@@ -6,7 +6,7 @@ import { DeleteFinishedGameUseCase } from "../use-cases/game/delete-finished-gam
 import { DeleteGameUseCase } from "../use-cases/game/delete-game.use-case";
 import { FindAllGamesUseCase } from "../use-cases/game/find-all-games.use-case";
 import { FindOneGameUseCase } from "../use-cases/game/find-one.use-case";
-import { FinishGameUseCase } from "../use-cases/game/finish-game.use-case";
+import { EndGameUseCase } from "../use-cases/game/end-game.use-case";
 import { GetGameCodeUseCase } from "../use-cases/game/get-game-code.use-case";
 import { GetPrivatePlayerStateUseCase } from "../use-cases/game/get-private-player-state.use-case";
 import { JoinGameUseCase } from "../use-cases/game/join-game.use-case";
@@ -27,6 +27,7 @@ import {
 	ChangeWordScoreDto,
 	UpdateGameSettingsDto,
 	GetRoomCodeDto,
+	EndGameDto,
 } from "../dto/body";
 
 @Injectable()
@@ -37,7 +38,7 @@ export class GameFacade {
 		private readonly findOneGameUseCase: FindOneGameUseCase,
 		private readonly deleteGameUseCase: DeleteGameUseCase,
 		private readonly deleteFinishedGameUseCase: DeleteFinishedGameUseCase,
-		private readonly finishGameUseCase: FinishGameUseCase,
+		private readonly endGameUseCase: EndGameUseCase,
 		private readonly joinGameUseCase: JoinGameUseCase,
 		private readonly leaveGameUseCase: LeaveGameUseCase,
 		private readonly nextRoundUseCase: NextRoundUseCase,
@@ -71,8 +72,8 @@ export class GameFacade {
 		return this.deleteFinishedGameUseCase.execute(dto, actor);
 	}
 
-	async finishGame(roomId: string, actor?: UserDto) {
-		return this.finishGameUseCase.execute(roomId, actor);
+	async endGame(dto: EndGameDto, actor: UserDto) {
+		return this.endGameUseCase.execute(dto, actor);
 	}
 
 	async joinGame(dto: JoinGameDto, actor: UserDto) {

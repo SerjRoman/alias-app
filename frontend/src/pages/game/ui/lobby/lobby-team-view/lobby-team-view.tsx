@@ -1,7 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useLobbyActions } from "../../../model/use-lobby-actions";
 import styles from "./lobby-team-view.module.css";
-import { MovePlayerMenu } from "../move-player-menu/move-player-menu";
 import { useAuth } from "@entities/auth";
 import {
 	type TeamState,
@@ -10,7 +9,6 @@ import {
 	PlayerPopover,
 	PlayerItem,
 } from "@entities/game";
-import { KickButton } from "../../kick-button/kick-button";
 
 export function LobbyTeamView({
 	team,
@@ -64,7 +62,7 @@ export function LobbyTeamView({
 							const player = playersMap.get(playerId);
 							if (!player) return null;
 							const isPlayerOwner = player.id === ownerId;
-                            
+
 							return (
 								<button
 									className={styles.triggerButton}
@@ -79,20 +77,6 @@ export function LobbyTeamView({
 										isOnline={player.isOnline}
 									/>
 								</button>
-							);
-						}}
-						renderActions={(playerId) => {
-							const player = playersMap.get(playerId);
-							if (!player || !isOwner) return null;
-							return (
-								<div className={styles.playerActions}>
-									<KickButton
-										roomId={roomId}
-										playerId={player.id}
-										playerName={player.name}
-									/>
-									<MovePlayerMenu playerId={player.id} />
-								</div>
 							);
 						}}
 					/>

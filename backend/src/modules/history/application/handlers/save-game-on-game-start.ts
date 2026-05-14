@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { GameStartedEvent } from "../../../game/domain/events/game.events";
 import { HistoryGameEntity } from "../../domain/history.entity";
@@ -9,12 +9,17 @@ import {
 
 @Injectable()
 export class SaveGameOnGameStartHandler {
+	private readonly logger = new Logger(SaveGameOnGameStartHandler.name);
+
 	constructor(
 		@Inject(HISTORY_REPOSITORY)
 		private readonly historyRepo: IHistoryRepository,
 	) {}
 	@OnEvent(GameStartedEvent.eventName)
 	async handle(event: GameStartedEvent) {
+		this.logger.log(
+			`Received GameStartedEvent with payload=${JSON.stringify(event)}`,
+		);
 		const playerTeamMap = new Map(
 			event.gameState.teams.flatMap((team) =>
 				team.playerIds.map((playerId) => [playerId, team.id] as const),
@@ -32,8 +37,6 @@ export class SaveGameOnGameStartHandler {
 				finalScore: player.score,
 			})),
 			settings: event.gameState.settings,
-			teamsFinalState: [],
-			playersFinalState: [],
 			winnerTeamId: null,
 			createdAt: new Date(),
 			updatedAt: new Date(),

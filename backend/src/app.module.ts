@@ -11,6 +11,7 @@ import { ScheduleModule } from "@nestjs/schedule";
 import { CloudinaryModule } from "@common/infrastructure/cloudinary";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { HistoryModule } from "./modules/history/history.module";
+import { LoggerModule } from "nestjs-pino";
 
 @Module({
 	providers: [JwtStrategy],
@@ -44,6 +45,27 @@ import { HistoryModule } from "./modules/history/history.module";
 		UserModule,
 		GameModule,
 		HistoryModule,
+		LoggerModule.forRoot({
+			pinoHttp: {
+				transport: {
+					targets: [
+						{
+							target: "pino-pretty",
+							options: { colorize: true, singleLine: true },
+							level: "info",
+						},
+						{
+							target: "pino/file",
+							options: {
+								destination: "./logs/app.log",
+								mkdir: true,
+							},
+							level: "info",
+						},
+					],
+				},
+			},
+		}),
 	],
 })
 export class AppModule {}

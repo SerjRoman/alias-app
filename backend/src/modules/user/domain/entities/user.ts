@@ -82,6 +82,7 @@ export class UserEntity extends BaseEntity {
 		name: string,
 		username: string,
 		password: string,
+		avatarUrl: string = "default-avatar.png",
 	): UserEntity {
 		return new UserEntity({
 			id: uuidv4(),
@@ -89,7 +90,7 @@ export class UserEntity extends BaseEntity {
 			name,
 			username,
 			password,
-			avatarUrl: "default-avatar.png",
+			avatarUrl,
 			totalGamesPlayed: 0,
 			totalWins: 0,
 			totalScore: 0,

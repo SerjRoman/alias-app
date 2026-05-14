@@ -8,6 +8,7 @@ import {
 	Param,
 	Post,
 	UseGuards,
+	Logger,
 } from "@nestjs/common";
 import {
 	ApiBearerAuth,
@@ -40,6 +41,8 @@ import {
 @ApiTags("Games")
 @Controller("games")
 export class GameController {
+	private readonly logger = new Logger(GameController.name);
+
 	constructor(
 		private readonly gameFacade: GameFacade,
 		private readonly playerFacade: PlayerFacade,
@@ -54,6 +57,7 @@ export class GameController {
 		type: [GameResponseDto],
 	})
 	async getAll() {
+		this.logger.log("Received getAll request");
 		const rooms = await this.gameFacade.findAll();
 		return plainToInstance(
 			GameResponseDto,
@@ -83,8 +87,10 @@ export class GameController {
 		@Body() body: CreateGameDto,
 		@GetAuthenticatedUser() user: UserDto,
 	) {
+		this.logger.log(
+			`Received create request with body=${JSON.stringify(body)} userId=${user.id}`,
+		);
 		const { room, code } = await this.gameFacade.create(body, user);
-		console.log("Created game room with ID:", room.id, "and code:", code);
 		return plainToInstance(
 			CreateGameResponseDto,
 			{ ...room, code },
@@ -119,6 +125,9 @@ export class GameController {
 		@Param() { id }: { id: string },
 		@GetAuthenticatedUser() user: UserDto,
 	) {
+		this.logger.log(
+			`Received delete request with id=${id} userId=${user.id}`,
+		);
 		return this.gameFacade.delete(id, user);
 	}
 
@@ -145,6 +154,9 @@ export class GameController {
 		description: "Forbidden. The user is already in the game room.",
 	})
 	join(@Body() dto: JoinGameDto, @GetAuthenticatedUser() user: UserDto) {
+		this.logger.log(
+			`Received join request with body=${JSON.stringify(dto)} userId=${user.id}`,
+		);
 		return plainToInstance(
 			GameResponseDto,
 			this.gameFacade.joinGame(dto, user),
@@ -180,6 +192,9 @@ export class GameController {
 		@Body() dto: GetRoomCodeDto,
 		@GetAuthenticatedUser() user: UserDto,
 	) {
+		this.logger.log(
+			`Received getCode request with body=${JSON.stringify(dto)} userId=${user.id}`,
+		);
 		return plainToInstance(
 			GetRoomCodeResponseDto,
 			this.gameFacade.getRoomCode(dto, user),
@@ -199,6 +214,9 @@ export class GameController {
 		description: "Returns roomId or null",
 	})
 	async getMyCurrentGame(@GetAuthenticatedUser() user: UserDto) {
+		this.logger.log(
+			`Received getMyCurrentGame request for userId=${user.id}`,
+		);
 		return plainToInstance(
 			CurrentGameResponseDto,
 			await this.playerFacade.getGameIdByUserId(user.id),
@@ -224,6 +242,9 @@ export class GameController {
 		description: "The game room with the specified ID was not found.",
 	})
 	async validateCode(@Body() dto: ValidateCodeDto) {
+		this.logger.log(
+			`Received validateCode request with body=${JSON.stringify(dto)}`,
+		);
 		return plainToInstance(
 			ValidateCodeResponseDto,
 			{ valid: await this.gameFacade.validateCode(dto.roomId, dto.code) },

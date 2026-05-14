@@ -8,9 +8,7 @@ import {
 	UpdateDateColumn,
 } from "typeorm";
 import { type GameSettings } from "../../game/domain/entities/game.entity";
-import { PlayerState } from "../../game/domain/entities/player.entity";
 import { WordState } from "../../game/domain/entities/round.entity";
-import { TeamState } from "../../game/domain/entities/team.entity";
 
 @Entity("history_games")
 export class HistoryGameOrmEntity {
@@ -27,12 +25,6 @@ export class HistoryGameOrmEntity {
 
 	@Column("jsonb")
 	settings: GameSettings;
-
-	@Column("jsonb")
-	teamsFinalState: TeamState[];
-
-	@Column("jsonb")
-	playersFinalState: PlayerState[];
 
 	@CreateDateColumn()
 	createdAt: Date;
@@ -103,8 +95,11 @@ export class HistoryTeamOrmEntity {
 	id: string;
 	@Column()
 	name: string;
+
 	@ManyToOne(() => HistoryGameOrmEntity, (game) => game.teams)
 	game: HistoryGameOrmEntity;
+	@Column()
+	gameId: string;
 
 	@OneToMany(() => HistoryParticipantOrmEntity, (player) => player.team, {
 		cascade: true,
@@ -119,6 +114,8 @@ export class HistoryParticipantOrmEntity {
 
 	@ManyToOne(() => HistoryGameOrmEntity, (game) => game.participants)
 	game: HistoryGameOrmEntity;
+	@Column()
+	gameId: string;
 
 	@Column({ type: "text", nullable: true })
 	userId: string | null;
@@ -128,6 +125,8 @@ export class HistoryParticipantOrmEntity {
 
 	@ManyToOne(() => HistoryTeamOrmEntity, (team) => team.players)
 	team: HistoryTeamOrmEntity;
+	@Column()
+	teamId: string;
 
 	@Column()
 	finalScore: number;

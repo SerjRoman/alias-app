@@ -12,12 +12,21 @@ export function GamesPage() {
 		isLoading,
 		refetch,
 		isFetching,
-	} = useQuery("get", "/games", {
-		headers: { "ngrok-skip-browser-warning": "true" },
-	});
+	} = useQuery(
+		"get",
+		"/games",
+		{
+			headers: { "ngrok-skip-browser-warning": "true" },
+		},
+		{ refetchInterval: 5000 },
+	);
 
 	const sortedGames = games
-		? [...games].sort((a, b) => b.createdAt - a.createdAt)
+		? [...games].sort(
+				(a, b) =>
+					new Date(b.createdAt).getTime() -
+					new Date(a.createdAt).getTime(),
+			)
 		: [];
 	const { token } = useAuth();
 	const navigate = useNavigate();

@@ -2,15 +2,20 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
+import { Logger } from "nestjs-pino";
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule, { cors: { origin: "*" } });
+	const app = await NestFactory.create(AppModule, {
+		bufferLogs: true,
+		cors: { origin: "*" },
+	});
 	app.useGlobalPipes(
 		new ValidationPipe({
 			transform: true,
 			whitelist: true,
 		}),
 	);
+	app.useLogger(app.get(Logger));
 
 	const config = new DocumentBuilder()
 		.setTitle("API Docs")

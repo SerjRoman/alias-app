@@ -1,6 +1,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import styles from "./player-popover.module.css";
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface PlayerPopoverProps {
 	renderTrigger: (playerId: string) => ReactNode;
@@ -9,6 +10,8 @@ interface PlayerPopoverProps {
 	playerScore?: number;
 	playerName?: string;
 	playerIsOnline?: boolean;
+	playerAvatar?: string;
+	playerUsername?: string;
 }
 
 export function PlayerPopover({
@@ -18,7 +21,10 @@ export function PlayerPopover({
 	playerIsOnline,
 	playerName,
 	playerScore,
+	playerAvatar,
+	playerUsername,
 }: Readonly<PlayerPopoverProps>) {
+	const navigate = useNavigate();
 	return (
 		<Popover.Root key={playerId}>
 			<Popover.Trigger asChild>{renderTrigger(playerId)}</Popover.Trigger>
@@ -30,19 +36,45 @@ export function PlayerPopover({
 					sideOffset={5}
 				>
 					<div className={styles.popoverHeader}>
-						{playerName && (
-							<p className={styles.popoverTitle}>{playerName}</p>
-						)}
-						{playerScore != undefined && (
-							<p className={styles.popoverText}>
-								Score: <strong>{playerScore}</strong>
-							</p>
-						)}
+						<div className={styles.userProfile}>
+							{playerAvatar && (
+								<img
+									src={playerAvatar}
+									alt={playerName}
+									className={styles.avatar}
+								/>
+							)}
+							<div className={styles.userInfo}>
+								{playerName && (
+									<p className={styles.popoverTitle}>
+										{playerName}
+									</p>
+								)}
+								{playerUsername && (
+									<p className={styles.popoverText}>
+										@{playerUsername}
+									</p>
+								)}
+								{playerScore != undefined && (
+									<p className={styles.popoverText}>
+										Score: <strong>{playerScore}</strong>
+									</p>
+								)}
 
-						{playerIsOnline && (
-							<p className={styles.popoverText}>
-								{playerIsOnline ? "Online ✅" : "Offline ❌"}
-							</p>
+								<p className={styles.popoverText}>
+									{playerIsOnline
+										? "Online ✅"
+										: "Offline ❌"}
+								</p>
+							</div>
+						</div>
+						{playerUsername && (
+							<button
+								className={styles.buttonViewProfile}
+								onClick={() => navigate(`/profile/${playerId}`)}
+							>
+								View profile
+							</button>
 						)}
 						{renderActions?.(playerId)}
 					</div>

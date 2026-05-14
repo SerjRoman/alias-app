@@ -8,6 +8,7 @@ import {
 } from "../user.repository.interface";
 import { UserEntity } from "../../domain/entities/user";
 import { JwtPayload } from "@common/types/jwt-payload";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class RegisterUseCase {
@@ -15,6 +16,7 @@ export class RegisterUseCase {
 		@Inject(USER_REPOSITORY)
 		private readonly userRepository: IUserRepository,
 		private readonly tokenService: TokenService,
+		private readonly configService: ConfigService,
 	) {}
 
 	async execute(dto: RegisterDto) {
@@ -24,11 +26,16 @@ export class RegisterUseCase {
 		}
 
 		const passwordHash = await bcrypt.hash(dto.password, 10);
+		const defaultAvatarUrl = this.configService.getOrThrow<string>(
+			"DEFAULT_USER_AVATAR_URL",
+		);
+
 		const user = UserEntity.create(
 			dto.email,
 			dto.name,
 			dto.username,
 			passwordHash,
+			defaultAvatarUrl,
 		);
 
 		await this.userRepository.save(user);

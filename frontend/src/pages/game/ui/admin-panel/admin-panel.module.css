@@ -1,0 +1,99 @@
+.panel {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium, 16px);
+	background-color: var(--color-surface, #fff);
+	flex: 1;
+}
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.title {
+	margin: 0;
+	font-size: 1.25rem;
+	color: var(--color-text, #333);
+}
+
+.row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small, 8px);
+	color: var(--color-text, #333);
+}
+.controls {
+	display: flex;
+	gap: var(--spacing-small, 8px);
+	align-items: center;
+}
+
+.select {
+	padding: 6px;
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: 4px;
+	flex: 1;
+	max-width: 200px;
+}
+
+.button {
+	padding: 6px 12px;
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: 4px;
+	background-color: transparent;
+	cursor: pointer;
+	color: var(--color-text, #333);
+	transition: opacity 0.2s;
+}
+
+.button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+.button:active {
+	opacity: 0.6;
+	background-color: var(--color-active, #f0f0f0);
+}
+
+.button:hover:not(:disabled) {
+	opacity: 0.8;
+}
+
+.danger {
+	background-color: #dc3545;
+	color: white;
+	border-color: #dc3545;
+}
+
+.success {
+	background-color: #28a745;
+	color: white;
+	border-color: #28a745;
+}
+
+.warning {
+	background-color: #ffc107;
+	color: #212529;
+	border-color: #ffc107;
+}
+
+.actionsBox {
+	display: flex;
+	gap: var(--spacing-small, 8px);
+	margin-top: var(--spacing-small, 8px);
+	border-top: 1px solid var(--color-border, #eee);
+	padding-top: var(--spacing-medium, 16px);
+	flex-wrap: wrap;
+}
+
+.closeButton {
+	padding: 6px 12px;
+	position: relative;
+	right: 0px;
+	border: none;
+	background-color: transparent;
+	cursor: pointer;
+	color: var(--color-text, #333);
+	transition: opacity 0.2s;
+}

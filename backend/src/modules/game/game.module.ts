@@ -20,7 +20,6 @@ import { DeleteFinishedGameUseCase } from "./application/use-cases/game/delete-f
 import { DeleteGameUseCase } from "./application/use-cases/game/delete-game.use-case";
 import { FindAllGamesUseCase } from "./application/use-cases/game/find-all-games.use-case";
 import { FindOneGameUseCase } from "./application/use-cases/game/find-one.use-case";
-import { FinishGameUseCase } from "./application/use-cases/game/finish-game.use-case";
 import { GetGameCodeUseCase } from "./application/use-cases/game/get-game-code.use-case";
 import { GetPrivatePlayerStateUseCase } from "./application/use-cases/game/get-private-player-state.use-case";
 import { JoinGameUseCase } from "./application/use-cases/game/join-game.use-case";
@@ -42,6 +41,7 @@ import { DeleteTeamUseCase } from "./application/use-cases/team/delete-team.use-
 import { MoveToTeamUseCase } from "./application/use-cases/team/move-to-team.use-case";
 import { EndPointingUseCase } from "./application/use-cases/round/end-pointing.use-case";
 import { FinishRoundUseCase } from "./application/use-cases/round/finish-round.use-case";
+import { EndGameUseCase } from "./application/use-cases/game/end-game.use-case";
 
 const useCaseProviders = [
 	{
@@ -111,12 +111,13 @@ const useCaseProviders = [
 		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
 	},
 	{
-		provide: FinishGameUseCase,
+		provide: EndGameUseCase,
 		useFactory: (
 			gameSharedService: GameSharedService,
 			repository: IGameRepository,
-		) => new FinishGameUseCase(gameSharedService, repository),
-		inject: [GameSharedService, GAME_REPOSITORY],
+			eventEmitter: EventEmitter2,
+		) => new EndGameUseCase(gameSharedService, repository, eventEmitter),
+		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
 	},
 	{
 		provide: JoinGameUseCase,

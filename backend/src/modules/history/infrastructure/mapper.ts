@@ -17,8 +17,6 @@ export class HistoryGameMapper {
 			status: orm.status,
 			winnerTeamId: orm.winnerTeamId,
 			settings: orm.settings,
-			teamsFinalState: orm.teamsFinalState,
-			playersFinalState: orm.playersFinalState,
 			createdAt: orm.createdAt,
 			updatedAt: orm.updatedAt,
 
@@ -51,7 +49,7 @@ export class HistoryGameMapper {
 					id: p.id,
 					userId: p.userId,
 					name: p.name,
-					teamId: p.team?.id || "",
+					teamId: p.teamId || "",
 					finalScore: p.finalScore,
 				})) || [],
 		};
@@ -68,8 +66,6 @@ export class HistoryGameMapper {
 		orm.status = primitives.status;
 		orm.winnerTeamId = primitives.winnerTeamId;
 		orm.settings = primitives.settings;
-		orm.teamsFinalState = primitives.teamsFinalState;
-		orm.playersFinalState = primitives.playersFinalState;
 		orm.createdAt = primitives.createdAt;
 		orm.updatedAt = primitives.updatedAt;
 
@@ -77,6 +73,7 @@ export class HistoryGameMapper {
 			const teamOrm = new HistoryTeamOrmEntity();
 			teamOrm.id = t.id;
 			teamOrm.name = t.name;
+			teamOrm.gameId = primitives.id;
 			return teamOrm;
 		});
 
@@ -107,6 +104,8 @@ export class HistoryGameMapper {
 			participantOrm.id = p.id;
 			participantOrm.userId = p.userId;
 			participantOrm.name = p.name;
+			participantOrm.teamId = p.teamId;
+			participantOrm.gameId = primitives.id;
 
 			participantOrm.team = { id: p.teamId } as HistoryTeamOrmEntity;
 

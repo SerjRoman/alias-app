@@ -95,6 +95,49 @@ paths:
       summary: Get user by ID
       tags:
         - User
+  /user/{id}/profile:
+    get:
+      operationId: UserController_getUserProfileById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The user profile has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileDto'
+      summary: Get user profile by ID
+      tags:
+        - User
+  /user/short-info:
+    get:
+      operationId: UserController_getUsersShortInfo
+      parameters:
+        - name: userIds
+          required: true
+          in: query
+          description: Array of user IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: The users short info has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserShortInfoResponseDto'
+      summary: Get users short info
+      tags:
+        - User
   /user/avatar:
     put:
       operationId: UserController_updateAvatar
@@ -277,23 +320,92 @@ paths:
     get:
       operationId: HistoryController_getGamesByUserId
       parameters:
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            default: 10
+            type: number
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: number
         - name: userId
+          required: true
+          in: path
+          description: The ID of the user whose game history is being requested
+          schema:
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: List of game summaries
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGameSummaryResponse'
+      security:
+        - bearer: []
+      summary: Get all completed games summaries for a user
+      tags:
+        - history
+  /history/games/{gameId}/rounds:
+    get:
+      operationId: HistoryController_getRoundsByGameId
+      parameters:
+        - name: gameId
+          required: true
+          in: path
+          schema:
+            type: string
+        - name: limit
+          required: false
+          in: query
+          schema:
+            minimum: 1
+            default: 10
+            type: number
+        - name: offset
+          required: false
+          in: query
+          schema:
+            minimum: 0
+            default: 0
+            type: number
+      responses:
+        '200':
+          description: List of round details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRoundDetailsResponse'
+      security:
+        - bearer: []
+      summary: Get paginated rounds for a specific game
+      tags:
+        - history
+  /history/rounds/{roundId}:
+    get:
+      operationId: HistoryController_getRoundDetails
+      parameters:
+        - name: roundId
           required: true
           in: path
           schema:
             type: string
       responses:
         '200':
-          description: List of games
+          description: Round details
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GameHistoryDetailsResponseDto'
+                $ref: '#/components/schemas/RoundDetailsResponseDto'
       security:
         - bearer: []
-      summary: Get all completed games for a user
+      summary: Get details for a specific round
       tags:
         - history
 info:
@@ -406,6 +518,9 @@ components:
         email:
           type: string
           example: user@example.com
+        avatarUrl:
+          type: string
+          example: https://example.com/avatar.jpg
       required:
         - id
         - name
@@ -413,6 +528,9 @@ components:
     UserShortInfoResponseDto:
       type: object
       properties:
+        id:
+          type: string
+          description: User's ID
         name:
           type: string
           description: User's full name
@@ -423,9 +541,49 @@ components:
           type: string
           description: User's avatar URL
       required:
+        - id
         - name
         - username
         - avatarUrl
+    UserProfileDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: User ID
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          description: Display name
+          example: John Doe
+        username:
+          type: string
+          description: Username
+          example: johndoe123
+        avatarUrl:
+          type: string
+          description: Avatar URL
+          example: https://example.com/avatar.jpg
+        totalGamesPlayed:
+          type: number
+          description: Total games played
+          example: 42
+        totalWins:
+          type: number
+          description: Total wins
+          example: 15
+        totalScore:
+          type: number
+          description: Total score
+          example: 1250
+      required:
+        - id
+        - name
+        - username
+        - avatarUrl
+        - totalGamesPlayed
+        - totalWins
+        - totalScore
     UploadAvatarDto:
       type: object
       properties:
@@ -629,174 +787,183 @@ components:
           type: boolean
       required:
         - valid
-    HistoryTeamDto:
+    ParticipantDisplayDataDto:
       type: object
       properties:
-        id:
-          type: string
-          example: team-1
-        name:
-          type: string
-          example: Team A
-      required:
-        - id
-        - name
-    HistoryParticipantDto:
-      type: object
-      properties:
-        id:
-          type: string
-          example: participant-1
+        isRegistered:
+          type: boolean
         userId:
           type: object
-          example: user-1
           nullable: true
         name:
           type: string
-          example: Player 1
-        teamId:
+        avatarUrl:
           type: string
-          example: team-1
-        finalScore:
-          type: number
-          example: 10
       required:
-        - id
+        - isRegistered
         - userId
         - name
-        - teamId
-        - finalScore
-    HistoryRoundParticipantDto:
+        - avatarUrl
+    GameSummaryParticipantDto:
       type: object
       properties:
-        id:
+        participantId:
           type: string
-          example: rp-1
-        roundId:
-          type: string
-          example: round-1
-        playerId:
-          type: object
-          example: player-1
-          nullable: true
         teamId:
           type: string
-          example: team-1
-        scoreAfterRound:
+        score:
           type: number
-          example: 5
+        displayData:
+          $ref: '#/components/schemas/ParticipantDisplayDataDto'
       required:
-        - id
-        - roundId
-        - playerId
+        - participantId
         - teamId
-        - scoreAfterRound
-    HistoryRoundDto:
+        - score
+        - displayData
+    RoundSummaryDto:
       type: object
       properties:
         id:
           type: string
-          example: round-1
-        gameId:
-          type: string
-          example: game-1
-        teamId:
-          type: string
-          example: team-1
-        guesserId:
-          type: string
-          example: player-1
-        words:
-          description: Words for the round with their status (e.g., guessed, skipped, etc.)
-          example:
-            - word: apple
-              status: guessed
-          items:
-            type: array
-            items:
-              type: a
-          type: array
         roundNumber:
           type: number
-          example: 1
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoryRoundParticipantDto'
+        teamId:
+          type: string
+        guesserParticipantId:
+          type: string
       required:
         - id
-        - gameId
-        - teamId
-        - guesserId
-        - words
         - roundNumber
-        - participants
-    GameHistoryDetailsResponseDto:
+        - teamId
+        - guesserParticipantId
+    GameSummaryTeamDto:
       type: object
       properties:
         id:
           type: string
-          example: game-1
-        ownerId:
-          type: object
-          example: user-1
-          nullable: true
+        name:
+          type: string
+      required:
+        - id
+        - name
+    GameSummaryResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
         status:
           type: string
-          example: completed
-        winnerTeamId:
-          type: object
-          example: team-1
-          nullable: true
-        settings:
-          description: Game settings
-          example:
-            wordsToWin: 50
-            roundDuration: 60
-          allOf:
-            - $ref: '#/components/schemas/GameSettingsDto'
-        teamsFinalState:
-          description: Final state of teams at the moment of game completion
-          items:
-            type: array
-            items:
-              type: a
-          type: array
-        playersFinalState:
-          description: Final state of players at the moment of game completion
-          items:
-            type: array
-            items:
-              type: a
-          type: array
-        teams:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoryTeamDto'
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoryParticipantDto'
-        rounds:
-          type: array
-          items:
-            $ref: '#/components/schemas/HistoryRoundDto'
         createdAt:
           format: date-time
           type: string
-        updatedAt:
-          format: date-time
-          type: string
+        settings:
+          $ref: '#/components/schemas/GameSettingsDto'
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSummaryParticipantDto'
+        roundsSummary:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoundSummaryDto'
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSummaryTeamDto'
       required:
         - id
-        - ownerId
         - status
-        - winnerTeamId
-        - settings
-        - teamsFinalState
-        - playersFinalState
-        - teams
-        - participants
-        - rounds
         - createdAt
-        - updatedAt
+        - settings
+        - participants
+        - roundsSummary
+        - teams
+    PaginatedGameSummaryResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/GameSummaryResponseDto'
+        total:
+          type: number
+        limit:
+          type: number
+        offset:
+          type: number
+      required:
+        - items
+        - total
+        - limit
+        - offset
+    WordResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: uuid-word-1
+          description: Word ID
+        text:
+          type: string
+          example: Apple
+          description: The word text
+        score:
+          type: number
+          example: Apple
+          description: The word text
+      required:
+        - id
+        - text
+        - score
+    ParticipantStatsDto:
+      type: object
+      properties:
+        participantId:
+          type: string
+        teamId:
+          type: string
+        scoreAfterRound:
+          type: number
+      required:
+        - participantId
+        - teamId
+        - scoreAfterRound
+    RoundDetailsResponseDto:
+      type: object
+      properties:
+        roundId:
+          type: string
+        number:
+          type: number
+        words:
+          description: Words for the round
+          type: array
+          items:
+            $ref: '#/components/schemas/WordResponseDto'
+        participantsStats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ParticipantStatsDto'
+      required:
+        - roundId
+        - number
+        - words
+        - participantsStats
+    PaginatedRoundDetailsResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoundDetailsResponseDto'
+        total:
+          type: number
+        limit:
+          type: number
+        offset:
+          type: number
+      required:
+        - items
+        - total
+        - limit
+        - offset
