@@ -1,6 +1,6 @@
 import { Expose } from "class-transformer";
-import { UserDto } from "./user.dto";
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { UserDto } from "@common/dto/user.dto";
 
 export class MeDto {
 	@ApiProperty({ type: "string", description: "JWT access token" })
@@ -8,10 +8,6 @@ export class MeDto {
 	accessToken: string;
 }
 export class MeDtoResponse extends UserDto {
-	@ApiProperty({ example: "registered", enum: ["registered", "anonymous"] })
-	@Expose()
-	role: string;
-
 	@ApiPropertyOptional({ example: "john_doe" })
 	@Expose()
 	username?: string;
@@ -19,4 +15,8 @@ export class MeDtoResponse extends UserDto {
 	@ApiPropertyOptional({ example: "user@example.com" })
 	@Expose()
 	email?: string;
+
+	@ApiPropertyOptional({ example: "https://example.com/avatar.jpg" })
+	@Expose()
+	avatarUrl?: string;
 }

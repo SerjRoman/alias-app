@@ -4,6 +4,7 @@ import { WordInRoundNotFound } from "../errors/round.errors";
 export enum RoundStatus {
 	PENDING = "PENDING",
 	IN_PROGRESS = "IN_PROGRESS",
+	POINTING = "POINTING",
 	FINISHED = "FINISHED",
 }
 
@@ -11,10 +12,11 @@ export interface RoundState {
 	id: string;
 	guesserId: string;
 	teamId: string;
-	endTime: number;
 	status: RoundStatus;
 	currentWord: WordState | null;
 	words: WordState[];
+	roundNumber: number;
+	endTime: number;
 }
 export class RoundEntity {
 	private readonly state: RoundState;
@@ -29,6 +31,9 @@ export class RoundEntity {
 	}
 	get teamId() {
 		return this.state.teamId;
+	}
+	get roundNumber() {
+		return this.state.roundNumber;
 	}
 	get guesserId() {
 		return this.state.guesserId;
@@ -45,12 +50,15 @@ export class RoundEntity {
 	private addWord(word: WordState) {
 		this.state.words.push(word);
 	}
-	public finishRound() {
-		this.state.status = RoundStatus.FINISHED;
+	public pointRound() {
+		this.state.status = RoundStatus.POINTING;
 		if (this.state.currentWord) {
 			this.state.currentWord.score = 0;
 			this.addWord(this.state.currentWord);
 		}
+	}
+	public finishRound() {
+		this.state.status = RoundStatus.FINISHED;
 	}
 	public startRound() {
 		this.state.status = RoundStatus.IN_PROGRESS;
@@ -83,7 +91,12 @@ export class RoundEntity {
 			...state,
 		});
 	}
-	static create(guesserId: string, teamId: string, endTime: number) {
+	static create(
+		guesserId: string,
+		teamId: string,
+		endTime: number,
+		roundNumber: number,
+	) {
 		return new RoundEntity({
 			id: uuidv4(),
 			guesserId,
@@ -92,6 +105,7 @@ export class RoundEntity {
 			status: RoundStatus.PENDING,
 			words: [],
 			currentWord: null,
+			roundNumber,
 		});
 	}
 }

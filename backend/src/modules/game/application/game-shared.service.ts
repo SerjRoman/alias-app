@@ -6,8 +6,6 @@ import {
 	type IGameRepository,
 } from "./game.repository.interface";
 import { DictionaryService } from "./dictionary.service";
-import { RoundEntity } from "../domain/entities/round.entity";
-import { RoundNotActiveError } from "../domain/errors/round.errors";
 
 @Injectable()
 export class GameSharedService {
@@ -20,17 +18,7 @@ export class GameSharedService {
 		if (!game) throw new RoomNotFoundError(gameId);
 		return game;
 	}
-	public async loadRound(game: GameEntity): Promise<RoundEntity> {
-		if (!game.currentRound) {
-			throw new RoundNotActiveError();
-		}
-		const round = await this.repository.findRoundById(game.currentRound.id);
-		if (!round)
-			throw new GameError(
-				`Round with id ${game.currentRound.id} not found`,
-			);
-		return round;
-	}
+
 	public async getWordForGameSession(room: GameEntity) {
 		let text: string | null = this.dictionaryService.getLastWordForGame(
 			room.id,

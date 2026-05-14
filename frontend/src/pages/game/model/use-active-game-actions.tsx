@@ -23,5 +23,18 @@ export function useActiveGameActions() {
 	const nextRound = (roomId: string) => {
 		socketClient.emit("nextRound", { roomId });
 	};
-	return { startRound, nextWord, nextRound, changeWordScore };
+	const endPointing = (roomId: string) => {
+		socketClient.emit("endPointing", { roomId });
+	};
+	const finishRound = (roomId: string) => {
+		socketClient.emit("finishRound", { roomId });
+	};
+	return {
+		startRound,
+		nextWord,
+		nextRound,
+		changeWordScore,
+		endPointing,
+		finishRound,
+	};
 }

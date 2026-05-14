@@ -209,6 +209,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/history/games/{userId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all completed games for a user */
+        get: operations["HistoryController_getGamesByUserId"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -281,6 +298,17 @@ export interface components {
             username: string;
             /** @description User's avatar URL */
             avatarUrl: string;
+        };
+        UploadAvatarDto: {
+            /**
+             * Format: binary
+             * @description Avatar
+             */
+            avatar: string;
+        };
+        UploadAvatarResponseDto: {
+            /** @description New avatar URL */
+            newAvatar: string;
         };
         GameSettingsDto: {
             /**
@@ -404,6 +432,88 @@ export interface components {
         };
         ValidateCodeResponseDto: {
             valid: boolean;
+        };
+        HistoryTeamDto: {
+            /** @example team-1 */
+            id: string;
+            /** @example Team A */
+            name: string;
+        };
+        HistoryParticipantDto: {
+            /** @example participant-1 */
+            id: string;
+            /** @example user-1 */
+            userId: Record<string, never> | null;
+            /** @example Player 1 */
+            name: string;
+            /** @example team-1 */
+            teamId: string;
+            /** @example 10 */
+            finalScore: number;
+        };
+        HistoryRoundParticipantDto: {
+            /** @example rp-1 */
+            id: string;
+            /** @example round-1 */
+            roundId: string;
+            /** @example player-1 */
+            playerId: Record<string, never> | null;
+            /** @example team-1 */
+            teamId: string;
+            /** @example 5 */
+            scoreAfterRound: number;
+        };
+        HistoryRoundDto: {
+            /** @example round-1 */
+            id: string;
+            /** @example game-1 */
+            gameId: string;
+            /** @example team-1 */
+            teamId: string;
+            /** @example player-1 */
+            guesserId: string;
+            /**
+             * @description Words for the round with their status (e.g., guessed, skipped, etc.)
+             * @example [
+             *       {
+             *         "word": "apple",
+             *         "status": "guessed"
+             *       }
+             *     ]
+             */
+            words: Record<string, never>[][];
+            /** @example 1 */
+            roundNumber: number;
+            participants: components["schemas"]["HistoryRoundParticipantDto"][];
+        };
+        GameHistoryDetailsResponseDto: {
+            /** @example game-1 */
+            id: string;
+            /** @example user-1 */
+            ownerId: Record<string, never> | null;
+            /** @example completed */
+            status: string;
+            /** @example team-1 */
+            winnerTeamId: Record<string, never> | null;
+            /**
+             * @description Game settings
+             * @example {
+             *       "wordsToWin": 50,
+             *       "roundDuration": 60
+             *     }
+             */
+            settings: components["schemas"]["GameSettingsDto"];
+            /** @description Final state of teams at the moment of game completion */
+            teamsFinalState: Record<string, never>[][];
+            /** @description Final state of players at the moment of game completion */
+            playersFinalState: Record<string, never>[][];
+            teams: components["schemas"]["HistoryTeamDto"][];
+            participants: components["schemas"]["HistoryParticipantDto"][];
+            rounds: components["schemas"]["HistoryRoundDto"][];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
         };
     };
     responses: never;
@@ -537,7 +647,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "multipart/form-data": components["schemas"];
+                "multipart/form-data": components["schemas"]["UploadAvatarDto"];
             };
         };
         responses: {
@@ -546,7 +656,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["UploadAvatarResponseDto"];
+                };
             };
         };
     };
@@ -763,6 +875,28 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    HistoryController_getGamesByUserId: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description List of games */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameHistoryDetailsResponseDto"][];
+                };
             };
         };
     };

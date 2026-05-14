@@ -8,7 +8,7 @@ import {
 	MaxLength,
 	MinLength,
 } from "class-validator";
-import type { GameWordsLevel } from "../../domain/entities/game.entity";
+import type { GameWordsLevel } from "../../../domain/entities/game.entity";
 
 export class CreateGameDto {
 	@ApiProperty({

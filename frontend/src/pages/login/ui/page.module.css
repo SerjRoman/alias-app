@@ -3,6 +3,7 @@
 	justify-content: center;
 	align-items: center;
 	flex: 1;
+	padding: var(--spacing-large) 0;
 }
 
 .loginCard {
@@ -13,12 +14,77 @@
 	padding: var(--spacing-large);
 	border-radius: var(--border-radius);
 	box-shadow: var(--box-shadow);
-	width: 400px;
-	text-align: center;
+	width: min(100%, 440px);
+	text-align: left;
+}
+
+.header {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.kicker {
+	font-size: 0.875rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: var(--color-primary);
 }
 
 .title {
 	font-size: 1.5rem;
+	color: var(--color-text);
+}
+
+.description {
+	font-size: 0.95rem;
+	line-height: 1.5;
+	color: rgba(51, 51, 51, 0.72);
+}
+
+.tabs {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 10px;
+}
+
+.tab {
+	padding: var(--spacing-medium);
+	background-color: transparent;
+	color: var(--color-text);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	font-size: 1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition:
+		background-color 0.2s,
+		color 0.2s,
+		border-color 0.2s;
+}
+
+.tabActive {
+	background-color: var(--color-primary);
+	color: var(--color-text-light);
+	border-color: var(--color-primary);
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.label {
+	font-size: 0.9rem;
+	font-weight: 600;
 	color: var(--color-text);
 }
 
@@ -29,6 +95,7 @@
 	border-radius: var(--border-radius);
 	font-size: 1rem;
 	transition: border-color 0.2s;
+	background-color: var(--color-surface);
 }
 
 .input:focus {
@@ -56,4 +123,15 @@
 .button:disabled {
 	background-color: #ccc;
 	cursor: not-allowed;
+}
+
+.secondaryLink {
+	align-self: flex-start;
+	color: var(--color-primary);
+	font-weight: 600;
+	text-decoration: none;
+}
+
+.secondaryLink:hover {
+	text-decoration: underline;
 }

@@ -64,6 +64,7 @@ export function LobbyTeamView({
 							const player = playersMap.get(playerId);
 							if (!player) return null;
 							const isPlayerOwner = player.id === ownerId;
+                            
 							return (
 								<button
 									className={styles.triggerButton}

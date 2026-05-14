@@ -1,34 +1,34 @@
-import { type UserDto } from "../../../../user/application/dto/user.dto";
+import { UserDto } from "@common/dto/user.dto";
 import {
-    type GameSettings,
-    GameEntity,
+	type GameSettings,
+	GameEntity,
 } from "../../../domain/entities/game.entity";
-import { type CreateGameDto } from "../../../dto/body";
+import { CreateGameDto } from "../../dto/body";
 import { type GameSharedService } from "../../game-shared.service";
 import { type IGameRepository } from "../../game.repository.interface";
 
 export class CreateGameUseCase {
-    constructor(
-        private readonly repository: IGameRepository,
-        private readonly gameSharedService: GameSharedService,
-    ) { }
-    async execute(createGameDto: CreateGameDto, user: UserDto) {
-        const code = createGameDto.isPrivate
-            ? this.gameSharedService.generateRoomCode(6)
-            : null;
-        const settings: GameSettings = {
-            name: createGameDto.name,
-            roundTimeSeconds: createGameDto.timeLimit,
-            pointsToWin: createGameDto.pointsToWin,
-            code: code,
-            isPrivate: createGameDto.isPrivate || false,
-            level: createGameDto.level,
-            isOnlyOwnerCanNextRound: true,
-            isOnlyOwnerCanChangeScore: true,
-        };
-        const newRoom = GameEntity.create(user.id, settings);
+	constructor(
+		private readonly repository: IGameRepository,
+		private readonly gameSharedService: GameSharedService,
+	) {}
+	async execute(createGameDto: CreateGameDto, user: UserDto) {
+		const code = createGameDto.isPrivate
+			? this.gameSharedService.generateRoomCode(6)
+			: null;
+		const settings: GameSettings = {
+			name: createGameDto.name,
+			roundTimeSeconds: createGameDto.timeLimit,
+			pointsToWin: createGameDto.pointsToWin,
+			code: code,
+			isPrivate: createGameDto.isPrivate || false,
+			level: createGameDto.level,
+			isOnlyOwnerCanNextRound: true,
+			isOnlyOwnerCanChangeScore: true,
+		};
+		const newRoom = GameEntity.create(user.id, settings);
 
-        await this.repository.saveGame(newRoom);
-        return { room: newRoom.toPrimitives(), code };
-    }
+		await this.repository.saveGame(newRoom);
+		return { room: newRoom.toPrimitives(), code };
+	}
 }

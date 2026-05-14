@@ -28,6 +28,7 @@ export class GetMeUseCase {
 			username: dbUser.username,
 			email: dbUser.email,
 			role: user.role,
+			avatarUrl: dbUser.avatarUrl,
 		};
 	}
 }

@@ -5,6 +5,7 @@ export interface PlayerState {
 	isRoundReady: boolean;
 	score: number;
 	isOnline: boolean;
+	role: "anonymous" | "registered";
 }
 
 export class PlayerEntity {
@@ -68,7 +69,11 @@ export class PlayerEntity {
 	static fromPrimitives(state: PlayerState) {
 		return new PlayerEntity({ ...state });
 	}
-	static create(id: string, name: string): PlayerEntity {
+	static create(
+		id: string,
+		name: string,
+		role: "anonymous" | "registered",
+	): PlayerEntity {
 		return new PlayerEntity({
 			id,
 			name,
@@ -76,6 +81,7 @@ export class PlayerEntity {
 			isRoundReady: false,
 			score: 0,
 			isOnline: true,
+			role,
 		});
 	}
 }

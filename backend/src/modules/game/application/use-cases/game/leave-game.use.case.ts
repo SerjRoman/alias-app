@@ -7,6 +7,7 @@ import {
 	type TeamsUpdatedPayload,
 } from "../../game.events";
 import { type IGameRepository } from "../../game.repository.interface";
+import { UserDto } from "@common/dto/user.dto";
 
 export class LeaveGameUseCase {
 	constructor(
@@ -14,11 +15,11 @@ export class LeaveGameUseCase {
 		private readonly gameRepository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 	) {}
-	async execute(roomId: string, playerId: string) {
+	async execute(roomId: string, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(roomId);
-		room.leaveGame(playerId);
+		room.leaveGame(actor.id);
 		await this.gameRepository.saveGame(room);
-		await this.gameRepository.removeUserRoom(playerId);
+		await this.gameRepository.removeUserRoom(actor.id);
 		const roomPrimitives = room.toPrimitives();
 		const eventPayloadTeams: TeamsUpdatedPayload = {
 			roomId: room.id,

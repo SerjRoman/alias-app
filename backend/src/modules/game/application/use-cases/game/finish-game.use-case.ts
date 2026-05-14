@@ -1,3 +1,4 @@
+import { UserDto } from "@common/dto/user.dto";
 import { type GameSharedService } from "../../game-shared.service";
 import { type IGameRepository } from "../../game.repository.interface";
 
@@ -6,9 +7,9 @@ export class FinishGameUseCase {
 		private readonly gameSharedService: GameSharedService,
 		private readonly gameRepository: IGameRepository,
 	) {}
-	async execute(roomId: string, actorId?: string) {
+	async execute(roomId: string, actor?: UserDto) {
 		const room = await this.gameSharedService.loadGame(roomId);
-		room.finishGame(actorId);
+		room.finishGame(actor?.id);
 		await this.gameRepository.saveGame(room);
 		return room.toPrimitives();
 	}

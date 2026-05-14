@@ -1,10 +1,11 @@
 import type { EventEmitter2 } from "@nestjs/event-emitter";
 import { RoundNotActiveError } from "../../../domain/errors/round.errors";
-import type { StartRoundDto } from "../../../dto/body";
 import type { GameSharedService } from "../../game-shared.service";
 import { type RoundUpdatedPayload, ROUND_UPDATED } from "../../game.events";
 import type { IGameRepository } from "../../game.repository.interface";
 import type { RoundScheduler } from "../../round-scheduler.service";
+import { StartRoundDto } from "../../dto/body";
+import { UserDto } from "@common/dto/user.dto";
 
 export class StartRoundUseCase {
 	constructor(
@@ -13,13 +14,13 @@ export class StartRoundUseCase {
 		private readonly eventEmitter: EventEmitter2,
 		private readonly roundScheduler: RoundScheduler,
 	) {}
-	async execute(dto: StartRoundDto, actorId: string) {
+	async execute(dto: StartRoundDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
 		if (!room.currentRound) {
 			throw new RoundNotActiveError();
 		}
 		const startTime = Date.now();
-		room.startRound(actorId, startTime);
+		room.startRound(actor.id, startTime);
 		this.roundScheduler.scheduleRoundTimeout(
 			room.id,
 			room.settings.roundTimeSeconds * 1000,
@@ -30,7 +31,7 @@ export class StartRoundUseCase {
 		const text = await this.gameSharedService.getWordForGameSession(room);
 
 		await this.gameSharedService.checkAndSetWordsForGame(room);
-		const word = room.nextWord(actorId, text, false);
+		const word = room.nextWord(actor.id, text, false);
 
 		await this.gameRepository.saveGame(room);
 
@@ -49,7 +50,7 @@ export class StartRoundUseCase {
 		}
 
 		await this.gameSharedService.checkAndSetWordsForGame(room);
-		room.finishRound();
+		room.startPointing();
 		await this.gameRepository.saveGame(room);
 
 		const eventPayload: RoundUpdatedPayload = {

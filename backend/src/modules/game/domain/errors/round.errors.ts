@@ -19,6 +19,16 @@ export class RoundIsNotInProgress extends RoundError {
 		super(`Round is not in progress!`);
 	}
 }
+export class RoundIsNotPending extends RoundError {
+	constructor() {
+		super(`Round is not pending!`);
+	}
+}
+export class RoundIsNotPointing extends RoundError {
+	constructor() {
+		super(`Round is not in pointing mode!`);
+	}
+}
 export class RoundIsNotFinished extends RoundError {
 	constructor() {
 		super(`Round is not finished!`);

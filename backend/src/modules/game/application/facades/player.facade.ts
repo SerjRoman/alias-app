@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { type UserDto } from "../../../user/application/dto/user.dto";
-import { type KickPlayerDto } from "../../dto/body";
 import { GetCurrentGameUseCase } from "../use-cases/player/get-current-game.use-case";
 import { GetUserRoomUseCase } from "../use-cases/player/get-user-room.use-case";
 import { KickPlayerUseCase } from "../use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "../use-cases/player/set-player-offline.use-case";
+import { UserDto } from "@common/dto/user.dto";
+import { KickPlayerDto } from "../dto/body";
 
 @Injectable()
 export class PlayerFacade {
@@ -24,10 +24,10 @@ export class PlayerFacade {
 	}
 
 	async kickPlayer(dto: KickPlayerDto, actor: UserDto) {
-		return this.kickPlayerUseCase.execute(dto, dto.roomId, actor.id);
+		return this.kickPlayerUseCase.execute(dto, dto.roomId, actor);
 	}
 
-	async setPlayerOffline(roomId: string, playerId: string) {
-		return this.setPlayerOfflineUseCase.execute(roomId, playerId);
+	async setPlayerOffline(roomId: string, actor: UserDto) {
+		return this.setPlayerOfflineUseCase.execute(roomId, actor);
 	}
 }

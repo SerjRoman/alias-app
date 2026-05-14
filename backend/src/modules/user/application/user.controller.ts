@@ -38,6 +38,10 @@ import { CloudinaryService } from "@common/infrastructure/cloudinary/cloudinary.
 import type { Express } from "express";
 import { UploadApiResponse } from "cloudinary";
 import { ImageService } from "./image.service";
+import {
+	UploadAvatarDto,
+	UploadAvatarResponseDto,
+} from "./dto/upload-avatar.dto";
 @ApiTags("User")
 @Controller("user")
 export class UserController {
@@ -131,19 +135,10 @@ export class UserController {
 	@ApiResponse({
 		status: HttpStatus.OK,
 		description: "Avatar has been successfully updated.",
+		type: UploadAvatarResponseDto,
 	})
 	@ApiBody({
-		type: "multipart/form-data",
-		required: true,
-		schema: {
-			type: "object",
-			properties: {
-				file: {
-					type: "string",
-					format: "binary",
-				},
-			},
-		},
+		type: UploadAvatarDto,
 	})
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)
@@ -159,7 +154,7 @@ export class UserController {
 			}),
 		)
 		file: Express.Multer.File,
-	): Promise<{ avatarUrl: string }> {
+	): Promise<UploadAvatarResponseDto> {
 		if (!file) {
 			throw new BadRequestException("File is required");
 		}
@@ -189,7 +184,13 @@ export class UserController {
 			}
 		}
 
-		return { avatarUrl: newAvatarUrl };
+		return plainToInstance(
+			UploadAvatarResponseDto,
+			{ newAvatar: newAvatarUrl },
+			{
+				excludeExtraneousValues: true,
+			},
+		);
 	}
 
 	private extractPublicId(url: string): string | null {

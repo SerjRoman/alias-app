@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose, Type, Exclude } from "class-transformer";
 import { WordResponseDto } from "./word-response.dto";
-import { RoundStatus } from "../../domain/entities/round.entity";
+import { RoundStatus } from "../../../domain/entities/round.entity";
 
 export class RoundResponseDto {
 	@ApiProperty({ example: "uuid-round-1" })

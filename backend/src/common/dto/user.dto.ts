@@ -14,4 +14,8 @@ export class UserDto {
 	})
 	@Expose()
 	name: string;
+
+	@ApiProperty({ example: "registered", enum: ["registered", "anonymous"] })
+	@Expose()
+	role: "registered" | "anonymous";
 }

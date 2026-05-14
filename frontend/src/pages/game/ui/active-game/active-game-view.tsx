@@ -7,6 +7,7 @@ import styles from "./active-game-view.module.css";
 import { useAuth } from "@entities/auth";
 import { useGameSlice, RoundStatus } from "@entities/game";
 import { useActiveGameSync } from "../../model";
+import { RoundPointing } from "./round-pointing/round-pointing";
 
 export function ActiveGameView() {
 	const { game } = useGameSlice();
@@ -70,6 +71,13 @@ export function ActiveGameView() {
 						isGuesser={isGuesser}
 						endTime={currentRound.endTime}
 						words={currentRound.words}
+					/>
+				)}
+				{currentRound.status === RoundStatus.POINTING && (
+					<RoundPointing
+						roomId={game.id}
+						words={currentRound.words}
+						isOwner={isOwner}
 					/>
 				)}
 

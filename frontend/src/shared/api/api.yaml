@@ -1,0 +1,802 @@
+openapi: 3.0.0
+paths:
+  /user/login/anonymous:
+    post:
+      operationId: UserController_loginAnonymous
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnonymousLoginDto'
+      responses:
+        '200':
+          description: The anonymous user has been successfully logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+      summary: Anonymous user login
+      tags:
+        - User
+  /user/login:
+    post:
+      operationId: UserController_login
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginDto'
+      responses:
+        '200':
+          description: The user has been successfully logged in.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+      summary: Registered user login
+      tags:
+        - User
+  /user/register:
+    post:
+      operationId: UserController_register
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterDto'
+      responses:
+        '201':
+          description: The user has been successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDto'
+      summary: User registration
+      tags:
+        - User
+  /user/me:
+    get:
+      operationId: UserController_me
+      parameters: []
+      responses:
+        '200':
+          description: The current user info has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeDtoResponse'
+      security:
+        - bearer: []
+      summary: Get current user info
+      tags:
+        - User
+  /user/{id}:
+    get:
+      operationId: UserController_getUserById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The user info has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserShortInfoResponseDto'
+      summary: Get user by ID
+      tags:
+        - User
+  /user/avatar:
+    put:
+      operationId: UserController_updateAvatar
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadAvatarDto'
+      responses:
+        '200':
+          description: Avatar has been successfully updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadAvatarResponseDto'
+      security:
+        - bearer: []
+      summary: Upload and update user avatar
+      tags:
+        - User
+  /games:
+    get:
+      operationId: GameController_getAll
+      parameters: []
+      responses:
+        '200':
+          description: Returns all game rooms.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameResponseDto'
+      summary: Get all game rooms
+      tags:
+        - Games
+    post:
+      operationId: GameController_create
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGameDto'
+      responses:
+        '201':
+          description: The game room has been successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateGameResponseDto'
+        '401':
+          description: Unauthorized. The user must be authenticated to create a game room.
+      security:
+        - bearer: []
+      summary: Create a new game room
+      tags:
+        - Games
+  /games/{id}:
+    delete:
+      operationId: GameController_delete
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: The unique identifier of the game room to delete.
+          schema:
+            example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+      responses:
+        '204':
+          description: The game room has been successfully deleted.
+        '403':
+          description: Forbidden. The user is not the owner of the game room.
+        '404':
+          description: The game room with the specified ID was not found.
+      security:
+        - bearer: []
+      summary: Delete a game room
+      tags:
+        - Games
+  /games/join:
+    post:
+      operationId: GameController_join
+      parameters: []
+      requestBody:
+        required: true
+        description: The unique identifier of the game room to join.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JoinGameDto'
+      responses:
+        '200':
+          description: Successfully joined the game room.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GameResponseDto'
+        '403':
+          description: Forbidden. The user is already in the game room.
+        '404':
+          description: The game room with the specified ID was not found.
+      security:
+        - bearer: []
+      summary: Join a game room
+      tags:
+        - Games
+  /games/code:
+    post:
+      operationId: GameController_getCode
+      parameters: []
+      requestBody:
+        required: true
+        description: The unique identifier of the game room to get the code.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetRoomCodeDto'
+      responses:
+        '200':
+          description: Code was successfuly sent.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRoomCodeResponseDto'
+        '403':
+          description: Forbidden. The user is not an owner.
+        '404':
+          description: The game room with the specified ID was not found.
+      security:
+        - bearer: []
+      summary: Get a room code. Only for owner
+      tags:
+        - Games
+  /games/current:
+    get:
+      operationId: GameController_getMyCurrentGame
+      parameters: []
+      responses:
+        '200':
+          description: Returns roomId or null
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CurrentGameResponseDto'
+      security:
+        - bearer: []
+      summary: Get the ID of the room the user is currently in
+      tags:
+        - Games
+  /games/validate-code:
+    post:
+      operationId: GameController_validateCode
+      parameters: []
+      requestBody:
+        required: true
+        description: The code and room ID to validate.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateCodeDto'
+      responses:
+        '200':
+          description: Returns whether the code is valid for the specified room.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateCodeResponseDto'
+        '404':
+          description: The game room with the specified ID was not found.
+      security:
+        - bearer: []
+      summary: Validate a game room code
+      tags:
+        - Games
+  /history/games/{userId}:
+    get:
+      operationId: HistoryController_getGamesByUserId
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of games
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GameHistoryDetailsResponseDto'
+      security:
+        - bearer: []
+      summary: Get all completed games for a user
+      tags:
+        - history
+info:
+  title: API Docs
+  description: API Docs description
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  securitySchemes:
+    bearer:
+      scheme: bearer
+      bearerFormat: JWT
+      type: http
+  schemas:
+    AnonymousLoginDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Guest_123
+      required:
+        - name
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique UUID
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+        name:
+          type: string
+          description: User name
+          example: Alex
+        role:
+          type: string
+          enum:
+            - anonymous
+            - registered
+          description: User role
+      required:
+        - id
+        - name
+        - role
+    LoginResponseDto:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: JWT token
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+        user:
+          description: User info
+          allOf:
+            - $ref: '#/components/schemas/UserDto'
+      required:
+        - accessToken
+        - user
+    LoginDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@example.com
+        password:
+          type: string
+          example: password123
+      required:
+        - email
+        - password
+    RegisterDto:
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@example.com
+        name:
+          type: string
+          example: John Doe
+        username:
+          type: string
+          example: john_doe
+        password:
+          type: string
+          example: password123
+      required:
+        - email
+        - name
+        - username
+        - password
+    MeDtoResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        name:
+          type: string
+          example: John Doe
+        role:
+          type: string
+          example: registered
+          enum:
+            - registered
+            - anonymous
+        username:
+          type: string
+          example: john_doe
+        email:
+          type: string
+          example: user@example.com
+      required:
+        - id
+        - name
+        - role
+    UserShortInfoResponseDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User's full name
+        username:
+          type: string
+          description: User's internal username
+        avatarUrl:
+          type: string
+          description: User's avatar URL
+      required:
+        - name
+        - username
+        - avatarUrl
+    UploadAvatarDto:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: binary
+          description: Avatar
+      required:
+        - avatar
+    UploadAvatarResponseDto:
+      type: object
+      properties:
+        newAvatar:
+          type: string
+          description: New avatar URL
+      required:
+        - newAvatar
+    GameSettingsDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the game room
+          example: My Awesome Game Room
+        roundTimeSeconds:
+          type: number
+          description: The round time in seconds
+          example: 60
+        pointsToWin:
+          type: number
+          description: The points needed to win
+          example: 10
+        isPrivate:
+          type: boolean
+          description: Whether the game is private
+          example: false
+        level:
+          type: string
+          description: The difficulty level of the words used in the game
+          example: medium
+      required:
+        - name
+        - roundTimeSeconds
+        - pointsToWin
+        - isPrivate
+        - level
+    GameResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the game
+          example: 123e4567-e89b-12d3-a456-426614174000
+        ownerId:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        status:
+          type: string
+          enum:
+            - LOBBY
+            - IN_PROGRESS
+            - FINISHED
+        settings:
+          description: Current game settings
+          allOf:
+            - $ref: '#/components/schemas/GameSettingsDto'
+        playersCount:
+          type: number
+        createdAt:
+          type: number
+      required:
+        - id
+        - ownerId
+        - status
+        - settings
+        - playersCount
+        - createdAt
+    CreateGameDto:
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name of the game
+          example: My Awesome Game
+        isPrivate:
+          type: boolean
+          description: Whether the game is private or not
+          example: false
+          default: false
+        timeLimit:
+          type: number
+          description: The time limit for each turn in seconds
+          example: 60
+        pointsToWin:
+          type: number
+          description: The number of points required to win the game
+          example: 30
+        level:
+          type: string
+          description: The difficulty level of the words used in the game
+          example: medium
+          enum:
+            - easy
+            - medium
+            - hard
+      required:
+        - name
+        - isPrivate
+        - timeLimit
+        - pointsToWin
+        - level
+    CreateGameResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the game
+          example: 123e4567-e89b-12d3-a456-426614174000
+        ownerId:
+          type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+        status:
+          type: string
+          enum:
+            - LOBBY
+            - IN_PROGRESS
+            - FINISHED
+        settings:
+          description: Current game settings
+          allOf:
+            - $ref: '#/components/schemas/GameSettingsDto'
+        playersCount:
+          type: number
+        createdAt:
+          type: number
+        code:
+          type: string
+      required:
+        - id
+        - ownerId
+        - status
+        - settings
+        - playersCount
+        - createdAt
+        - code
+    JoinGameDto:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: The unique identifier of the game room.
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+        code:
+          type: string
+      required:
+        - roomId
+        - code
+    GetRoomCodeDto:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: >-
+            The unique identifier of the game room to which the team will be
+            added.
+          example: a1b2c3d4-e5f6-7890-1234-567890abcdef
+      required:
+        - roomId
+    GetRoomCodeResponseDto:
+      type: object
+      properties:
+        code:
+          type: string
+      required:
+        - code
+    CurrentGameResponseDto:
+      type: object
+      properties:
+        roomId:
+          type: string
+          description: The unique identifier of the game
+          example: 123e4567-e89b-12d3-a456-426614174000
+      required:
+        - roomId
+    ValidateCodeDto:
+      type: object
+      properties:
+        code:
+          type: string
+        roomId:
+          type: string
+          description: The unique identifier of the game room
+          example: 123e4567-e89b-12d3-a456-426614174000
+      required:
+        - code
+        - roomId
+    ValidateCodeResponseDto:
+      type: object
+      properties:
+        valid:
+          type: boolean
+      required:
+        - valid
+    HistoryTeamDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: team-1
+        name:
+          type: string
+          example: Team A
+      required:
+        - id
+        - name
+    HistoryParticipantDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: participant-1
+        userId:
+          type: object
+          example: user-1
+          nullable: true
+        name:
+          type: string
+          example: Player 1
+        teamId:
+          type: string
+          example: team-1
+        finalScore:
+          type: number
+          example: 10
+      required:
+        - id
+        - userId
+        - name
+        - teamId
+        - finalScore
+    HistoryRoundParticipantDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: rp-1
+        roundId:
+          type: string
+          example: round-1
+        playerId:
+          type: object
+          example: player-1
+          nullable: true
+        teamId:
+          type: string
+          example: team-1
+        scoreAfterRound:
+          type: number
+          example: 5
+      required:
+        - id
+        - roundId
+        - playerId
+        - teamId
+        - scoreAfterRound
+    HistoryRoundDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: round-1
+        gameId:
+          type: string
+          example: game-1
+        teamId:
+          type: string
+          example: team-1
+        guesserId:
+          type: string
+          example: player-1
+        words:
+          description: Words for the round with their status (e.g., guessed, skipped, etc.)
+          example:
+            - word: apple
+              status: guessed
+          items:
+            type: array
+            items:
+              type: a
+          type: array
+        roundNumber:
+          type: number
+          example: 1
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryRoundParticipantDto'
+      required:
+        - id
+        - gameId
+        - teamId
+        - guesserId
+        - words
+        - roundNumber
+        - participants
+    GameHistoryDetailsResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: game-1
+        ownerId:
+          type: object
+          example: user-1
+          nullable: true
+        status:
+          type: string
+          example: completed
+        winnerTeamId:
+          type: object
+          example: team-1
+          nullable: true
+        settings:
+          description: Game settings
+          example:
+            wordsToWin: 50
+            roundDuration: 60
+          allOf:
+            - $ref: '#/components/schemas/GameSettingsDto'
+        teamsFinalState:
+          description: Final state of teams at the moment of game completion
+          items:
+            type: array
+            items:
+              type: a
+          type: array
+        playersFinalState:
+          description: Final state of players at the moment of game completion
+          items:
+            type: array
+            items:
+              type: a
+          type: array
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryTeamDto'
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryParticipantDto'
+        rounds:
+          type: array
+          items:
+            $ref: '#/components/schemas/HistoryRoundDto'
+        createdAt:
+          format: date-time
+          type: string
+        updatedAt:
+          format: date-time
+          type: string
+      required:
+        - id
+        - ownerId
+        - status
+        - winnerTeamId
+        - settings
+        - teamsFinalState
+        - playersFinalState
+        - teams
+        - participants
+        - rounds
+        - createdAt
+        - updatedAt

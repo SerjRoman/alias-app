@@ -1,46 +1,46 @@
 import { type EventEmitter2 } from "@nestjs/event-emitter";
 import { InvalidGameCode } from "../../../domain/errors/game.errors";
-import type { UserDto } from "../../../../user/application/dto/user.dto";
-import type { JoinGameDto } from "../../../dto/body";
 import { type GameSharedService } from "../../game-shared.service";
 import { type GameUpdatedPayload, GAME_UPDATED } from "../../game.events";
 import { type IGameRepository } from "../../game.repository.interface";
+import { UserDto } from "@common/dto/user.dto";
+import { JoinGameDto } from "../../dto/body";
 
 export class JoinGameUseCase {
-    constructor(
-        private readonly gameSharedService: GameSharedService,
-        private readonly repository: IGameRepository,
-        private readonly eventEmitter: EventEmitter2,
-    ) { }
-    async execute(dto: JoinGameDto, actor: UserDto) {
-        const room = await this.gameSharedService.loadGame(dto.roomId);
-        if (room.settings.isPrivate && room.settings.code) {
-            if (!dto.code) {
-                throw new InvalidGameCode();
-            }
-            if (
-                !(await this.gameSharedService.validateCode(
-                    dto.roomId,
-                    dto.code,
-                ))
-            )
-                throw new InvalidGameCode();
-        }
-        const existingPlayer = room.players.find((p) => p.id === actor.id);
+	constructor(
+		private readonly gameSharedService: GameSharedService,
+		private readonly repository: IGameRepository,
+		private readonly eventEmitter: EventEmitter2,
+	) {}
+	async execute(dto: JoinGameDto, actor: UserDto) {
+		const room = await this.gameSharedService.loadGame(dto.roomId);
+		if (room.settings.isPrivate && room.settings.code) {
+			if (!dto.code) {
+				throw new InvalidGameCode();
+			}
+			if (
+				!(await this.gameSharedService.validateCode(
+					dto.roomId,
+					dto.code,
+				))
+			)
+				throw new InvalidGameCode();
+		}
+		const existingPlayer = room.players.find((p) => p.id === actor.id);
 
-        if (existingPlayer) {
-            room.setPlayerOnline(existingPlayer.id);
-        } else {
-            room.joinRoom(actor.id, actor.name);
-        }
+		if (existingPlayer) {
+			room.setPlayerOnline(existingPlayer.id);
+		} else {
+			room.joinRoom(actor.id, actor.name, actor.role);
+		}
 
-        await this.repository.saveGame(room);
-        await this.repository.setUserRoom(actor.id, room.id);
-        const roomPrimitives = room.toPrimitives();
-        const eventPayload: GameUpdatedPayload = {
-            room: roomPrimitives,
-        };
-        this.eventEmitter.emit(GAME_UPDATED, eventPayload);
-        return roomPrimitives;
-    }
+		await this.repository.saveGame(room);
+		await this.repository.setUserRoom(actor.id, room.id);
+		const roomPrimitives = room.toPrimitives();
+		const eventPayload: GameUpdatedPayload = {
+			room: roomPrimitives,
+		};
+		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
+		return roomPrimitives;
+	}
 }

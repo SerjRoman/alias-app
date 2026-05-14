@@ -40,6 +40,8 @@ import { ToggleRoundReadyUseCase } from "./application/use-cases/round/toggle-ro
 import { CreateTeamUseCase } from "./application/use-cases/team/create-team.use-case";
 import { DeleteTeamUseCase } from "./application/use-cases/team/delete-team.use-case";
 import { MoveToTeamUseCase } from "./application/use-cases/team/move-to-team.use-case";
+import { EndPointingUseCase } from "./application/use-cases/round/end-pointing.use-case";
+import { FinishRoundUseCase } from "./application/use-cases/round/finish-round.use-case";
 
 const useCaseProviders = [
 	{
@@ -55,6 +57,30 @@ const useCaseProviders = [
 		useFactory: (repository: IGameRepository) =>
 			new FindAllGamesUseCase(repository),
 		inject: [GAME_REPOSITORY],
+	},
+	{
+		provide: EndPointingUseCase,
+		useFactory: (
+			repository: IGameRepository,
+			gameSharedService: GameSharedService,
+			eventEmitter: EventEmitter2,
+			roundScheduler: RoundScheduler,
+			dictionaryService: DictionaryService,
+		) =>
+			new EndPointingUseCase(
+				repository,
+				gameSharedService,
+				eventEmitter,
+				roundScheduler,
+				dictionaryService,
+			),
+		inject: [
+			GAME_REPOSITORY,
+			GameSharedService,
+			EventEmitter2,
+			RoundScheduler,
+			DictionaryService,
+		],
 	},
 	{
 		provide: FindOneGameUseCase,
@@ -116,23 +142,8 @@ const useCaseProviders = [
 			gameSharedService: GameSharedService,
 			repository: IGameRepository,
 			eventEmitter: EventEmitter2,
-			dictionaryService: DictionaryService,
-			roundScheduler: RoundScheduler,
-		) =>
-			new NextRoundUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				dictionaryService,
-				roundScheduler,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			DictionaryService,
-			RoundScheduler,
-		],
+		) => new NextRoundUseCase(gameSharedService, repository, eventEmitter),
+		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
 	},
 	{
 		provide: NextWordUseCase,
@@ -237,6 +248,16 @@ const useCaseProviders = [
 		useFactory: (repository: IGameRepository) =>
 			new GetUserRoomUseCase(repository),
 		inject: [GAME_REPOSITORY],
+	},
+	{
+		provide: FinishRoundUseCase,
+		useFactory: (
+			gameSharedService: GameSharedService,
+			repository: IGameRepository,
+			eventEmitter: EventEmitter2,
+		) =>
+			new FinishRoundUseCase(gameSharedService, repository, eventEmitter),
+		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
 	},
 	{
 		provide: KickPlayerUseCase,

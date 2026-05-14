@@ -1,8 +1,9 @@
 import type { EventEmitter2 } from "@nestjs/event-emitter";
-import type { DeleteGameDto } from "../../../dto/body";
 import { GAME_FINISHED, type GameFinishedPayload } from "../../game.events";
 import type { GameSharedService } from "../../game-shared.service";
 import type { IGameRepository } from "../../game.repository.interface";
+import { DeleteGameDto } from "../../dto/body";
+import { UserDto } from "@common/dto/user.dto";
 
 export class DeleteFinishedGameUseCase {
 	constructor(
@@ -11,9 +12,9 @@ export class DeleteFinishedGameUseCase {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 
-	async execute(dto: DeleteGameDto, actorId: string) {
+	async execute(dto: DeleteGameDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.assertRoomOwner(actorId);
+		room.assertRoomOwner(actor.id);
 		room.assertGameFinished();
 
 		await this.gameRepository.deleteGame(dto.roomId);

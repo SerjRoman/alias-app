@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import styles from "./header.module.css";
 import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
+import { UserProfilePopup } from "@entities/user-profile";
 
 export function Header() {
 	const { game } = useGameSlice();
@@ -36,8 +37,14 @@ export function Header() {
 					</button>
 				)}
 				{user && (
-					<div>
-						<span>Welcome, {user.name}!</span>
+					<div
+						style={{
+							display: "flex",
+							alignItems: "center",
+							gap: "16px",
+						}}
+					>
+						<UserProfilePopup />
 						<button
 							onClick={() => {
 								setUser(null);

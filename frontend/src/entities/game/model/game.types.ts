@@ -6,6 +6,7 @@ export enum GameStatus {
 export enum RoundStatus {
 	PENDING = "PENDING",
 	IN_PROGRESS = "IN_PROGRESS",
+	POINTING = "POINTING",
 	FINISHED = "FINISHED",
 }
 export type GameWordsLevel = "easy" | "medium" | "hard";

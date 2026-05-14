@@ -2,7 +2,8 @@ import { type EventEmitter2 } from "@nestjs/event-emitter";
 import { type GameSharedService } from "../../game-shared.service";
 import { type TeamsUpdatedPayload, TEAMS_UPDATED } from "../../game.events";
 import { type IGameRepository } from "../../game.repository.interface";
-import { type CreateTeamDto } from "../../../dto/body";
+import { type CreateTeamDto } from "../../dto/body";
+import { UserDto } from "@common/dto/user.dto";
 
 export class CreateTeamUseCase {
 	constructor(
@@ -10,9 +11,9 @@ export class CreateTeamUseCase {
 		private readonly repository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 	) {}
-	async execute(dto: CreateTeamDto, actorId: string) {
+	async execute(dto: CreateTeamDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.createTeam(actorId, dto.teamName);
+		room.createTeam(actor.id, dto.teamName);
 		await this.repository.saveGame(room);
 		const roomPrimitives = room.toPrimitives();
 		const eventPayload: TeamsUpdatedPayload = {

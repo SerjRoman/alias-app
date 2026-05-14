@@ -25,6 +25,17 @@ services:
             - ${DB_PORT}:5432
         volumes:
             - postgres_data:/var/lib/postgresql
+    pgadmin:
+      image: dpage/pgadmin4
+      container_name: pg_ui
+      environment:
+        PGADMIN_DEFAULT_EMAIL: admin@admin.com
+        PGADMIN_DEFAULT_PASSWORD: admin_password
+      ports:
+        - "8080:80"
+      depends_on:
+        - alias-postgres-service
+
 volumes:
     redis_data:
     postgres_data:

@@ -29,32 +29,35 @@ import {
 	type GameFinishedPayload,
 } from "../application/game.events";
 import { plainToInstance } from "class-transformer";
-import {
-	GameResponseDetailsDto,
-	RoundResponseDto,
-	TeamResponseDto,
-	WordResponseDto,
-} from "../dto/response";
-import { PlayerResponseDto } from "../dto/response/player.dto";
+
 import type { GameServer, GameSocket } from "./game.socket-types";
-import {
-	ChangeWordScoreDto,
-	CreateTeamDto,
-	DeleteGameDto,
-	DeleteTeamDto,
-	JoinGameDto,
-	KickPlayerDto,
-	MoveToTeamDto,
-	NextRoundDto,
-	NextWordDto,
-	PlayerLeaveRoomBodyDto,
-	StartRoundDto,
-	UpdateGameSettingsDto,
-} from "../dto/body";
 import { GameWsExceptionFilter } from "./filters/game-exception.filter";
 import { TeamWsExceptionFilter } from "./filters/team-exception.filter";
 import { AuthenticatedSocket } from "../../../common/types/socket";
 import { RoundWsExceptionFilter } from "./filters/round-exception.filter";
+import {
+	JoinGameDto,
+	KickPlayerDto,
+	UpdateGameSettingsDto,
+	CreateTeamDto,
+	MoveToTeamDto,
+	DeleteTeamDto,
+	PlayerLeaveRoomBodyDto,
+	NextWordDto,
+	NextRoundDto,
+	StartRoundDto,
+	ChangeWordScoreDto,
+	DeleteGameDto,
+	EndPointingDto,
+	FinishRoundDto,
+} from "../application/dto/body";
+import {
+	GameResponseDetailsDto,
+	WordResponseDto,
+	TeamResponseDto,
+	PlayerResponseDto,
+	RoundResponseDto,
+} from "../application/dto/response";
 
 @WebSocketGateway({
 	cors: {
@@ -185,7 +188,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received leaveGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
-		await this.gameFacade.leaveGame(body.roomId, client.data.user.id);
+		await this.gameFacade.leaveGame(body.roomId, client.data.user);
 		return { success: true };
 	}
 
@@ -205,6 +208,16 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: NextRoundDto,
 	) {
 		await this.gameFacade.nextRound(dto, client.data.user);
+	}
+	@SubscribeMessage("endPointing")
+	async endPointing(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: EndPointingDto,
+	) {
+		this.logger.log(
+			`Received endPointing from client ${client.id} UserID ${client.data.user.name}`,
+		);
+		await this.roundFacade.endPointing(dto, client.data.user);
 	}
 	@SubscribeMessage("startRound")
 	async startRound(
@@ -230,6 +243,13 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: DeleteGameDto,
 	) {
 		await this.gameFacade.deleteGame(dto, client.data.user);
+	}
+	@SubscribeMessage("finishRound")
+	async finishRound(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: FinishRoundDto,
+	) {
+		await this.roundFacade.finishRound(dto, client.data.user);
 	}
 
 	@OnEvent(PLAYER_KICKED)
@@ -296,7 +316,7 @@ export class GameGateway implements OnGatewayDisconnect {
 			client.data.user.id,
 		);
 		if (!roomId) return;
-		await this.playerFacade.setPlayerOffline(roomId, client.data.user.id);
+		await this.playerFacade.setPlayerOffline(roomId, client.data.user);
 		await this.removePlayerFromRoom(roomId, client.data.user.id);
 	}
 

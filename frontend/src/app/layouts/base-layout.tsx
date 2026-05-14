@@ -33,9 +33,11 @@ export function BaseLayout() {
 		}
 	}, [searchParams]);
 	useEffect(() => {
+		const isAuthRoute = location.pathname.startsWith("/login");
+
 		if (!token) {
-			navigate(`/login`);
 			setUser(null);
+			if (!isAuthRoute) navigate(`/login`);
 			return;
 		}
 
@@ -57,6 +59,7 @@ export function BaseLayout() {
 				},
 				onError: () => {
 					setToken(null);
+					setUser(null);
 					navigate("/login");
 				},
 			},
@@ -70,11 +73,11 @@ export function BaseLayout() {
 			},
 			{
 				onSuccess: () => {
-					if (location.pathname === "/game") {
+					if (location.pathname.startsWith("/game")) {
 						return;
 					} else if (
 						location.pathname === "/" ||
-						location.pathname === "/login"
+						location.pathname.startsWith("/login")
 					) {
 						if (gameLocation.current) {
 							navigate(

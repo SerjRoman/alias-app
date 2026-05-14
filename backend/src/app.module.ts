@@ -10,6 +10,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ScheduleModule } from "@nestjs/schedule";
 import { CloudinaryModule } from "@common/infrastructure/cloudinary";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { HistoryModule } from "./modules/history/history.module";
 
 @Module({
 	providers: [JwtStrategy],
@@ -42,6 +43,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 		}),
 		UserModule,
 		GameModule,
+		HistoryModule,
 	],
 })
 export class AppModule {}
