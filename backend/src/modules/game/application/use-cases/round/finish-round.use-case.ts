@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { GameSharedService } from "../../game-shared.service";
 import type { IGameRepository } from "../../game.repository.interface";
 import { FinishRoundDto } from "../../dto/body";
-import { GameUpdatedPayload, ROUND_UPDATED } from "../../game.events";
+import { GAME_UPDATED, GameUpdatedPayload } from "../../game.events";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { UserDto } from "@common/dto/user.dto";
 
@@ -15,13 +15,13 @@ export class FinishRoundUseCase {
 	) {}
 	async execute(dto: FinishRoundDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.finishRound();
+		room.finishRound(actor.id);
 		await this.gameRepository.saveGame(room);
 		const primitives = room.toPrimitives();
 		const eventPayload: GameUpdatedPayload = {
 			room: primitives,
 		};
-		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
+		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 		return primitives;
 	}
 }

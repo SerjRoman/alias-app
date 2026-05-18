@@ -35,14 +35,8 @@ export function ActiveGameView() {
 	const isAllReady = isMyTeamPlaying?.playerIds.every(
 		(pId) => playersMap.get(pId)?.isRoundReady,
 	);
-	const playingTeam = game.teams.find((t) => t.id === currentRound.teamId);
 	return (
 		<div className={styles.container}>
-			{playingTeam && (
-				<div className={styles.playingTeamBanner}>
-					Playing team: {playingTeam.name}
-				</div>
-			)}
 			<div className={styles.teamsGrid}>
 				{game.teams.map((team) => (
 					<ActiveGameTeamView

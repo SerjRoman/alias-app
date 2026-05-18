@@ -1,5 +1,5 @@
 import type { EventEmitter2 } from "@nestjs/event-emitter";
-import { GAME_FINISHED, type GameFinishedPayload } from "../../game.events";
+import { GAME_UPDATED, GameUpdatedPayload } from "../../game.events";
 import type { GameSharedService } from "../../game-shared.service";
 import type { IGameRepository } from "../../game.repository.interface";
 import { DeleteGameDto } from "../../dto/body";
@@ -19,9 +19,9 @@ export class DeleteFinishedGameUseCase {
 
 		await this.gameRepository.deleteGame(dto.roomId);
 
-		const eventPayload: GameFinishedPayload = {
+		const eventPayload: GameUpdatedPayload = {
 			room: room.toPrimitives(),
 		};
-		this.eventEmitter.emit(GAME_FINISHED, eventPayload);
+		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 	}
 }

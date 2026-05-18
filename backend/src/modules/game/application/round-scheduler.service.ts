@@ -5,9 +5,15 @@ import {
 	type IGameRepository,
 } from "./game.repository.interface";
 
+interface TimeoutMetadata {
+	callback: () => void;
+	endTime: number;
+}
+
 @Injectable()
 export class RoundScheduler {
 	private readonly logger = new Logger(RoundScheduler.name);
+	private readonly timeoutsMetadata = new Map<string, TimeoutMetadata>();
 
 	constructor(
 		private readonly schedulerRegistry: SchedulerRegistry,
@@ -17,31 +23,67 @@ export class RoundScheduler {
 	scheduleRoundTimeout(
 		roomId: string,
 		milliseconds: number,
-		onTimeout: () => void,
+		callback: () => void,
 	) {
-		const timeoutName = `round_timeout_${roomId}`;
+		const timeoutName = `round-timeout-${roomId}`;
+
+		const wrappedCallback = () => {
+			this.timeoutsMetadata.delete(timeoutName);
+			callback();
+		};
+
+		const timeout = setTimeout(wrappedCallback, milliseconds);
+
+		this.timeoutsMetadata.set(timeoutName, {
+			callback,
+			endTime: Date.now() + milliseconds,
+		});
 
 		if (this.schedulerRegistry.doesExist("timeout", timeoutName)) {
-			this.clearRoundTimeout(roomId);
+			this.schedulerRegistry.deleteTimeout(timeoutName);
 		}
-
-		const timeout = setTimeout(() => {
-			this.logger.log(`Time is up for room ${roomId}`);
-			onTimeout();
-		}, milliseconds);
-
 		this.schedulerRegistry.addTimeout(timeoutName, timeout);
 	}
 
+	changeRoundTime(roomId: string, timeDeltaMs: number) {
+		const timeoutName = `round-timeout-${roomId}`;
+
+		const metadata = this.timeoutsMetadata.get(timeoutName);
+		if (
+			!metadata ||
+			!this.schedulerRegistry.doesExist("timeout", timeoutName)
+		) {
+			return;
+		}
+
+		const remainingTime = metadata.endTime - Date.now();
+		const { callback } = metadata;
+
+		const existingTimeout = this.schedulerRegistry.getTimeout(timeoutName);
+		clearTimeout(existingTimeout);
+		this.schedulerRegistry.deleteTimeout(timeoutName);
+		this.timeoutsMetadata.delete(timeoutName);
+
+		const newDuration = remainingTime + timeDeltaMs;
+
+		if (newDuration > 0) {
+			this.scheduleRoundTimeout(roomId, newDuration, callback);
+		} else {
+			callback();
+		}
+		return newDuration;
+	}
+
 	clearRoundTimeout(roomId: string) {
-		const timeoutName = `round_timeout_${roomId}`;
+		const timeoutName = `round-timeout-${roomId}`;
 		if (this.schedulerRegistry.doesExist("timeout", timeoutName)) {
 			this.schedulerRegistry.deleteTimeout(timeoutName);
+			this.timeoutsMetadata.delete(timeoutName);
 		}
 	}
 
 	scheduleGameDeletion(roomId: string, milliseconds: number) {
-		const timeoutName = `game_deletion_${roomId}`;
+		const timeoutName = `game-deletion-${roomId}`;
 
 		const timeout = setTimeout(() => {
 			this.logger.log(

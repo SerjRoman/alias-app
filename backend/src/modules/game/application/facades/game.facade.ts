@@ -28,7 +28,9 @@ import {
 	UpdateGameSettingsDto,
 	GetRoomCodeDto,
 	EndGameDto,
+	ShufflePlayersDto,
 } from "../dto/body";
+import { ShufflePlayersUseCase } from "../use-cases/game/shuffle-players.use-case";
 
 @Injectable()
 export class GameFacade {
@@ -50,6 +52,7 @@ export class GameFacade {
 		private readonly getGameCodeUseCase: GetGameCodeUseCase,
 		private readonly validateCodeUseCase: ValidateCodeUseCase,
 		private readonly getPrivatePlayerStateUseCase: GetPrivatePlayerStateUseCase,
+		private readonly shufflePlayersUseCase: ShufflePlayersUseCase,
 	) {}
 
 	async create(dto: CreateGameDto, actor: UserDto) {
@@ -118,5 +121,9 @@ export class GameFacade {
 
 	async getPrivatePlayerState(roomId: string, userId: string) {
 		return this.getPrivatePlayerStateUseCase.execute(roomId, userId);
+	}
+
+	async shufflePlayers(dto: ShufflePlayersDto, actor: UserDto) {
+		return this.shufflePlayersUseCase.execute(dto, actor);
 	}
 }

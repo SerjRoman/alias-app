@@ -35,6 +35,10 @@ export class TeamEntity {
 	get score() {
 		return this.state.score;
 	}
+	set setPlayerIds(playerIds: string[]) {
+		this._playerIds.clear();
+		playerIds.forEach((id) => this._playerIds.add(id));
+	}
 	addPlayer(playerId: string) {
 		if (!this._playerIds.has(playerId)) {
 			this._playerIds.add(playerId);

@@ -7,6 +7,7 @@ interface TeamCardProps {
 	playersMap: Map<string, PlayerState>;
 	sectionRight?: ReactNode;
 	footer?: ReactNode;
+	isPlayingTeam?: boolean;
 	renderPlayer: (player: PlayerState) => ReactNode;
 }
 
@@ -16,9 +17,14 @@ export function TeamCard({
 	renderPlayer,
 	sectionRight,
 	footer,
+	isPlayingTeam = false,
 }: Readonly<TeamCardProps>) {
+	const border = {
+		borderColor: isPlayingTeam ? "#4178b8" : "#ccc",
+		borderWidth: isPlayingTeam ? "3px" : "1px",
+	};
 	return (
-		<div className={styles.card}>
+		<div className={styles.card} style={border}>
 			<div className={styles.header}>
 				<h3 className={styles.title}>{team.name}</h3>
 				{sectionRight && (

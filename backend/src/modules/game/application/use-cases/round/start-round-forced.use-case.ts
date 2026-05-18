@@ -8,7 +8,7 @@ import type { RoundScheduler } from "../../round-scheduler.service";
 import { StartRoundDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
 
-export class StartRoundUseCase {
+export class StartRoundForcedUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
 		private readonly gameRepository: IGameRepository,
@@ -21,7 +21,7 @@ export class StartRoundUseCase {
 			throw new RoundNotActiveError();
 		}
 		const startTime = Date.now();
-		room.startRound(actor.id, startTime);
+		room.startRound(actor.id, startTime, true);
 		this.roundScheduler.scheduleRoundTimeout(
 			room.id,
 			room.settings.roundTimeSeconds * 1000,
@@ -32,7 +32,7 @@ export class StartRoundUseCase {
 		const text = await this.gameSharedService.getWordForGameSession(room);
 
 		await this.gameSharedService.checkAndSetWordsForGame(room);
-		const word = room.nextWord(actor.id, text, false);
+		room.nextWord(actor.id, text, false);
 
 		await this.gameRepository.saveGame(room);
 
@@ -41,7 +41,7 @@ export class StartRoundUseCase {
 			roomId: room.id,
 		};
 		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
-		return { word };
+		return eventPayload;
 	}
 
 	private async handleRoundTimeout(roomId: string) {

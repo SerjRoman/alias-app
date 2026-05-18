@@ -2,13 +2,6 @@ import { useCallback } from "react";
 import { adminSocketApi } from "../api/admin-actions";
 
 export const useAdminActions = (gameId: string) => {
-	const addTime = useCallback(
-		(seconds: number) => {
-			adminSocketApi.addTime(gameId, seconds);
-		},
-		[gameId],
-	);
-
 	const setGuesser = useCallback(
 		(playerId: string) => {
 			adminSocketApi.setGuesser(gameId, playerId);
@@ -27,24 +20,41 @@ export const useAdminActions = (gameId: string) => {
 		adminSocketApi.startRound(gameId);
 	}, [gameId]);
 
-	const endRound = useCallback(() => {
-		adminSocketApi.endRound(gameId);
-	}, [gameId]);
+	// const finishRound = useCallback(() => {
+	// 	adminSocketApi.finishRound(gameId);
+	// }, [gameId]);
 
 	const endGame = useCallback(() => {
 		adminSocketApi.endGame(gameId);
+	}, [gameId]);
+
+	const startPointing = useCallback(() => {
+		adminSocketApi.startPointing(gameId);
 	}, [gameId]);
 	const assignPlayerToTeam = (teamId: string, playerId: string) => {
 		adminSocketApi.assignPlayerToTeam(gameId, teamId, playerId);
 	};
 
+	const shufflePlayers = useCallback(() => {
+		adminSocketApi.shufflePlayers(gameId);
+	}, [gameId]);
+
+	const changeRoundTime = useCallback(
+		(seconds: number) => {
+			adminSocketApi.changeRoundTime(gameId, seconds);
+		},
+		[gameId],
+	);
+
 	return {
-		addTime,
 		setGuesser,
 		kickPlayer,
 		startRound,
-		endRound,
+		// finishRound,
 		endGame,
 		assignPlayerToTeam,
+		shufflePlayers,
+		changeRoundTime,
+		startPointing,
 	};
 };

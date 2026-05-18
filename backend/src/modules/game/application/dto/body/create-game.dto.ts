@@ -53,4 +53,14 @@ export class CreateGameDto {
 	@IsString()
 	@IsOptional()
 	level: GameWordsLevel = "easy";
+
+	@ApiProperty({ type: Boolean, default: true })
+	@IsBoolean()
+	@IsOptional()
+	isOnlyOwnerCanNextRound?: boolean = true;
+
+	@ApiProperty({ type: Boolean, default: true })
+	@IsBoolean()
+	@IsOptional()
+	isOnlyOwnerCanChangeScore?: boolean = true;
 }

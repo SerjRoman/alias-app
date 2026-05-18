@@ -30,7 +30,7 @@ export class SaveGameOnGameStartHandler {
 			status: event.gameState.status,
 			ownerId: event.gameState.ownerId,
 			participants: event.gameState.players.map((player) => ({
-				id: player.id,
+				id: `${event.gameState.id}:${player.id}`,
 				name: player.name,
 				teamId: playerTeamMap.get(player.id)!,
 				userId: player.role === "registered" ? player.id : null,

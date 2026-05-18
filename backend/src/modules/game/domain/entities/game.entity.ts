@@ -169,10 +169,10 @@ export class GameEntity extends BaseEntity {
 			throw new PlayersNotReadyError();
 		}
 	}
-	assertIsRoundActive() {
+	asserRoundIsActive() {
 		if (!this._currentRound) throw new RoundNotActiveError();
 	}
-	assertIsRoundNotActive() {
+	assertRoundIsNotActive() {
 		if (this._currentRound) throw new RoundAlreadyStarted();
 	}
 	assertIsGuesser(playerId: string) {
@@ -307,7 +307,7 @@ export class GameEntity extends BaseEntity {
 	}
 	createRound() {
 		this.assertGameInProgress();
-		this.assertIsRoundNotActive();
+		this.assertRoundIsNotActive();
 
 		const nextTeamIndex =
 			(this.state.lastTeamPlayedIndex + 1) % this._teams.length;
@@ -338,24 +338,35 @@ export class GameEntity extends BaseEntity {
 		currentRound.changeWordScore(wordId, delta);
 	}
 
-	startRound(actorId: string, startTime: number) {
+	startRound(actorId: string, startTime: number, force: boolean = false) {
 		this.assertGameInProgress();
 		this.assertRoundIsPending();
 		const currentRound = this.getRoundOrThrow();
-		this.assertIsGuesser(actorId);
-		const currentTeamId = currentRound.teamId;
-		const team = this.getTeamOrThrow(currentTeamId);
-		team.playerIds.forEach((id) => {
-			const player = this.getPlayerOrThrow(id);
-			if (!player.isReady || !player.isRoundReady) {
-				throw new PlayersNotReadyError();
-			}
-		});
+		if (force) {
+			this.assertRoomOwner(actorId);
+		} else {
+			this.assertIsGuesser(actorId);
+			const currentTeamId = currentRound.teamId;
+			const team = this.getTeamOrThrow(currentTeamId);
+			team.playerIds.forEach((id) => {
+				const player = this.getPlayerOrThrow(id);
+				if (!player.isReady || !player.isRoundReady) {
+					throw new PlayersNotReadyError();
+				}
+			});
+		}
+
 		currentRound.startRound();
 		currentRound.endTime =
 			startTime + this.state.settings.roundTimeSeconds * 1000;
 		this._players.forEach((p) => p.setRoundReady(false));
 		this.addDomainEvent(new RoundStartedEvent(this.id, actorId));
+	}
+	updateRoundTime(remainingTime: number) {
+		this.assertGameInProgress();
+		this.assertRoundInProgress();
+		const currentRound = this.getRoundOrThrow();
+		currentRound.endTime = remainingTime;
 	}
 	nextWord(actorId: string, text: string, wasSkipped: boolean = false) {
 		this.assertGameInProgress();
@@ -364,16 +375,48 @@ export class GameEntity extends BaseEntity {
 		const currentRound = this.getRoundOrThrow();
 		return currentRound.nextWord(text, wasSkipped);
 	}
-	finishRound() {
+	shufflePlayers(actorId: string) {
+		this.assertRoomOwner(actorId);
+		this.assertGameInLobby();
+		if (this._teams.length === 0) {
+			throw new TeamError("Need at least 1 team to shuffle players");
+		}
+
+		const shuffledPlayers = [...this._players];
+		for (let i = shuffledPlayers.length - 1; i > 0; i -= 1) {
+			const randomIndex = Math.floor(Math.random() * (i + 1));
+			[shuffledPlayers[i], shuffledPlayers[randomIndex]] = [
+				shuffledPlayers[randomIndex],
+				shuffledPlayers[i],
+			];
+		}
+
+		this._teams.forEach((team) => {
+			team.setPlayerIds = [];
+		});
+		shuffledPlayers.forEach((player, index) => {
+			const team = this._teams[index % this._teams.length];
+			team.addPlayer(player.id);
+		});
+	}
+	private _finishRound() {
 		this.assertGameInProgress();
 		const currentRound = this.getRoundOrThrow();
 		currentRound.finishRound();
 		this.addDomainEvent(
 			new RoundFinishedEvent(this.id, this.toPrimitives()),
 		);
-		this._currentRound = null;
 	}
-	startPointing() {
+	finishRound(actorId: string) {
+		this.assertGameInProgress();
+		this.asserRoundIsActive();
+		this.assertRoomOwner(actorId);
+		this._finishRound();
+	}
+	startPointing(actorId?: string) {
+		if (actorId) {
+			this.assertRoomOwner(actorId);
+		}
 		this.assertGameInProgress();
 		this.assertRoundInProgress();
 		const currentRound = this.getRoundOrThrow();
@@ -382,6 +425,7 @@ export class GameEntity extends BaseEntity {
 	setGuesser(guesserId: string, actorId: string) {
 		this.assertGameInProgress();
 		this.assertRoomOwner(actorId);
+		this.assertRoundIsPending();
 		const currentRound = this.getRoundOrThrow();
 		const team = this.getTeamOrThrow(currentRound.teamId);
 		if (!team.playerIds.has(guesserId)) {
@@ -415,7 +459,7 @@ export class GameEntity extends BaseEntity {
 
 		team.addScore(score);
 		player.addScore(score);
-		currentRound.finishRound();
+		this._finishRound();
 
 		this.addDomainEvent(
 			new RoundPointingEndedEvent(this.id, this.toPrimitives()),
@@ -427,7 +471,7 @@ export class GameEntity extends BaseEntity {
 	}
 	nextRound(actorId?: string) {
 		this.assertGameInProgress();
-		this.assertIsRoundNotActive();
+		this.assertRoundIsFinished();
 		if (this.settings.isOnlyOwnerCanNextRound) {
 			if (actorId) {
 				this.assertRoomOwner(actorId);
@@ -435,6 +479,7 @@ export class GameEntity extends BaseEntity {
 				throw new PlayerNotFoundError("No actor ID provided");
 			}
 		}
+		this._currentRound = null;
 		this.createRound();
 	}
 

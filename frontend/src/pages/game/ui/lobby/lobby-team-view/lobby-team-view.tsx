@@ -7,7 +7,7 @@ import {
 	useGameSlice,
 	TeamCard,
 	PlayerPopover,
-	PlayerItem,
+	usePlayersDisplayMap,
 } from "@entities/game";
 
 export function LobbyTeamView({
@@ -24,6 +24,7 @@ export function LobbyTeamView({
 	const isOwner = currentUserId === ownerId;
 	const { deleteTeam, joinTeam } = useLobbyActions();
 	const playersMap = new Map(players.map((p) => [p.id, p]));
+	const playersDisplayMap = usePlayersDisplayMap(players);
 	return (
 		<TeamCard
 			team={team}
@@ -52,34 +53,24 @@ export function LobbyTeamView({
 				)
 			}
 			renderPlayer={(player) => {
+				const playerDisplayInfo = playersDisplayMap.get(player.id);
 				return (
-					<PlayerPopover
-						key={player.id}
-						playerId={player.id}
-						playerIsOnline={player.isOnline}
-						playerName={player.name}
-						renderTrigger={(playerId) => {
-							const player = playersMap.get(playerId);
-							if (!player) return null;
-							const isPlayerOwner = player.id === ownerId;
-
-							return (
-								<button
-									className={styles.triggerButton}
-									tabIndex={0}
-								>
-									<PlayerItem
-										id={player.id}
-										name={player.name}
-										isOwner={isPlayerOwner}
-										isReady={player.isReady}
-										isGuesser={false}
-										isOnline={player.isOnline}
-									/>
-								</button>
-							);
-						}}
-					/>
+					<li key={player.id}>
+						<PlayerPopover
+							playerId={player.id}
+							playerIsOnline={player.isOnline}
+							playerIsReady={player.isReady}
+							playerIsOwner={player.id === ownerId}
+							playerAvatar={playerDisplayInfo?.avatarUrl}
+							playerUsername={playerDisplayInfo?.username}
+							playerName={
+								playerDisplayInfo?.name ||
+								player.name ||
+								"Unknown Player"
+							}
+							triggerClassName={styles.triggerButton}
+						/>
+					</li>
 				);
 			}}
 		/>

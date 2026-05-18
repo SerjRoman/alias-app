@@ -51,6 +51,9 @@ import {
 	EndPointingDto,
 	FinishRoundDto,
 	EndGameDto,
+	ShufflePlayersDto,
+	ChangeRoundTimeDto,
+	StartPointingDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
@@ -60,7 +63,8 @@ import {
 	RoundResponseDto,
 } from "../application/dto/response";
 import { ADMIN_EVENTS } from "./socket.events";
-import { SetGuesserDto } from "../application/use-cases/game/set-guesser.dto";
+import { SetGuesserDto } from "../application/dto/body/set-guesser.dto";
+import { RoomNotFoundError } from "../domain/errors/game.errors";
 
 @WebSocketGateway({
 	cors: {
@@ -120,24 +124,8 @@ export class GameGateway implements OnGatewayDisconnect {
 		});
 
 		client.emit("gameUpdated", publicState);
-
-		const privateState = await this.gameFacade.getPrivatePlayerState(
-			dto.roomId,
-			client.data.user.id,
-		);
-
-		if (privateState?.word) {
-			client.emit(
-				"privateWord",
-				plainToInstance(WordResponseDto, privateState.word, {
-					excludeExtraneousValues: true,
-				}),
-			);
-
-			this.logger.log(
-				`Resent private word to guesser ${client.data.user.name}`,
-			);
-		}
+		if (await this.isGuesser(dto.roomId, client.data.user.id))
+			await this.sendPrivateWordToGuesser(room.id, client.data.user.id);
 
 		return publicState;
 	}
@@ -222,10 +210,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: StartRoundDto,
 	) {
-		const data = await this.roundFacade.startRound(dto, client.data.user);
-		return plainToInstance(WordResponseDto, data.word, {
-			excludeExtraneousValues: true,
-		});
+		await this.roundFacade.startRound(dto, client.data.user);
+		const isGuesser = await this.isGuesser(dto.roomId, client.data.user.id);
+		if (isGuesser) {
+			await this.sendPrivateWordToGuesser(
+				dto.roomId,
+				client.data.user.id,
+			);
+		}
 	}
 
 	@SubscribeMessage("changeWordScore")
@@ -271,13 +263,90 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.gameFacade.endGame(dto, client.data.user);
 	}
-	// @SubscribeMessage(ADMIN_EVENTS.setGuesser)
-	// async setGuesser(
-	// 	@ConnectedSocket() client: GameSocket,
-	// 	@MessageBody() dto: SetGuesserDto,
-	// ) {
-	// 	await this.roundFacade.setGuesser(dto, client.data.user);
-	// }
+	@SubscribeMessage(ADMIN_EVENTS.setGuesser)
+	async setGuesser(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: SetGuesserDto,
+	) {
+		await this.roundFacade.setGuesser(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.shufflePlayers)
+	async shufflePlayers(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: ShufflePlayersDto,
+	) {
+		await this.gameFacade.shufflePlayers(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.changeRoundTime)
+	async changeRoundTime(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: ChangeRoundTimeDto,
+	) {
+		await this.roundFacade.changeRoundTime(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.startPointing)
+	async startPointing(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: StartPointingDto,
+	) {
+		await this.roundFacade.startPointing(dto, client.data.user);
+	}
+	@SubscribeMessage(ADMIN_EVENTS.startRound)
+	async startRoundForced(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: StartRoundDto,
+	) {
+		const data = await this.roundFacade.startRoundForced(
+			dto,
+			client.data.user,
+		);
+		await this.sendPrivateWordToGuesser(data.roomId, data.round.guesserId);
+	}
+	private async isGuesser(roomId: string, userId: string): Promise<boolean> {
+		const privateState = await this.gameFacade.getPrivatePlayerState(
+			roomId,
+			userId,
+		);
+		return Boolean(privateState?.word) || false;
+	}
+	private async sendPrivateWordToGuesser(roomId: string, guesserId: string) {
+		let privateState: Awaited<
+			ReturnType<GameFacade["getPrivatePlayerState"]>
+		>;
+		try {
+			privateState = await this.gameFacade.getPrivatePlayerState(
+				roomId,
+				guesserId,
+			);
+		} catch (error) {
+			if (error instanceof RoomNotFoundError) {
+				this.logger.warn(
+					`Skipped private word send because room ${roomId} was not found`,
+				);
+				return;
+			}
+			throw error;
+		}
+		if (privateState?.word) {
+			const sockets = await this.server.in(roomId).fetchSockets();
+			const targetSocket = sockets.find(
+				(socket) =>
+					(socket as unknown as AuthenticatedSocket).data.user.id ===
+					guesserId,
+			) as unknown as AuthenticatedSocket;
+			if (targetSocket) {
+				targetSocket.emit(
+					"privateWord",
+					plainToInstance(WordResponseDto, privateState.word, {
+						excludeExtraneousValues: true,
+					}),
+				);
+				this.logger.log(
+					`Sent private word to guesser ${targetSocket.data.user.name}`,
+				);
+			}
+		}
+	}
 
 	@OnEvent(PLAYER_KICKED)
 	handlePlayerKicked(payload: PlayerKickedPayload) {
@@ -337,7 +406,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	}
 	async handleDisconnect(client: AuthenticatedSocket) {
 		this.logger.log(
-			`Received disconnet from client ${client.id} UserID ${client.data.user.name}`,
+			`Received disconnect from client ${client.id} UserID ${client.data.user.name}`,
 		);
 		const { roomId } = await this.playerFacade.getGameIdByUserId(
 			client.data.user.id,

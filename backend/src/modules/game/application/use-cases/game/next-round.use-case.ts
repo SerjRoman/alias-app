@@ -14,7 +14,7 @@ export class NextRoundUseCase {
 
 	async execute(dto: NextRoundDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.finishRound();
+		room.finishRound(actor.id);
 		room.nextRound(actor.id);
 
 		await this.repository.saveGame(room);

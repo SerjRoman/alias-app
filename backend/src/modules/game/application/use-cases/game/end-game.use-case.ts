@@ -1,7 +1,7 @@
 import { UserDto } from "@common/dto/user.dto";
 import { type GameSharedService } from "../../game-shared.service";
 import { type IGameRepository } from "../../game.repository.interface";
-import { GAME_FINISHED, GameFinishedPayload } from "../../game.events";
+import { GAME_UPDATED, GameUpdatedPayload } from "../../game.events";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { EndGameDto } from "../../dto/body/end-game.dto";
 
@@ -15,10 +15,10 @@ export class EndGameUseCase {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
 		room.endGame(actor.id);
 		await this.gameRepository.saveGame(room);
-		const eventPayload: GameFinishedPayload = {
+		const eventPayload: GameUpdatedPayload = {
 			room: room.toPrimitives(),
 		};
-		this.eventEmitter.emit(GAME_FINISHED, eventPayload);
+		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 
 		return room.toPrimitives();
 	}

@@ -21,29 +21,77 @@ export class HistoryRepository implements IHistoryRepository {
 		limit: number,
 		offset: number,
 	): Promise<[HistoryGameEntity[], number]> {
-		const [ormEntities, total] = await this.historyRepo
+		const total = await this.historyRepo
 			.createQueryBuilder("history")
-			.leftJoinAndSelect("history.participants", "participant")
-			.leftJoinAndSelect("history.teams", "teams")
-			.leftJoinAndSelect("history.rounds", "rounds")
-			.leftJoinAndSelect("rounds.participants", "roundParticipants")
 			.where((qb) => {
-				const subQuery = qb
+				const participantGamesSubQuery = qb
 					.subQuery()
 					.select("hp.gameId")
 					.from("history_participants", "hp")
 					.where("hp.userId = :userId")
 					.getQuery();
-				return "history.id IN " + subQuery;
+				const roundParticipantGamesSubQuery = qb
+					.subQuery()
+					.select("hr.gameId")
+					.from("history_round_participants", "hrp")
+					.innerJoin("history_rounds", "hr", "hr.id = hrp.roundId")
+					.where("hrp.playerId = :userId")
+					.getQuery();
+				return `history.id IN ${participantGamesSubQuery} OR history.id IN ${roundParticipantGamesSubQuery}`;
+			})
+			.setParameter("userId", userId)
+			.orderBy("history.createdAt", "DESC")
+			.getCount();
+
+		const gameIdRows = await this.historyRepo
+			.createQueryBuilder("history")
+			.select("history.id", "id")
+			.where((qb) => {
+				const participantGamesSubQuery = qb
+					.subQuery()
+					.select("hp.gameId")
+					.from("history_participants", "hp")
+					.where("hp.userId = :userId")
+					.getQuery();
+				const roundParticipantGamesSubQuery = qb
+					.subQuery()
+					.select("hr.gameId")
+					.from("history_round_participants", "hrp")
+					.innerJoin("history_rounds", "hr", "hr.id = hrp.roundId")
+					.where("hrp.playerId = :userId")
+					.getQuery();
+				return `history.id IN ${participantGamesSubQuery} OR history.id IN ${roundParticipantGamesSubQuery}`;
 			})
 			.setParameter("userId", userId)
 			.orderBy("history.createdAt", "DESC")
 			.take(limit)
 			.skip(offset)
-			.getManyAndCount();
+			.getRawMany<{ id: string }>();
+
+		if (gameIdRows.length === 0) {
+			return [[], total];
+		}
+
+		const gameIds = gameIdRows.map((row) => row.id);
+
+		const ormEntities = await this.historyRepo
+			.createQueryBuilder("history")
+			.leftJoinAndSelect("history.participants", "participant")
+			.leftJoinAndSelect("history.teams", "teams")
+			.leftJoinAndSelect("history.rounds", "rounds")
+			.leftJoinAndSelect("rounds.participants", "roundParticipants")
+			.where("history.id IN (:...gameIds)", { gameIds })
+			.orderBy("history.createdAt", "DESC")
+			.addOrderBy("rounds.roundNumber", "ASC")
+			.getMany();
+
+		const entitiesById = new Map(ormEntities.map((entity) => [entity.id, entity]));
+		const orderedEntities = gameIds
+			.map((id) => entitiesById.get(id))
+			.filter((entity): entity is HistoryGameOrmEntity => !!entity);
 
 		return [
-			ormEntities.map((orm) => HistoryGameMapper.toDomain(orm)),
+			orderedEntities.map((orm) => HistoryGameMapper.toDomain(orm)),
 			total,
 		];
 	}

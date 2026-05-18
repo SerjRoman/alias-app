@@ -37,7 +37,7 @@
 .popoverArrow {
 	fill: var(--color-surface);
 }
-.avatar {
+.popoverAvatar {
 	width: 75px;
 	height: 75px;
 	border-radius: 50%;
@@ -73,4 +73,73 @@
 .buttonViewProfile:hover {
 	background-color: var(--color-primary-hover);
 	border-color: #999;
+}
+
+.triggerButton {
+	all: unset;
+	display: block;
+	cursor: pointer;
+	border-radius: var(--border-radius);
+}
+
+.triggerButton:focus-visible {
+	outline: 2px solid var(--color-primary);
+}
+
+.triggerItem {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	background-color: var(--color-surface);
+	border: 1px solid transparent;
+	padding: var(--spacing-small) var(--spacing-medium);
+	border-radius: var(--border-radius);
+	font-size: 1rem;
+	color: var(--color-text);
+	transition: all 0.2s ease;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.triggerItem:hover {
+	transform: translateY(-1px);
+	border-color: var(--color-primary);
+	box-shadow: var(--box-shadow);
+}
+
+.ready {
+	background-color: #d1fae5;
+	border-color: #34d399;
+}
+
+.offline {
+	background-color: #e3e3e3;
+	border-color: red;
+}
+
+.triggerAvatar {
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+.triggerName {
+	display: block;
+	font-size: 1rem;
+	font-weight: 500;
+}
+
+.triggerMeta {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	margin-left: auto;
+}
+
+.ownerIcon {
+	color: #f59e0b;
+}
+
+.guesserIcon {
+	color: var(--color-primary);
 }

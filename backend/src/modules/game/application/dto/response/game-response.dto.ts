@@ -44,6 +44,18 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	level: GameWordsLevel;
+	@ApiProperty({
+		description: "Whether only owner can start next round",
+		example: true,
+	})
+	@Expose()
+	isOnlyOwnerCanNextRound: boolean;
+	@ApiProperty({
+		description: "Whether only owner can change word score",
+		example: true,
+	})
+	@Expose()
+	isOnlyOwnerCanChangeScore: boolean;
 }
 export class GameResponseDto {
 	@ApiProperty({

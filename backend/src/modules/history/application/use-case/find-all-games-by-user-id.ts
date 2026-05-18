@@ -54,6 +54,18 @@ export class FindAllGamesByUserIdUseCase {
 
 		for (const game of games) {
 			const primitives = game.toPrimitives();
+			const participantIdByPlayerId = new Map<string, string>();
+			primitives.participants.forEach((participant) => {
+				participantIdByPlayerId.set(participant.id, participant.id);
+				if (participant.userId) {
+					participantIdByPlayerId.set(participant.userId, participant.id);
+				}
+				const separatorIndex = participant.id.indexOf(":");
+				if (separatorIndex !== -1) {
+					const playerId = participant.id.slice(separatorIndex + 1);
+					participantIdByPlayerId.set(playerId, participant.id);
+				}
+			});
 
 			const participants = primitives.participants.map((p) => {
 				let userProfile = {
@@ -101,7 +113,8 @@ export class FindAllGamesByUserIdUseCase {
 					id: r.id,
 					roundNumber: r.roundNumber,
 					teamId: r.teamId,
-					guesserParticipantId: r.guesserId,
+					guesserParticipantId:
+						participantIdByPlayerId.get(r.guesserId) ?? r.guesserId,
 				})),
 			});
 		}

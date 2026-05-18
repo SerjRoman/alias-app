@@ -2,32 +2,84 @@ import * as Popover from "@radix-ui/react-popover";
 import styles from "./player-popover.module.css";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Crown } from "lucide-react";
+import { USER_DEFAULT_AVATAR_URL } from "@shared/lib";
 
 interface PlayerPopoverProps {
-	renderTrigger: (playerId: string) => ReactNode;
 	renderActions?: (playerId: string) => ReactNode;
 	playerId: string;
 	playerScore?: number;
 	playerName?: string;
 	playerIsOnline?: boolean;
+	playerIsReady?: boolean;
+	playerIsOwner?: boolean;
+	playerIsGuesser?: boolean;
 	playerAvatar?: string;
 	playerUsername?: string;
+	triggerClassName?: string;
 }
 
 export function PlayerPopover({
-	renderTrigger,
 	renderActions,
 	playerId,
 	playerIsOnline,
+	playerIsReady,
+	playerIsOwner,
+	playerIsGuesser,
 	playerName,
 	playerScore,
 	playerAvatar,
 	playerUsername,
+	triggerClassName,
 }: Readonly<PlayerPopoverProps>) {
 	const navigate = useNavigate();
+	const displayName = playerName || "Unknown Player";
+	const displayAvatar = playerAvatar || USER_DEFAULT_AVATAR_URL;
+	const triggerClassNames = [styles.triggerButton, triggerClassName]
+		.filter(Boolean)
+		.join(" ");
+	const triggerItemClassNames = [
+		styles.triggerItem,
+		playerIsReady ? styles.ready : "",
+		playerIsOnline === false ? styles.offline : "",
+	]
+		.filter(Boolean)
+		.join(" ");
+
 	return (
-		<Popover.Root key={playerId}>
-			<Popover.Trigger asChild>{renderTrigger(playerId)}</Popover.Trigger>
+		<Popover.Root>
+			<Popover.Trigger asChild>
+				<button type="button" className={triggerClassNames} tabIndex={0}>
+					<div className={triggerItemClassNames}>
+						<img
+							src={displayAvatar}
+							alt={displayName}
+							className={styles.triggerAvatar}
+						/>
+						<span className={styles.triggerName}>{displayName}</span>
+						{(playerIsOwner || playerIsGuesser) && (
+							<div className={styles.triggerMeta}>
+								{playerIsOwner && (
+									<Crown
+										size={14}
+										className={styles.ownerIcon}
+										fill="currentColor"
+										aria-label="Room Owner"
+									/>
+								)}
+								{playerIsGuesser && (
+									<ArrowLeft
+										size={16}
+										className={styles.guesserIcon}
+										strokeWidth={2.5}
+										aria-label="Current Guesser"
+									/>
+								)}
+							</div>
+						)}
+					</div>
+				</button>
+			</Popover.Trigger>
 
 			<Popover.Portal>
 				<Popover.Content
@@ -37,19 +89,15 @@ export function PlayerPopover({
 				>
 					<div className={styles.popoverHeader}>
 						<div className={styles.userProfile}>
-							{playerAvatar && (
-								<img
-									src={playerAvatar}
-									alt={playerName}
-									className={styles.avatar}
-								/>
-							)}
+							<img
+								src={displayAvatar}
+								alt={displayName}
+								className={styles.popoverAvatar}
+							/>
 							<div className={styles.userInfo}>
-								{playerName && (
-									<p className={styles.popoverTitle}>
-										{playerName}
-									</p>
-								)}
+								<p className={styles.popoverTitle}>
+									{displayName}
+								</p>
 								{playerUsername && (
 									<p className={styles.popoverText}>
 										@{playerUsername}
@@ -61,11 +109,13 @@ export function PlayerPopover({
 									</p>
 								)}
 
-								<p className={styles.popoverText}>
-									{playerIsOnline
-										? "Online ✅"
-										: "Offline ❌"}
-								</p>
+								{playerIsOnline != undefined && (
+									<p className={styles.popoverText}>
+										{playerIsOnline
+											? "Online ✅"
+											: "Offline ❌"}
+									</p>
+								)}
 							</div>
 						</div>
 						{playerUsername && (

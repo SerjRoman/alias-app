@@ -11,5 +11,11 @@ export type {
 	ParticipantDisplayData,
 	TeamSummary,
 } from "./model";
-export { GameList, TeamCard, PlayerItem, PlayerPopover } from "./ui";
+export {
+	GameList,
+	TeamCard,
+	PlayerItem,
+	PlayerPopover,
+	usePlayersDisplayMap,
+} from "./ui";
 export { useGameSlice, useGameSync, RoundStatus, GameStatus } from "./model";

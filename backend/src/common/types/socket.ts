@@ -1,9 +1,9 @@
-import type { Socket } from "socket.io";
+import type { DefaultEventsMap, Socket } from "socket.io";
 import type { AuthenticatedUser } from "./authenticated-user";
 
 export type AuthenticatedSocket = Socket<
-	object,
-	object,
+	DefaultEventsMap,
+	DefaultEventsMap,
 	object,
 	{
 		user: AuthenticatedUser;

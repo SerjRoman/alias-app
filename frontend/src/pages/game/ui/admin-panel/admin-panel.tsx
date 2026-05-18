@@ -15,13 +15,14 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 	const [selectedTeamId, setSelectedTeamId] = useState("");
 	const [selectedPlayerId, setSelectedPlayerId] = useState("");
 	const {
-		addTime,
 		setGuesser,
 		kickPlayer,
 		startRound,
-		endRound,
 		endGame,
 		assignPlayerToTeam,
+		shufflePlayers,
+		changeRoundTime,
+		startPointing,
 	} = useAdminActions(game.id);
 	const playingTeam = game.teams.find(
 		(t) =>
@@ -32,6 +33,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 		game.players?.filter((p) => playingTeam?.playerIds.includes(p.id)) ||
 		[];
 	const currentRound = game.currentRound;
+	const isGameInLobby = game.status === "LOBBY";
 	return (
 		<div className={styles.panel}>
 			<div className={styles.header}>
@@ -47,34 +49,34 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 					<div className={styles.controls}>
 						<button
 							className={styles.button}
-							onClick={() => addTime(-5)}
+							onClick={() => changeRoundTime(-5)}
 						>
 							-5 sec
 						</button>
 						<button
 							className={styles.button}
-							onClick={() => addTime(-10)}
+							onClick={() => changeRoundTime(-10)}
 						>
 							-10 sec
 						</button>
 						<button
 							className={styles.button}
-							onClick={() => addTime(5)}
+							onClick={() => changeRoundTime(5)}
 						>
 							+5 sec
 						</button>
 						<button
 							className={styles.button}
-							onClick={() => addTime(10)}
+							onClick={() => changeRoundTime(10)}
 						>
 							+10 sec
 						</button>
 					</div>
 				</div>
 			)}
-			{game.status === "LOBBY" && (
+			{isGameInLobby && (
 				<div className={styles.row}>
-					<span>Перемстить игрока в команду:</span>
+					<span>Переместить игрока в команду:</span>
 					<select
 						className={styles.select}
 						value={selectedPlayerId}
@@ -117,6 +119,21 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						disabled={!selectedPlayerId}
 					>
 						Назначить
+					</button>
+				</div>
+			)}
+			{isGameInLobby && (
+				<div className={styles.row}>
+					<button
+						className={styles.button}
+						onClick={() => {
+							shufflePlayers();
+						}}
+						disabled={
+							game.teams.length < 1 || !game.players?.length
+						}
+					>
+						Перетасовать игроков
 					</button>
 				</div>
 			)}
@@ -188,12 +205,19 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						Запустить раунд
 					</button>
 					<button
-						className={`${styles.button} ${styles.warning}`}
-						onClick={endRound}
+						className={`${styles.button}`}
+						onClick={startPointing}
 						disabled={currentRound.status !== "IN_PROGRESS"}
 					>
-						Завершить раунд
+						Запустить оценивание
 					</button>
+					{/* <button
+						className={`${styles.button} ${styles.warning}`}
+						onClick={finishRound}
+						disabled={currentRound.status !== "POINTING"}
+					>
+						Завершить раунд
+					</button> */}
 				</div>
 			)}
 			<button

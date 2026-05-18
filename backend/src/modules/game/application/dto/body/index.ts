@@ -20,3 +20,7 @@ export { ValidateCodeDto } from "./validate-code.dto";
 export { EndPointingDto } from "./end-pointing.dto";
 export { FinishRoundDto } from "./finish-round.dto";
 export { EndGameDto } from "./end-game.dto";
+export { ShufflePlayersDto } from "./shuffle-players.dto";
+export { SetGuesserDto } from "./set-guesser.dto";
+export { ChangeRoundTimeDto } from "./change-round-time.dto";
+export { StartPointingDto } from "./start-pointing.dto";

@@ -42,6 +42,11 @@ import { MoveToTeamUseCase } from "./application/use-cases/team/move-to-team.use
 import { EndPointingUseCase } from "./application/use-cases/round/end-pointing.use-case";
 import { FinishRoundUseCase } from "./application/use-cases/round/finish-round.use-case";
 import { EndGameUseCase } from "./application/use-cases/game/end-game.use-case";
+import { SetGuesserUseCase } from "./application/use-cases/round/set-guesser.use-case";
+import { ShufflePlayersUseCase } from "./application/use-cases/game/shuffle-players.use-case";
+import { ChangeRoundTimeUseCase } from "./application/use-cases/round/change-round-time.use-case";
+import { StartPointingUseCase } from "./application/use-cases/round/start-pointing.use-case";
+import { StartRoundForcedUseCase } from "./application/use-cases/round/start-round-forced.use-case";
 
 const useCaseProviders = [
 	{
@@ -261,12 +266,35 @@ const useCaseProviders = [
 		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
 	},
 	{
+		provide: SetGuesserUseCase,
+		useFactory: (
+			repository: IGameRepository,
+			gameSharedService: GameSharedService,
+			eventEmitter: EventEmitter2,
+		) => new SetGuesserUseCase(repository, gameSharedService, eventEmitter),
+		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
+	},
+	{
 		provide: KickPlayerUseCase,
 		useFactory: (
 			repository: IGameRepository,
 			gameSharedService: GameSharedService,
 			eventEmitter: EventEmitter2,
 		) => new KickPlayerUseCase(repository, gameSharedService, eventEmitter),
+		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
+	},
+	{
+		provide: ShufflePlayersUseCase,
+		useFactory: (
+			repository: IGameRepository,
+			gameSharedService: GameSharedService,
+			eventEmitter: EventEmitter2,
+		) =>
+			new ShufflePlayersUseCase(
+				repository,
+				gameSharedService,
+				eventEmitter,
+			),
 		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
 	},
 	{
@@ -292,6 +320,27 @@ const useCaseProviders = [
 			roundScheduler: RoundScheduler,
 		) =>
 			new StartRoundUseCase(
+				gameSharedService,
+				repository,
+				eventEmitter,
+				roundScheduler,
+			),
+		inject: [
+			GameSharedService,
+			GAME_REPOSITORY,
+			EventEmitter2,
+			RoundScheduler,
+		],
+	},
+	{
+		provide: StartRoundForcedUseCase,
+		useFactory: (
+			gameSharedService: GameSharedService,
+			repository: IGameRepository,
+			eventEmitter: EventEmitter2,
+			roundScheduler: RoundScheduler,
+		) =>
+			new StartRoundForcedUseCase(
 				gameSharedService,
 				repository,
 				eventEmitter,
@@ -343,6 +392,62 @@ const useCaseProviders = [
 			gameSharedService: GameSharedService,
 			eventEmitter: EventEmitter2,
 		) => new DeleteTeamUseCase(repository, gameSharedService, eventEmitter),
+		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
+	},
+	{
+		provide: StartPointingUseCase,
+		useFactory: (
+			gameSharedService: GameSharedService,
+			repository: IGameRepository,
+			eventEmitter: EventEmitter2,
+			roundScheduler: RoundScheduler,
+		) =>
+			new StartPointingUseCase(
+				gameSharedService,
+				repository,
+				eventEmitter,
+				roundScheduler,
+			),
+		inject: [
+			GameSharedService,
+			GAME_REPOSITORY,
+			EventEmitter2,
+			RoundScheduler,
+		],
+	},
+	{
+		provide: ChangeRoundTimeUseCase,
+		useFactory: (
+			repository: IGameRepository,
+			gameSharedService: GameSharedService,
+			eventEmitter: EventEmitter2,
+			roundScheduler: RoundScheduler,
+		) =>
+			new ChangeRoundTimeUseCase(
+				repository,
+				gameSharedService,
+				eventEmitter,
+				roundScheduler,
+			),
+		inject: [
+			GAME_REPOSITORY,
+			GameSharedService,
+			EventEmitter2,
+			RoundScheduler,
+		],
+	},
+	{
+		provide: ShufflePlayersUseCase,
+		useFactory: (
+			repository: IGameRepository,
+			gameSharedService: GameSharedService,
+			eventEmitter: EventEmitter2,
+		) =>
+			new ShufflePlayersUseCase(
+				repository,
+				gameSharedService,
+				eventEmitter,
+			),
 		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
 	},
 ];

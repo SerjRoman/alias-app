@@ -9,6 +9,7 @@ import {
 	Post,
 	UseGuards,
 	Logger,
+	UseFilters,
 } from "@nestjs/common";
 import {
 	ApiBearerAuth,
@@ -37,9 +38,11 @@ import {
 	CurrentGameResponseDto,
 	ValidateCodeResponseDto,
 } from "../application/dto/response";
+import { GameHttpExceptionFilter } from "./filters/game-exception.filter";
 
 @ApiTags("Games")
 @Controller("games")
+@UseFilters(GameHttpExceptionFilter)
 export class GameController {
 	private readonly logger = new Logger(GameController.name);
 
