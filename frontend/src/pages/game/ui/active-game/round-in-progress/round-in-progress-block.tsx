@@ -3,6 +3,7 @@ import { useActiveGameActions } from "../../../model";
 import styles from "./round-in-progress-block.module.css";
 import { Check, X } from "lucide-react";
 import { useGameSlice, type WordState } from "@entities/game";
+import { Button } from "@shared/ui/button";
 
 interface Props {
 	roomId: string;
@@ -30,20 +31,20 @@ export function RoundInProgressBlock({
 						{currentWord?.text || "Loading..."}
 					</div>
 					<div className={styles.actionButtons}>
-						<button
+						<Button
 							className={styles.btnSkip}
 							onClick={() => nextWord(roomId, true)}
 						>
 							<X size={24} />
 							<div>SKIP (-1)</div>
-						</button>
-						<button
+						</Button>
+						<Button
 							className={styles.btnNext}
 							onClick={() => nextWord(roomId, false)}
 						>
 							<Check size={24} />
 							<div>CORRECT (+1)</div>
-						</button>
+						</Button>
 					</div>
 				</div>
 			)}

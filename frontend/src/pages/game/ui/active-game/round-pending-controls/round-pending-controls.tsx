@@ -2,6 +2,7 @@ import { useActiveGameActions } from "../../../model";
 import { Play } from "lucide-react";
 import styles from "./round-pending-controls.module.css";
 import { ToggleRoundReadyButton } from "../round-ready-button/round-ready-button";
+import { Button } from "@shared/ui/button";
 
 interface RoundPendingControlsProps {
 	roomId: string;
@@ -35,14 +36,14 @@ export function RoundPendingControls({
 			)}
 
 			{isGuesser && (
-				<button
+				<Button
 					onClick={() => startRound(roomId)}
 					className={styles.startBtn}
 					disabled={!isAllReady}
 				>
 					<Play fill="white" size={24} />
 					{isAllReady ? "Start Round" : "Waiting for teammates..."}
-				</button>
+				</Button>
 			)}
 		</div>
 	);

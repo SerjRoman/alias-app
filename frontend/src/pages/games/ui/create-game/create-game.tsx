@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { useMutation } from "@shared/api";
 import { useAuth } from "@entities/auth";
 import type { GameWordsLevel } from "@entities/game";
+import { Button } from "@shared/ui/button";
+import { Select } from "@shared/ui/select";
+import { useTranslation } from "react-i18next";
 
 export function CreateGameForm() {
 	const { mutate: createGame, isPending } = useMutation("post", "/games");
@@ -14,22 +17,23 @@ export function CreateGameForm() {
 	const [pointsToWin, setPointsToWin] = useState<number>(30);
 	const [isPrivate, setIsPrivate] = useState<boolean>(false);
 	const [level, setLevel] = useState<string>("easy");
+	const { t } = useTranslation();
 	return (
 		<div className={styles.formCard}>
-			<h3 className={styles.title}>Create New Game</h3>
+			<h3 className={styles.title}>{t("games.create")}</h3>
 			<div className={styles.row}>
 				<label className={styles.label}>
-					Game name:{" "}
+					{t("games.name")}:{" "}
 					<input
 						className={styles.input}
 						type="text"
 						value={gameName}
 						onChange={(event) => setGameName(event.target.value)}
-						placeholder="Game name"
+						placeholder={t("games.namePlaceholder")}
 					/>
 				</label>
 				<label className={styles.label}>
-					Time Limit:
+					{t("games.timeLimit")}:{" "}
 					<input
 						className={styles.input}
 						type="number"
@@ -37,11 +41,11 @@ export function CreateGameForm() {
 						onChange={(event) =>
 							setGameTimeLimit(Number(event.target.value))
 						}
-						placeholder="Time limit (sec)"
+						placeholder={t("games.timeLimitPlaceholder")}
 					/>
 				</label>
 				<label className={styles.label}>
-					Points to win:
+					{t("games.pointsToWin")}:{" "}
 					<input
 						className={styles.input}
 						type="number"
@@ -49,12 +53,14 @@ export function CreateGameForm() {
 						onChange={(event) =>
 							setPointsToWin(Number(event.target.value))
 						}
-						placeholder="Points to win"
+						placeholder={t("games.pointsToWinPlaceholder")}
 					/>
 				</label>
 
 				<div className={styles.privateBlock}>
-					<span className={styles.labelTitle}>Private game?</span>
+					<span className={styles.labelTitle}>
+						{t("games.private")}
+					</span>
 
 					<label className={styles.radioLabel}>
 						<input
@@ -64,7 +70,7 @@ export function CreateGameForm() {
 							checked={isPrivate === true}
 							onChange={() => setIsPrivate(true)}
 						/>{" "}
-						Yes
+						{t("common.yes")}
 					</label>
 
 					<label className={styles.radioLabel}>
@@ -75,25 +81,25 @@ export function CreateGameForm() {
 							checked={isPrivate === false}
 							onChange={() => setIsPrivate(false)}
 						/>{" "}
-						No
+						{t("common.no")}
 					</label>
-					<select>
+				</div>
+				<label className={styles.selectLevelLabel}>
+                    {t("games.level")}:{" "}
+					<Select
+						value={level}
+						onChange={(event) => setLevel(event.target.value)}
+                        className={styles.selectLevel}
+					>
 						{["easy", "medium", "hard"].map((lvl) => (
-							<option
-								key={lvl}
-								value={lvl}
-								selected={level === lvl}
-								onChange={(event) =>
-									setLevel(event.target.value)
-								}
-							>
+							<option key={lvl} value={lvl}>
 								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
 							</option>
 						))}
-					</select>
-				</div>
+					</Select>
+				</label>
 			</div>
-			<button
+			<Button
 				className={styles.button}
 				disabled={isPending}
 				onClick={() => {
@@ -105,6 +111,8 @@ export function CreateGameForm() {
 								isPrivate: isPrivate,
 								pointsToWin: pointsToWin,
 								level: level as GameWordsLevel,
+								isOnlyOwnerCanNextRound: true,
+								isOnlyOwnerCanChangeScore: true,
 							},
 							headers: { Authorization: `Bearer ${token}` },
 						},
@@ -120,8 +128,8 @@ export function CreateGameForm() {
 					);
 				}}
 			>
-				{isPending ? "Creating..." : "Create Game"}
-			</button>
+				{isPending ? t("common.creating") : t("games.createGame")}
+			</Button>
 		</div>
 	);
 }

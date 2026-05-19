@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle } from "lucide-react";
 import styles from "./base-ready-button.module.css";
+import { Button } from "@shared/ui";
 
 interface BaseReadyButtonProps {
 	isReady: boolean;
@@ -19,11 +20,7 @@ export function BaseReadyButton({
 	const buttonClass = isReady ? styles.ready : styles.notReady;
 
 	return (
-		<button
-			className={`${styles.button} ${buttonClass}`}
-			onClick={onClick}
-			disabled={disabled}
-		>
+		<Button className={buttonClass} onClick={onClick} disabled={disabled}>
 			{isReady ? (
 				<>
 					<CheckCircle2 className={styles.icon} />
@@ -35,6 +32,6 @@ export function BaseReadyButton({
 					<span>{labelNotReady}</span>
 				</>
 			)}
-		</button>
+		</Button>
 	);
 }

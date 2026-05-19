@@ -84,6 +84,18 @@ export class UserController {
 		description: "The user has been successfully logged in.",
 		type: LoginResponseDto,
 	})
+	@ApiResponse({
+		status: HttpStatus.UNAUTHORIZED,
+		description: "Unauthorized. Invalid email or password.",
+	})
+	@ApiResponse({
+		status: HttpStatus.BAD_REQUEST,
+		description: "Bad request. Validation failed.",
+	})
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: "Internal server error.",
+	})
 	async login(@Body() dto: LoginDto): Promise<LoginResponseDto> {
 		this.logger.log(
 			`Received login request with body=${JSON.stringify(dto)}`,
@@ -101,6 +113,19 @@ export class UserController {
 		description: "The user has been successfully registered.",
 		type: LoginResponseDto,
 	})
+	@ApiResponse({
+		status: HttpStatus.CONFLICT,
+		description:
+			"Conflict. User with the same email or username already exists.",
+	})
+	@ApiResponse({
+		status: HttpStatus.BAD_REQUEST,
+		description: "Bad request. Validation failed.",
+	})
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: "Internal server error.",
+	})
 	async register(@Body() dto: RegisterDto): Promise<LoginResponseDto> {
 		this.logger.log(
 			`Received register request with body=${JSON.stringify(dto)}`,
@@ -117,6 +142,14 @@ export class UserController {
 		status: HttpStatus.OK,
 		description: "The current user info has been successfully retrieved.",
 		type: MeDtoResponse,
+	})
+	@ApiResponse({
+		status: HttpStatus.UNAUTHORIZED,
+		description: "Unauthorized. The user is not authenticated.",
+	})
+	@ApiResponse({
+		status: HttpStatus.INTERNAL_SERVER_ERROR,
+		description: "Internal server error.",
 	})
 	@ApiBearerAuth()
 	@UseGuards(JwtAuthGuard)

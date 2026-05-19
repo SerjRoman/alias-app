@@ -11,16 +11,23 @@
 		"gen:api": "npx openapi-typescript ./src/shared/api/api.yaml -o ./src/shared/api/v1.d.ts"
 	},
 	"dependencies": {
+		"@hookform/resolvers": "^5.2.2",
 		"@radix-ui/react-popover": "^1.1.15",
 		"@tanstack/react-query": "^5.90.21",
+		"i18next": "^26.2.0",
+		"i18next-browser-languagedetector": "^8.2.1",
 		"lucide-react": "^0.575.0",
 		"openapi-react-query": "^0.5.4",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
+		"react-hook-form": "^7.76.0",
+		"react-i18next": "^17.0.8",
 		"react-loader-spinner": "^8.0.2",
 		"react-router-dom": "^7.13.0",
 		"socket.io": "^4.8.3",
 		"socket.io-client": "^4.8.3",
+		"sonner": "^2.0.7",
+		"zod": "^4.4.3",
 		"zustand": "^5.0.11"
 	},
 	"devDependencies": {

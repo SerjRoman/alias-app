@@ -2,6 +2,7 @@ import styles from "./round-pointing.module.css";
 import { useActiveGameActions } from "../../../model";
 import type { WordState } from "@entities/game";
 import { Plus, Minus } from "lucide-react";
+import { Button } from "@shared/ui/button";
 
 export interface RoundPointingProps {
 	roomId: string;
@@ -35,35 +36,35 @@ export function RoundPointing({
 							>
 								{word.score}
 							</span>
-							<button
+							<Button
 								className={styles.scoreBtn}
 								onClick={() => {
 									changeWordScore(roomId, word.id, 1);
 								}}
 							>
 								<Plus />
-							</button>
-							<button
+							</Button>
+							<Button
 								className={styles.scoreBtn}
 								onClick={() => {
 									changeWordScore(roomId, word.id, -1);
 								}}
 							>
 								<Minus />
-							</button>
+							</Button>
 						</div>
 					</div>
 				))}
 			</div>
 			{isOwner && (
-				<button
+				<Button
 					onClick={() => {
 						endPointing(roomId);
 					}}
 					className={styles.nextRoundBtn}
 				>
 					End Pointing
-				</button>
+				</Button>
 			)}
 		</div>
 	);

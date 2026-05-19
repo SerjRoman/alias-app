@@ -21,30 +21,3 @@
 	align-items: center;
 }
 
-.leaveBtn {
-	display: flex;
-	align-items: center;
-	padding: var(--spacing-small) var(--spacing-medium);
-	border: 1px solid var(--color-primary);
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 0.9rem;
-}
-.leaveBtn:hover {
-	background-color: rgb(235, 57, 57);
-	color: rgb(255, 255, 255);
-}
-.signOutBtn {
-	display: flex;
-	align-items: center;
-
-	padding: var(--spacing-small) var(--spacing-medium);
-	border: 1px solid var(--color-primary);
-	border-radius: 4px;
-	cursor: pointer;
-	font-size: 0.9rem;
-}
-.signOutBtn:hover {
-	background-color: rgb(235, 57, 57);
-	color: rgb(255, 255, 255);
-}

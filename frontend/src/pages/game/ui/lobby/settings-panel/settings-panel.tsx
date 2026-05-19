@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { GameStateDetails, GameWordsLevel } from "@entities/game";
 import { socketClient } from "@shared/api";
+import { Button } from "@shared/ui/button";
+import { Select } from "@shared/ui/select";
 
 export function SettingsPanel({
 	game,
@@ -91,14 +93,14 @@ export function SettingsPanel({
 				<h3 className={styles.title}>
 					<Settings size={18} /> Game Settings
 				</h3>
-				<button
+				<Button
 					className={`${styles.copyButton} ${isCopied ? styles.copied : ""}`}
 					onClick={handleCopyLink}
 					title="Copy invite link"
 				>
 					{isCopied ? <Check size={14} /> : <Copy size={14} />}
 					{isCopied ? "Copied!" : "Copy Link"}
-				</button>
+				</Button>
 			</div>
 
 			<div className={styles.formGroup}>
@@ -128,7 +130,7 @@ export function SettingsPanel({
 
 				<label className={styles.label}>
 					<span>Words Difficulty:</span>
-					<select
+					<Select
 						ref={levelSelectRef}
 						className={styles.inputField}
 						defaultValue={game.settings.level}
@@ -140,7 +142,7 @@ export function SettingsPanel({
 								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
 							</option>
 						))}
-					</select>
+					</Select>
 				</label>
 			</div>
 		</div>

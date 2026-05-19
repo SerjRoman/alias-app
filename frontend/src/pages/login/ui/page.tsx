@@ -1,8 +1,18 @@
-import { type SubmitEvent, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
 import { useAuth, type User } from "@entities/auth";
 import { useMutation } from "@shared/api";
+import { Button } from "@shared/ui/button";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+	loginSchema,
+	registerSchema,
+	type LoginValues,
+	type RegisterValues,
+} from "../model/schemas";
+import { useTranslation } from "react-i18next";
 
 type AuthTab = "login" | "register";
 
@@ -23,28 +33,26 @@ function applyAuthResult(
 export function LoginPage() {
 	const { setToken, setUser } = useAuth();
 	const [activeTab, setActiveTab] = useState<AuthTab>("login");
-	const [loginForm, setLoginForm] = useState({
-		email: "",
-		password: "",
-	});
-	const [registerForm, setRegisterForm] = useState({
-		email: "",
-		name: "",
-		username: "",
-		password: "",
-	});
-
+	const { t } = useTranslation();
 	const loginMutation = useMutation("post", "/user/login");
 	const registerMutation = useMutation("post", "/user/register");
 
-	const handleLoginSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-		event.preventDefault();
+	const loginForm = useForm<LoginValues>({
+		resolver: zodResolver(loginSchema),
+		defaultValues: { email: "", password: "" },
+	});
 
+	const registerForm = useForm<RegisterValues>({
+		resolver: zodResolver(registerSchema),
+		defaultValues: { name: "", username: "", email: "", password: "" },
+	});
+
+	const handleLoginSubmit = (data: LoginValues) => {
 		loginMutation.mutate(
 			{
 				body: {
-					email: loginForm.email.trim(),
-					password: loginForm.password,
+					email: data.email.trim(),
+					password: data.password,
 				},
 			},
 			{
@@ -53,33 +61,36 @@ export function LoginPage() {
 		);
 	};
 
-	const handleRegisterSubmit = (event: SubmitEvent<HTMLFormElement>) => {
-		event.preventDefault();
-
+	const handleRegisterSubmit = (data: RegisterValues) => {
 		registerMutation.mutate(
 			{
 				body: {
-					email: registerForm.email.trim(),
-					name: registerForm.name.trim(),
-					username: registerForm.username.trim(),
-					password: registerForm.password,
+					email: data.email.trim(),
+					name: data.name.trim(),
+					username: data.username.trim(),
+					password: data.password,
 				},
 			},
 			{
 				onSuccess: (data) => applyAuthResult(setToken, setUser, data),
 			},
 		);
+	};
+
+	const errorStyle = {
+		color: "#e57373",
+		fontSize: "0.8rem",
+		marginTop: "4px",
 	};
 
 	return (
 		<div className={styles.loginPage}>
 			<div className={styles.loginCard}>
 				<div className={styles.header}>
-					<p className={styles.kicker}>Account access</p>
-					<h1 className={styles.title}>Welcome to Alias!</h1>
+					<p className={styles.kicker}>{t("login.access")}</p>
+					<h1 className={styles.title}>{t("login.title")}</h1>
 					<p className={styles.description}>
-						Log in to your account or create a new one to keep your
-						progress.
+						{t("login.description")}
 					</p>
 				</div>
 
@@ -88,155 +99,172 @@ export function LoginPage() {
 					role="tablist"
 					aria-label="Authentication mode"
 				>
-					<button
+					<Button
 						type="button"
 						className={`${styles.tab} ${activeTab === "login" ? styles.tabActive : ""}`}
 						onClick={() => setActiveTab("login")}
 					>
-						Login
-					</button>
-					<button
+						{t("login.login")}
+					</Button>
+					<Button
 						type="button"
 						className={`${styles.tab} ${activeTab === "register" ? styles.tabActive : ""}`}
 						onClick={() => setActiveTab("register")}
 					>
-						Register
-					</button>
+						{t("register.register")}
+					</Button>
 				</div>
 
 				{activeTab === "login" ? (
-					<form className={styles.form} onSubmit={handleLoginSubmit}>
+					<form
+						className={styles.form}
+						onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
+					>
 						<label className={styles.field}>
-							<span className={styles.label}>Email</span>
+							<span className={styles.label}>
+								{t("login.email")}
+							</span>
 							<input
 								className={styles.input}
 								type="email"
 								autoComplete="email"
-								value={loginForm.email}
-								onChange={(event) =>
-									setLoginForm((current) => ({
-										...current,
-										email: event.target.value,
-									}))
-								}
-								required
+								{...loginForm.register("email")}
 							/>
+							{loginForm.formState.errors.email && (
+								<span style={errorStyle}>
+									{loginForm.formState.errors.email.message}
+								</span>
+							)}
 						</label>
 
 						<label className={styles.field}>
-							<span className={styles.label}>Password</span>
+							<span className={styles.label}>
+								{t("login.password")}
+							</span>
 							<input
 								className={styles.input}
 								type="password"
 								autoComplete="current-password"
-								value={loginForm.password}
-								onChange={(event) =>
-									setLoginForm((current) => ({
-										...current,
-										password: event.target.value,
-									}))
-								}
-								required
+								{...loginForm.register("password")}
 							/>
+							{loginForm.formState.errors.password && (
+								<span style={errorStyle}>
+									{
+										loginForm.formState.errors.password
+											.message
+									}
+								</span>
+							)}
 						</label>
 
-						<button
+						<Button
 							className={styles.button}
 							type="submit"
 							disabled={loginMutation.isPending}
 						>
 							{loginMutation.isPending
-								? "Logging in..."
-								: "Log in"}
-						</button>
+								? t("common.loading")
+								: t("login.submit")}
+						</Button>
 					</form>
 				) : (
 					<form
 						className={styles.form}
-						onSubmit={handleRegisterSubmit}
+						onSubmit={registerForm.handleSubmit(
+							handleRegisterSubmit,
+						)}
 					>
 						<label className={styles.field}>
-							<span className={styles.label}>Name</span>
+							<span className={styles.label}>
+								{t("register.name")}
+							</span>
 							<input
 								className={styles.input}
 								type="text"
 								autoComplete="name"
-								value={registerForm.name}
-								onChange={(event) =>
-									setRegisterForm((current) => ({
-										...current,
-										name: event.target.value,
-									}))
-								}
-								required
+								{...registerForm.register("name")}
 							/>
+							{registerForm.formState.errors.name && (
+								<span style={errorStyle}>
+									{registerForm.formState.errors.name.message}
+								</span>
+							)}
 						</label>
 
 						<label className={styles.field}>
-							<span className={styles.label}>Username</span>
+							<span className={styles.label}>
+								{t("register.username")}
+							</span>
 							<input
 								className={styles.input}
 								type="text"
 								autoComplete="username"
-								value={registerForm.username}
-								onChange={(event) =>
-									setRegisterForm((current) => ({
-										...current,
-										username: event.target.value,
-									}))
-								}
-								required
+								{...registerForm.register("username")}
 							/>
+							{registerForm.formState.errors.username && (
+								<span style={errorStyle}>
+									{
+										registerForm.formState.errors.username
+											.message
+									}
+								</span>
+							)}
 						</label>
 
 						<label className={styles.field}>
-							<span className={styles.label}>Email</span>
+							<span className={styles.label}>
+								{t("register.email")}
+							</span>
 							<input
 								className={styles.input}
 								type="email"
 								autoComplete="email"
-								value={registerForm.email}
-								onChange={(event) =>
-									setRegisterForm((current) => ({
-										...current,
-										email: event.target.value,
-									}))
-								}
-								required
+								{...registerForm.register("email")}
 							/>
+							{registerForm.formState.errors.email && (
+								<span style={errorStyle}>
+									{
+										registerForm.formState.errors.email
+											.message
+									}
+								</span>
+							)}
 						</label>
 
 						<label className={styles.field}>
-							<span className={styles.label}>Password</span>
+							<span className={styles.label}>
+								{t("register.password")}
+							</span>
 							<input
 								className={styles.input}
 								type="password"
 								autoComplete="new-password"
-								value={registerForm.password}
-								onChange={(event) =>
-									setRegisterForm((current) => ({
-										...current,
-										password: event.target.value,
-									}))
-								}
-								required
+								{...registerForm.register("password")}
 							/>
+							{registerForm.formState.errors.password && (
+								<span style={errorStyle}>
+									{
+										registerForm.formState.errors.password
+											.message
+									}
+								</span>
+							)}
 						</label>
 
-						<button
+						<Button
 							className={styles.button}
 							type="submit"
 							disabled={registerMutation.isPending}
 						>
 							{registerMutation.isPending
-								? "Creating account..."
-								: "Register"}
-						</button>
+								? t("common.loading")
+								: t("register.submit")}
+						</Button>
 					</form>
 				)}
 
 				<Link className={styles.secondaryLink} to="/login/anonymous">
-					Continue as guest
+					{t("login.asGuest")}
 				</Link>
 			</div>
 		</div>

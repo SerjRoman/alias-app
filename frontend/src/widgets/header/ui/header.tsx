@@ -1,15 +1,13 @@
-import { socketClient } from "@shared/api";
-import { DoorOpen } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import styles from "./header.module.css";
 import { useAuth } from "@entities/auth";
-import { useGameSlice } from "@entities/game";
 import { UserProfilePopup } from "@entities/user-profile";
+import { useTranslation } from "react-i18next";
+import { Select } from "@shared/ui/select";
 
 export function Header() {
-	const { game } = useGameSlice();
-	const { user, setUser, setToken } = useAuth();
-	const navigate = useNavigate();
+	const { user } = useAuth();
+	const { i18n } = useTranslation();
 
 	return (
 		<header className={styles.header}>
@@ -17,9 +15,9 @@ export function Header() {
 				Alias Game
 			</Link>
 			<div className={styles.rightSection}>
-				{game !== null && (
-					<button
-						className={styles.leaveBtn}
+				{/* {game !== null && (
+					<Button
+						variant="danger"
 						onClick={() =>
 							socketClient.emit(
 								"leaveGame",
@@ -33,9 +31,9 @@ export function Header() {
 						}
 					>
 						<DoorOpen size={20} />
-						Leave Game
-					</button>
-				)}
+						{t("header.leaveGame")}
+					</Button>
+				)} */}
 				{user && (
 					<div
 						style={{
@@ -45,18 +43,15 @@ export function Header() {
 						}}
 					>
 						<UserProfilePopup />
-						<button
-							onClick={() => {
-								setUser(null);
-								setToken(null);
-								navigate("/login");
-							}}
-							className={styles.signOutBtn}
-						>
-							Sign out
-						</button>
 					</div>
 				)}
+				<Select
+					value={i18n.language}
+					onChange={(e) => i18n.changeLanguage(e.target.value)}
+				>
+					<option value="en">English</option>
+					<option value="ru">Русский</option>
+				</Select>
 			</div>
 		</header>
 	);

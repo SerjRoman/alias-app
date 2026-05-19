@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { GameState } from "../../model";
 import styles from "./game-list.module.css";
+import { useTranslation } from "react-i18next";
 
 type GameListProps = {
 	games: GameState[];
@@ -11,10 +12,11 @@ type GameListProps = {
 };
 
 export function GameList({ games, onJoin }: Readonly<GameListProps>) {
+	const { t } = useTranslation();
 	if (games.length === 0) {
 		return (
 			<div style={{ textAlign: "center", color: "#888" }}>
-				No active games found. Create one!
+				{t("games.noGames")}
 			</div>
 		);
 	}
@@ -38,6 +40,7 @@ function GameCard({
 		code: string | null,
 	) => Promise<string | null | void>;
 }>) {
+	const { t } = useTranslation();
 	const [code, setCode] = useState<string>("");
 	const isLobby = game.status === "LOBBY";
 	const statusClass = isLobby ? styles.statusLobby : styles.statusInProgress;
@@ -49,13 +52,18 @@ function GameCard({
 			setError(result);
 		}
 	}
+	const status = {
+		LOBBY: t("games.lobby"),
+		IN_PROGRESS: t("games.inProgress"),
+		FINISHED: t("games.finished"),
+	};
 	return (
 		<div key={game.id} className={styles.card}>
 			<div className={styles.cardContent}>
 				<div className={styles.header}>
 					<h4 className={styles.gameName}>{game.settings.name}</h4>
 					<span className={`${styles.statusBadge} ${statusClass}`}>
-						{game.status}
+						{status[game.status]}
 					</span>
 				</div>
 
@@ -63,7 +71,7 @@ function GameCard({
 					<div className={styles.privateSection}>
 						<input
 							type="text"
-							placeholder="Enter access code"
+							placeholder={t("games.enterCode")}
 							className={styles.codeInput}
 							value={code}
 							onChange={(e) => setCode(e.target.value)}
@@ -80,7 +88,7 @@ function GameCard({
 					!isLobby || (game.settings.isPrivate && code.length === 0)
 				}
 			>
-				{isLobby ? "Join Game" : "Started"}
+				{isLobby ? t("games.join") : t("games.started")}
 			</button>
 			{error && <div className={styles.errorText}>{error}</div>}
 		</div>

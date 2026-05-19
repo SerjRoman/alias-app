@@ -1,6 +1,7 @@
 import styles from "./round-finished-results.module.css";
 import { useActiveGameActions } from "../../../model";
 import type { WordState } from "@entities/game";
+import { Button } from "@shared/ui/button";
 
 export interface RoundFinishedResultsProps {
 	roomId: string;
@@ -39,14 +40,14 @@ export function RoundFinishedResults({
 				))}
 			</div>
 			{isOwner && (
-				<button
+				<Button
 					onClick={() => {
 						nextRound(roomId);
 					}}
 					className={styles.nextRoundBtn}
 				>
 					Next Round
-				</button>
+				</Button>
 			)}
 		</div>
 	);

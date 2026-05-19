@@ -3,6 +3,7 @@ import winnerImage from "../../../../assets/winner.jpg";
 import { socketClient } from "@shared/api";
 import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
+import { Button } from "@shared/ui";
 
 export function GameFinished() {
 	const { user } = useAuth();
@@ -18,18 +19,19 @@ export function GameFinished() {
 		<div>
 			<h2>Game Finished</h2>
 			<p>Thanks for playing! The game has ended.</p>
-			<button onClick={() => navigate("/games")}>
+			<Button onClick={() => navigate("/games")}>
 				Back to Game List
-			</button>
+			</Button>
 			{game.ownerId === user.id && (
-				<button
+				<Button
+					variant="danger"
 					onClick={() => {
 						socketClient.emit("deleteGame", { roomId: game.id });
 						navigate("/games");
 					}}
 				>
 					Delete game
-				</button>
+				</Button>
 			)}
 			<img src={winnerImage} alt="Winner" />
 		</div>

@@ -4,9 +4,10 @@ import { type ChangeEvent, useRef } from "react";
 import styles from "./user-profile-popup.module.css";
 import { useMutation } from "@shared/api";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@shared/ui";
 
 export function UserProfilePopup() {
-	const { user, setUser, token } = useAuth();
+	const { user, setUser, token, setToken } = useAuth();
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const { mutate: uploadAvatar, isPending: isUploading } = useMutation(
 		"put",
@@ -27,6 +28,7 @@ export function UserProfilePopup() {
 
 		uploadAvatar(
 			{
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				body: formData as any,
 				headers: headers,
 			},
@@ -46,6 +48,7 @@ export function UserProfilePopup() {
 		<Popover.Root>
 			<Popover.Trigger asChild>
 				<button className={styles.trigger} aria-label="Update profile">
+					<span className={styles.triggerName}>{user.name}</span>
 					{user.avatarUrl ? (
 						<img
 							src={user.avatarUrl}
@@ -63,7 +66,7 @@ export function UserProfilePopup() {
 					sideOffset={5}
 				>
 					<div className={styles.info}>
-						<span className={styles.name}>{user.name}</span>
+						<span className={styles.name}>{user.username}</span>
 						<span className={styles.role}>
 							{user?.role &&
 								user.role.at(0)?.toUpperCase() +
@@ -79,21 +82,31 @@ export function UserProfilePopup() {
 						className={styles.hiddenInput}
 					/>
 
-					<button
-						className={styles.uploadBtn}
+					<Button
 						type="button"
+						variant="primary"
 						disabled={isUploading || user.role !== "registered"}
 						onClick={() => fileInputRef.current?.click()}
 					>
 						{isUploading ? "Uploading..." : "Upload Avatar"}
-					</button>
-					<button
-						className={styles.trigger}
+					</Button>
+					<Button
+						variant="secondary"
 						aria-label="Profile"
 						onClick={() => navigate(`/profile/${user.id}`)}
 					>
 						Profile
-					</button>
+					</Button>
+					<Button
+						variant="danger"
+						onClick={() => {
+							setUser(null);
+							setToken(null);
+							navigate("/login");
+						}}
+					>
+						Sign out
+					</Button>
 
 					<Popover.Arrow className="PopoverArrow" />
 				</Popover.Content>

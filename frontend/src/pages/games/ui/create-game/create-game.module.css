@@ -80,3 +80,12 @@
 	height: 18px;
 	accent-color: var(--color-primary);
 }
+.selectLevelLabel {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: var(--spacing-small);
+}
+.selectLevel {
+	flex: 1;
+}

@@ -5,6 +5,8 @@ import { useMutation, useQuery } from "@shared/api";
 import { GameList, type GameState } from "@entities/game";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@entities/auth";
+import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 export function GamesPage() {
 	const {
@@ -20,6 +22,7 @@ export function GamesPage() {
 		},
 		{ refetchInterval: 5000 },
 	);
+	const { t } = useTranslation();
 
 	const sortedGames = games
 		? [...games].sort(
@@ -37,7 +40,7 @@ export function GamesPage() {
 	async function handleJoin(game: GameState, code: string | null) {
 		if (game.settings.isPrivate) {
 			if (!code || code.length === 0) {
-				return "Access code is required";
+				return t("games.accessCodeRequired");
 			}
 			validateCode(
 				{
@@ -52,14 +55,14 @@ export function GamesPage() {
 				{
 					onSuccess: ({ valid }) => {
 						if (!valid) {
-							return "Invalid access code";
+							return t("games.invalidCode");
 						}
 						const c: string =
 							!code || code.length === 0 ? "" : `&code=${code}`;
 						navigate(`/game?id=${game.id}${c}`);
 					},
 					onError() {
-						return "Failed to validate code. Please try again.";
+						return t("games.failedToValidateCode");
 					},
 				},
 			);
@@ -70,22 +73,22 @@ export function GamesPage() {
 	return (
 		<div className={styles.pageContainer}>
 			<div className={styles.sectionList}>
-				<h2 className={styles.sectionTitle}>Available Games</h2>
-				<button
+				<h2 className={styles.sectionTitle}>{t("games.available")}</h2>
+				<Button
 					className={styles.refreshButton}
 					onClick={() => refetch()}
 					disabled={isFetching}
-					title="Update list"
+					title={t("games.updateList")}
 				>
-					{isFetching ? "Updating..." : "Refresh"}
+					{isFetching ? t("games.updating") : t("games.refresh")}
 					<RefreshCcw
 						size={18}
 						className={isFetching ? styles.spinning : undefined}
 					/>
-				</button>
+				</Button>
 
 				{isLoading ? (
-					<div>Loading games...</div>
+					<div>{t("games.loading")}</div>
 				) : (
 					games && (
 						<GameList

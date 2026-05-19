@@ -9,6 +9,7 @@ import {
 	PlayerPopover,
 	usePlayersDisplayMap,
 } from "@entities/game";
+import { Button } from "@shared/ui/button";
 
 export function LobbyTeamView({
 	team,
@@ -31,25 +32,26 @@ export function LobbyTeamView({
 			playersMap={playersMap}
 			sectionRight={
 				isOwner && (
-					<button
+					<Button
 						className={styles.deleteButton}
 						onClick={() => deleteTeam(roomId, team.id)}
 						title="Delete team"
+						variant="danger"
 					>
 						<Trash2 size={16} />
-					</button>
+					</Button>
 				)
 			}
 			footer={
 				isMyTeam ? (
 					<div className={styles.joinedText}>Joined</div>
 				) : (
-					<button
+					<Button
 						className={styles.joinButton}
 						onClick={() => joinTeam(roomId, team.id)}
 					>
 						Join Team
-					</button>
+					</Button>
 				)
 			}
 			renderPlayer={(player) => {

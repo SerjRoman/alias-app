@@ -9,6 +9,8 @@ import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
 import { useLobbyActions } from "../../model";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
+import { Button } from "@shared/ui/button";
+
 export function LobbyView() {
 	const [newTeamName, setNewTeamName] = useState("");
 	const { game } = useGameSlice();
@@ -56,13 +58,13 @@ export function LobbyView() {
 									e.key === "Enter" && handleCreateTeam()
 								}
 							/>
-							<button
+							<Button
 								onClick={handleCreateTeam}
 								disabled={!newTeamName.trim()}
 								className={styles.addTeamButton}
 							>
 								<Plus size={16} /> Add
-							</button>
+							</Button>
 						</div>
 					)}
 				</div>
@@ -87,13 +89,13 @@ export function LobbyView() {
 			)}
 			{isOwner && (
 				<div className={styles.startGameContainer}>
-					<button
+					<Button
 						onClick={() => startGame(game.id)}
 						className={styles.startGameButton}
 						disabled={game.teams.length < 2 || !isAllReady}
 					>
 						<Play fill="currentColor" size={20} /> Start Game
-					</button>
+					</Button>
 				</div>
 			)}
 		</div>

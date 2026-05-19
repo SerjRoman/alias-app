@@ -71,9 +71,37 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MeDtoResponse'
+        '401':
+          description: Unauthorized. The user is not authenticated.
+        '500':
+          description: Internal server error.
       security:
         - bearer: []
       summary: Get current user info
+      tags:
+        - User
+  /user/short-info:
+    get:
+      operationId: UserController_getUsersShortInfo
+      parameters:
+        - name: userIds
+          required: true
+          in: query
+          description: Array of user IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: The users short info has been successfully retrieved.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserShortInfoResponseDto'
+      summary: Get users short info
       tags:
         - User
   /user/{id}:
@@ -112,30 +140,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserProfileDto'
       summary: Get user profile by ID
-      tags:
-        - User
-  /user/short-info:
-    get:
-      operationId: UserController_getUsersShortInfo
-      parameters:
-        - name: userIds
-          required: true
-          in: query
-          description: Array of user IDs
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: The users short info has been successfully retrieved.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/UserShortInfoResponseDto'
-      summary: Get users short info
       tags:
         - User
   /user/avatar:
@@ -624,12 +628,22 @@ components:
           type: string
           description: The difficulty level of the words used in the game
           example: medium
+        isOnlyOwnerCanNextRound:
+          type: boolean
+          description: Whether only owner can start next round
+          example: true
+        isOnlyOwnerCanChangeScore:
+          type: boolean
+          description: Whether only owner can change word score
+          example: true
       required:
         - name
         - roundTimeSeconds
         - pointsToWin
         - isPrivate
         - level
+        - isOnlyOwnerCanNextRound
+        - isOnlyOwnerCanChangeScore
     GameResponseDto:
       type: object
       properties:
@@ -689,12 +703,20 @@ components:
             - easy
             - medium
             - hard
+        isOnlyOwnerCanNextRound:
+          type: boolean
+          default: true
+        isOnlyOwnerCanChangeScore:
+          type: boolean
+          default: true
       required:
         - name
         - isPrivate
         - timeLimit
         - pointsToWin
         - level
+        - isOnlyOwnerCanNextRound
+        - isOnlyOwnerCanChangeScore
     CreateGameResponseDto:
       type: object
       properties:

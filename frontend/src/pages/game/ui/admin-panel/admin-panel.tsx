@@ -3,6 +3,8 @@ import { useState } from "react";
 import styles from "./admin-panel.module.css";
 import { useAdminActions } from "../../model/use-admin-actions";
 import { LogOut } from "lucide-react";
+import { Button } from "@shared/ui";
+import { Select } from "@shared/ui/select";
 
 export interface AdminPanelProps {
 	game: GameStateDetails;
@@ -38,46 +40,50 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 		<div className={styles.panel}>
 			<div className={styles.header}>
 				<h3 className={styles.title}>Панель администратора</h3>
-				<button onClick={onClose} className={styles.closeButton}>
+				<Button
+					onClick={onClose}
+					variant="secondary"
+					className={styles.closeButton}
+				>
 					<LogOut />
-				</button>
+				</Button>
 			</div>
 
 			{currentRound?.status === "IN_PROGRESS" && (
 				<div className={styles.row}>
 					<span>Время:</span>
 					<div className={styles.controls}>
-						<button
-							className={styles.button}
+						<Button
+							variant="secondary"
 							onClick={() => changeRoundTime(-5)}
 						>
 							-5 sec
-						</button>
-						<button
-							className={styles.button}
+						</Button>
+						<Button
+							variant="secondary"
 							onClick={() => changeRoundTime(-10)}
 						>
 							-10 sec
-						</button>
-						<button
-							className={styles.button}
+						</Button>
+						<Button
+							variant="secondary"
 							onClick={() => changeRoundTime(5)}
 						>
 							+5 sec
-						</button>
-						<button
-							className={styles.button}
+						</Button>
+						<Button
+							variant="secondary"
 							onClick={() => changeRoundTime(10)}
 						>
 							+10 sec
-						</button>
+						</Button>
 					</div>
 				</div>
 			)}
 			{isGameInLobby && (
 				<div className={styles.row}>
 					<span>Переместить игрока в команду:</span>
-					<select
+					<Select
 						className={styles.select}
 						value={selectedPlayerId}
 						onChange={(e) => setSelectedPlayerId(e.target.value)}
@@ -90,8 +96,8 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 								{p.name}
 							</option>
 						))}
-					</select>
-					<select
+					</Select>
+					<Select
 						className={styles.select}
 						value={selectedTeamId}
 						onChange={(e) => setSelectedTeamId(e.target.value)}
@@ -104,9 +110,9 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 								{t.name}
 							</option>
 						))}
-					</select>
-					<button
-						className={styles.button}
+					</Select>
+					<Button
+						variant="primary"
 						onClick={() => {
 							if (!selectedPlayerId || !selectedTeamId) return;
 							assignPlayerToTeam(
@@ -119,13 +125,13 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						disabled={!selectedPlayerId}
 					>
 						Назначить
-					</button>
+					</Button>
 				</div>
 			)}
 			{isGameInLobby && (
 				<div className={styles.row}>
-					<button
-						className={styles.button}
+					<Button
+						variant="primary"
 						onClick={() => {
 							shufflePlayers();
 						}}
@@ -134,13 +140,13 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						}
 					>
 						Перетасовать игроков
-					</button>
+					</Button>
 				</div>
 			)}
 			{game.currentRound?.status === "PENDING" && (
 				<div className={styles.row}>
 					<span>Ведущий:</span>
-					<select
+					<Select
 						className={styles.select}
 						value={selectedGuesserId}
 						onChange={(e) => setSelectedGuesserId(e.target.value)}
@@ -153,9 +159,9 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 								{p.name}
 							</option>
 						))}
-					</select>
-					<button
-						className={styles.button}
+					</Select>
+					<Button
+						variant="primary"
 						onClick={() => {
 							setGuesser(selectedGuesserId);
 							setSelectedGuesserId("");
@@ -163,13 +169,13 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						disabled={!selectedGuesserId}
 					>
 						Назначить
-					</button>
+					</Button>
 				</div>
 			)}
 
 			<div className={styles.row}>
 				<span>Кикнуть:</span>
-				<select
+				<Select
 					className={styles.select}
 					value={selectedKickId}
 					onChange={(e) => setSelectedKickId(e.target.value)}
@@ -182,9 +188,9 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 							{p.name}
 						</option>
 					))}
-				</select>
-				<button
-					className={`${styles.button} ${styles.danger}`}
+				</Select>
+				<Button
+					variant="danger"
 					onClick={() => {
 						kickPlayer(selectedKickId);
 						setSelectedKickId("");
@@ -192,41 +198,34 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 					disabled={!selectedKickId}
 				>
 					Выгнать
-				</button>
+				</Button>
 			</div>
 
 			{currentRound && (
 				<div className={styles.actionsBox}>
-					<button
-						className={`${styles.button} ${styles.success}`}
+					<Button
+						variant="primary"
 						onClick={startRound}
 						disabled={currentRound.status !== "PENDING"}
 					>
 						Запустить раунд
-					</button>
-					<button
-						className={`${styles.button}`}
+					</Button>
+					<Button
+						variant="primary"
 						onClick={startPointing}
 						disabled={currentRound.status !== "IN_PROGRESS"}
 					>
 						Запустить оценивание
-					</button>
-					{/* <button
-						className={`${styles.button} ${styles.warning}`}
-						onClick={finishRound}
-						disabled={currentRound.status !== "POINTING"}
-					>
-						Завершить раунд
-					</button> */}
+					</Button>
 				</div>
 			)}
-			<button
-				className={`${styles.button} ${styles.danger}`}
+			<Button
+				variant="danger"
 				style={{ marginTop: "auto" }}
 				onClick={endGame}
 			>
 				Завершить игру
-			</button>
+			</Button>
 		</div>
 	);
 }

@@ -1,0 +1,77 @@
+{
+	"common": {
+		"loading": "Loading...",
+		"error": "Error",
+		"save": "Save",
+		"cancel": "Cancel",
+		"submit": "Submit",
+		"yes": "Yes",
+		"no": "No",
+		"creating": "Creating..."
+	},
+	"login": {
+		"access": "Access your Alias account",
+		"login": "Log In",
+		"title": "Welcome to Alias!",
+		"description": "Log in to your account or create a new one to keep your progress.",
+		"email": "Email",
+		"password": "Password",
+		"asGuest": "Continue as Guest",
+		"submit": "Log In"
+	},
+	"anonymousLogin": {
+		"access": "Access Alias as a guest",
+		"title": "Welcome to Alias!",
+		"description": "Continue as a guest to start playing immediately. Your progress won't be saved, so consider creating an account for the best experience.",
+		"continue": "Continue as Guest",
+		"backToAccountLogin": "Back to account login",
+		"guestName": "Guest name"
+	},
+	"register": {
+		"access": "Access your Alias account",
+		"register": "Register",
+		"title": "Welcome to Alias!",
+		"description": "Log in to your account or create a new one to keep your progress.",
+		"email": "Email",
+		"password": "Password",
+		"name": "Name",
+		"username": "Username",
+		"submit": "Register"
+	},
+	"games": {
+		"available": "Available Games",
+		"loading": "Loading games...",
+		"updateList": "Update list",
+		"refresh": "Refresh",
+		"updating": "Updating...",
+		"noGames": "No games available. Create one!",
+		"createGame": "Create Game",
+		"timeLimit": "Time Limit (sec)",
+		"timeLimitPlaceholder": "Time limit (sec)",
+		"pointsToWin": "Points to win",
+		"pointsToWinPlaceholder": "Points to win",
+		"level": "Level",
+		"levelPlaceholder": "Level",
+		"private": "Private game?",
+		"join": "Join",
+		"create": "Create",
+		"name": "Game name",
+		"namePlaceholder": "Game name",
+		"accessCodeRequired": "Access code is required",
+		"failedToValidateCode": "Failed to validate code. Please try again.",
+		"invalidCode": "Invalid access code. Please check and try again.",
+		"enterCode": "Enter access code",
+		"lobby": "Lobby",
+		"inProgress": "In Progress",
+		"finished": "Finished",
+		"started": "Started"
+	},
+	"api": {
+		"errors": {
+			"internal": "Internal Server Error. Please try again later.",
+			"unauthorized": "Unauthorized access. Please log in.",
+			"validation": "Please check the entered data.",
+			"fallback": "An unexpected error occurred"
+		}
+	}
+}

@@ -6,7 +6,6 @@ import {
 	usePlayersDisplayMap,
 } from "@entities/game";
 import styles from "./team-view.module.css";
-import { KickButton } from "../../kick-button/kick-button";
 
 interface TeamViewProps {
 	team: TeamState;
@@ -14,11 +13,7 @@ interface TeamViewProps {
 	roomId: string;
 }
 
-export function ActiveGameTeamView({
-	team,
-	isOwner,
-	roomId,
-}: Readonly<TeamViewProps>) {
+export function ActiveGameTeamView({ team }: Readonly<TeamViewProps>) {
 	const players = useGameSlice((state) => state.game!.players);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const currentGuesserId = useGameSlice(
@@ -52,19 +47,6 @@ export function ActiveGameTeamView({
 							playerIsGuesser={player.id === currentGuesserId}
 							playerIsReady={player.isRoundReady}
 							triggerClassName={styles.triggerButton}
-							renderActions={(playerId) => {
-								const player = playersMap.get(playerId);
-								if (!player || !isOwner) return null;
-								return (
-									<div className={styles.playerActions}>
-										<KickButton
-											roomId={roomId}
-											playerId={player.id}
-											playerName={player.name}
-										/>
-									</div>
-								);
-							}}
 						/>
 					</li>
 				);

@@ -72,6 +72,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/user/short-info": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get users short info */
+        get: operations["UserController_getUsersShortInfo"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/user/{id}": {
         parameters: {
             query?: never;
@@ -98,23 +115,6 @@ export interface paths {
         };
         /** Get user profile by ID */
         get: operations["UserController_getUserProfileById"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/user/short-info": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get users short info */
-        get: operations["UserController_getUsersShortInfo"];
         put?: never;
         post?: never;
         delete?: never;
@@ -445,6 +445,16 @@ export interface components {
              * @example medium
              */
             level: string;
+            /**
+             * @description Whether only owner can start next round
+             * @example true
+             */
+            isOnlyOwnerCanNextRound: boolean;
+            /**
+             * @description Whether only owner can change word score
+             * @example true
+             */
+            isOnlyOwnerCanChangeScore: boolean;
         };
         GameResponseDto: {
             /**
@@ -489,6 +499,10 @@ export interface components {
              * @enum {string}
              */
             level: "easy" | "medium" | "hard";
+            /** @default true */
+            isOnlyOwnerCanNextRound: boolean;
+            /** @default true */
+            isOnlyOwnerCanChangeScore: boolean;
         };
         CreateGameResponseDto: {
             /**
@@ -714,6 +728,43 @@ export interface operations {
                     "application/json": components["schemas"]["MeDtoResponse"];
                 };
             };
+            /** @description Unauthorized. The user is not authenticated. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_getUsersShortInfo: {
+        parameters: {
+            query: {
+                /** @description Array of user IDs */
+                userIds: string[];
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The users short info has been successfully retrieved. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserShortInfoResponseDto"][];
+                };
+            };
         };
     };
     UserController_getUserById: {
@@ -756,29 +807,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["UserProfileDto"];
-                };
-            };
-        };
-    };
-    UserController_getUsersShortInfo: {
-        parameters: {
-            query: {
-                /** @description Array of user IDs */
-                userIds: string[];
-            };
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The users short info has been successfully retrieved. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["UserShortInfoResponseDto"][];
                 };
             };
         };

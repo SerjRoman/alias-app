@@ -11,6 +11,7 @@ import { GameFinished } from "@pages/game/ui/game-finished";
 import { useState } from "react";
 import { AdminPanel } from "./admin-panel/admin-panel";
 import { Settings } from "lucide-react";
+import { Button } from "@shared/ui/button";
 
 export function GamePage() {
 	const [searchParams] = useSearchParams();
@@ -52,12 +53,12 @@ export function GamePage() {
 			{isAdmin && (
 				<>
 					{!isAdminMenuOpen && (
-						<button
+						<Button
 							className={`${styles.adminToggle}`}
 							onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
 						>
 							<Settings />
-						</button>
+						</Button>
 					)}
 
 					{isAdminMenuOpen && (

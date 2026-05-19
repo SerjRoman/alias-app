@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import styles from "./page.module.css";
 import { useAuth, type User } from "@entities/auth";
 import { useMutation } from "@shared/api";
+import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 type LoginResponse = {
 	accessToken: string;
@@ -22,7 +24,7 @@ export function AnonymousLoginPage() {
 	const { setToken, setUser } = useAuth();
 	const [name, setName] = useState("");
 	const { mutate, isPending } = useMutation("post", "/user/login/anonymous");
-
+	const { t } = useTranslation();
 	const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
@@ -40,17 +42,22 @@ export function AnonymousLoginPage() {
 		<div className={styles.loginPage}>
 			<div className={styles.loginCard}>
 				<div className={styles.header}>
-					<p className={styles.kicker}>Guest access</p>
-					<h1 className={styles.title}>Join as anonymous</h1>
+					<p className={styles.kicker}>
+						{t("anonymousLogin.access")}
+					</p>
+					<h1 className={styles.title}>
+						{t("anonymousLogin.title")}
+					</h1>
 					<p className={styles.description}>
-						Enter a guest name and start playing without creating an
-						account.
+						{t("anonymousLogin.description")}
 					</p>
 				</div>
 
 				<form className={styles.form} onSubmit={handleSubmit}>
 					<label className={styles.field}>
-						<span className={styles.label}>Guest name</span>
+						<span className={styles.label}>
+							{t("anonymousLogin.guestName")}
+						</span>
 						<input
 							className={styles.input}
 							type="text"
@@ -62,17 +69,19 @@ export function AnonymousLoginPage() {
 						/>
 					</label>
 
-					<button
+					<Button
 						className={styles.button}
 						type="submit"
 						disabled={isPending}
 					>
-						{isPending ? "Entering..." : "Enter as guest"}
-					</button>
+						{isPending
+							? t("common.loading")
+							: t("anonymousLogin.continue")}
+					</Button>
 				</form>
 
 				<Link className={styles.secondaryLink} to="/login">
-					Back to account login
+					{t("anonymousLogin.backToAccountLogin")}
 				</Link>
 			</div>
 		</div>
