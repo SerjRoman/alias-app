@@ -1,7 +1,15 @@
-import type { IGameRepository } from "../../game.repository.interface";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class GetCurrentGameUseCase {
-	constructor(private readonly gameRepository: IGameRepository) {}
+	constructor(
+		@Inject(GAME_REPOSITORY)
+		private readonly gameRepository: IGameRepository,
+	) {}
 
 	async execute(userId: string) {
 		const roomId = await this.gameRepository.getUserRoom(userId);

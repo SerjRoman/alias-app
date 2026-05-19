@@ -1,12 +1,18 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameSharedService } from "../../game-shared.service";
-import { IGameRepository } from "../../game.repository.interface";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
 import { UserDto } from "@common/dto/user.dto";
 import { ROUND_UPDATED, RoundUpdatedPayload } from "../../game.events";
 import { SetGuesserDto } from "../../dto/body";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class SetGuesserUseCase {
 	constructor(
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 		private readonly eventEmitter: EventEmitter2,

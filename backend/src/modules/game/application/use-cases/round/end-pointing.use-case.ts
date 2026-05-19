@@ -1,5 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import type { IGameRepository } from "../../game.repository.interface";
+import { Injectable, Inject } from "@nestjs/common";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
 import { UserDto } from "@common/dto/user.dto";
 import { GameSharedService } from "../../game-shared.service";
 import { EndPointingDto } from "../../dto/body";
@@ -12,6 +15,7 @@ import { RoundScheduler } from "../../round-scheduler.service";
 @Injectable()
 export class EndPointingUseCase {
 	constructor(
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 		private readonly eventEmitter: EventEmitter2,

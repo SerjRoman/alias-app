@@ -1,16 +1,22 @@
 // TECH_DEBT: Вынести обработку таймаута раунда в отдельный метод, который будет вызываться как из планировщика, так и при форсированном старте раунда. Это позволит избежать дублирования кода и обеспечит более чистую архитектуру.
-import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { RoundNotActiveError } from "../../../domain/errors/round.errors";
-import type { GameSharedService } from "../../game-shared.service";
+import { GameSharedService } from "../../game-shared.service";
 import { type RoundUpdatedPayload, ROUND_UPDATED } from "../../game.events";
-import type { IGameRepository } from "../../game.repository.interface";
-import type { RoundScheduler } from "../../round-scheduler.service";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
+import { RoundScheduler } from "../../round-scheduler.service";
 import { StartRoundDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class StartRoundUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 		private readonly roundScheduler: RoundScheduler,

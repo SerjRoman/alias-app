@@ -4,8 +4,10 @@ import {
 	TeamCard,
 	PlayerPopover,
 	usePlayersDisplayMap,
+	getVoiceParticipantUserId,
 } from "@entities/game";
 import styles from "./team-view.module.css";
+import { useSpeakingParticipants } from "@livekit/components-react";
 
 interface TeamViewProps {
 	team: TeamState;
@@ -22,6 +24,12 @@ export function ActiveGameTeamView({ team }: Readonly<TeamViewProps>) {
 	const playersMap = new Map(players.map((p) => [p.id, p]));
 	const playersDisplayMap = usePlayersDisplayMap(players);
 	const isPlayingTeam = team.playerIds.includes(currentGuesserId!);
+	const speakingParticipants = useSpeakingParticipants();
+	const speakingPlayerIds = new Set(
+		speakingParticipants.map((participant) =>
+			getVoiceParticipantUserId(participant.identity),
+		),
+	);
 	return (
 		<TeamCard
 			team={team}
@@ -46,6 +54,7 @@ export function ActiveGameTeamView({ team }: Readonly<TeamViewProps>) {
 							playerIsOwner={player.id === ownerId}
 							playerIsGuesser={player.id === currentGuesserId}
 							playerIsReady={player.isRoundReady}
+							playerIsSpeaking={speakingPlayerIds.has(player.id)}
 							triggerClassName={styles.triggerButton}
 						/>
 					</li>

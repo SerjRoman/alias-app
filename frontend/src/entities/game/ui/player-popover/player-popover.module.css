@@ -116,6 +116,11 @@
 	border-color: red;
 }
 
+.speaking {
+	border-color: #22c55e;
+	box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.25);
+}
+
 .triggerAvatar {
 	width: 24px;
 	height: 24px;
@@ -142,4 +147,8 @@
 
 .guesserIcon {
 	color: var(--color-primary);
+}
+
+.speakingIcon {
+	color: #22c55e;
 }

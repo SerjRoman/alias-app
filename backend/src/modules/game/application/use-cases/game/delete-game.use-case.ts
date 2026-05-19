@@ -1,9 +1,15 @@
 import { UserDto } from "@common/dto/user.dto";
-import { type GameSharedService } from "../../game-shared.service";
-import { type IGameRepository } from "../../game.repository.interface";
+import { GameSharedService } from "../../game-shared.service";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class DeleteGameUseCase {
 	constructor(
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 	) {}

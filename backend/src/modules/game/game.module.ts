@@ -1,15 +1,11 @@
 import { Module } from "@nestjs/common";
-import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameFacade } from "./application/facades/game.facade";
 import { PlayerFacade } from "./application/facades/player.facade";
 import { RoundFacade } from "./application/facades/round.facade";
 import { TeamFacade } from "./application/facades/team.facade";
 import { GameSharedService } from "./application/game-shared.service";
 import { GameController } from "./presentation/game.controller";
-import {
-	GAME_REPOSITORY,
-	type IGameRepository,
-} from "./application/game.repository.interface";
+import { GAME_REPOSITORY } from "./application/game.repository.interface";
 import { RoundScheduler } from "./application/round-scheduler.service";
 import { RedisGameRepository } from "./infrastructure/redis-game.repository";
 import { GameGateway } from "./presentation/game.gateway";
@@ -47,426 +43,57 @@ import { ShufflePlayersUseCase } from "./application/use-cases/game/shuffle-play
 import { ChangeRoundTimeUseCase } from "./application/use-cases/round/change-round-time.use-case";
 import { StartPointingUseCase } from "./application/use-cases/round/start-pointing.use-case";
 import { StartRoundForcedUseCase } from "./application/use-cases/round/start-round-forced.use-case";
-
-const useCaseProviders = [
-	{
-		provide: CreateGameUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-		) => new CreateGameUseCase(repository, gameSharedService),
-		inject: [GAME_REPOSITORY, GameSharedService],
-	},
-	{
-		provide: FindAllGamesUseCase,
-		useFactory: (repository: IGameRepository) =>
-			new FindAllGamesUseCase(repository),
-		inject: [GAME_REPOSITORY],
-	},
-	{
-		provide: EndPointingUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-			roundScheduler: RoundScheduler,
-			dictionaryService: DictionaryService,
-		) =>
-			new EndPointingUseCase(
-				repository,
-				gameSharedService,
-				eventEmitter,
-				roundScheduler,
-				dictionaryService,
-			),
-		inject: [
-			GAME_REPOSITORY,
-			GameSharedService,
-			EventEmitter2,
-			RoundScheduler,
-			DictionaryService,
-		],
-	},
-	{
-		provide: FindOneGameUseCase,
-		useFactory: (gameSharedService: GameSharedService) =>
-			new FindOneGameUseCase(gameSharedService),
-		inject: [GameSharedService],
-	},
-	{
-		provide: DeleteGameUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-		) => new DeleteGameUseCase(repository, gameSharedService),
-		inject: [GAME_REPOSITORY, GameSharedService],
-	},
-	{
-		provide: DeleteFinishedGameUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) =>
-			new DeleteFinishedGameUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-			),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: EndGameUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) => new EndGameUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: JoinGameUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) => new JoinGameUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: LeaveGameUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) => new LeaveGameUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: NextRoundUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) => new NextRoundUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: NextWordUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-			dictionaryService: DictionaryService,
-		) =>
-			new NextWordUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				dictionaryService,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			DictionaryService,
-		],
-	},
-	{
-		provide: ChangeWordScoreUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) =>
-			new ChangeWordScoreUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-			),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: StartGameUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-			dictionaryService: DictionaryService,
-		) =>
-			new StartGameUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				dictionaryService,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			DictionaryService,
-		],
-	},
-	{
-		provide: ToggleReadyUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) =>
-			new ToggleReadyUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: UpdateGameSettingsUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-		) => new UpdateGameSettingsUseCase(repository, gameSharedService),
-		inject: [GAME_REPOSITORY, GameSharedService],
-	},
-	{
-		provide: GetGameCodeUseCase,
-		useFactory: (gameSharedService: GameSharedService) =>
-			new GetGameCodeUseCase(gameSharedService),
-		inject: [GameSharedService],
-	},
-	{
-		provide: ValidateCodeUseCase,
-		useFactory: (gameSharedService: GameSharedService) =>
-			new ValidateCodeUseCase(gameSharedService),
-		inject: [GameSharedService],
-	},
-	{
-		provide: GetPrivatePlayerStateUseCase,
-		useFactory: (gameSharedService: GameSharedService) =>
-			new GetPrivatePlayerStateUseCase(gameSharedService),
-		inject: [GameSharedService],
-	},
-	{
-		provide: GetCurrentGameUseCase,
-		useFactory: (repository: IGameRepository) =>
-			new GetCurrentGameUseCase(repository),
-		inject: [GAME_REPOSITORY],
-	},
-	{
-		provide: GetUserRoomUseCase,
-		useFactory: (repository: IGameRepository) =>
-			new GetUserRoomUseCase(repository),
-		inject: [GAME_REPOSITORY],
-	},
-	{
-		provide: FinishRoundUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) =>
-			new FinishRoundUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: SetGuesserUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-		) => new SetGuesserUseCase(repository, gameSharedService, eventEmitter),
-		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
-	},
-	{
-		provide: KickPlayerUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-		) => new KickPlayerUseCase(repository, gameSharedService, eventEmitter),
-		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
-	},
-	{
-		provide: ShufflePlayersUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-		) =>
-			new ShufflePlayersUseCase(
-				repository,
-				gameSharedService,
-				eventEmitter,
-			),
-		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
-	},
-	{
-		provide: SetPlayerOfflineUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) =>
-			new SetPlayerOfflineUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-			),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: StartRoundUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-			roundScheduler: RoundScheduler,
-		) =>
-			new StartRoundUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				roundScheduler,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			RoundScheduler,
-		],
-	},
-	{
-		provide: StartRoundForcedUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-			roundScheduler: RoundScheduler,
-		) =>
-			new StartRoundForcedUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				roundScheduler,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			RoundScheduler,
-		],
-	},
-	{
-		provide: ToggleRoundReadyUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-			repository: IGameRepository,
-		) =>
-			new ToggleRoundReadyUseCase(
-				gameSharedService,
-				eventEmitter,
-				repository,
-			),
-		inject: [GameSharedService, EventEmitter2, GAME_REPOSITORY],
-	},
-	{
-		provide: CreateTeamUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-		) => new CreateTeamUseCase(gameSharedService, repository, eventEmitter),
-		inject: [GameSharedService, GAME_REPOSITORY, EventEmitter2],
-	},
-	{
-		provide: MoveToTeamUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-			repository: IGameRepository,
-		) => new MoveToTeamUseCase(gameSharedService, eventEmitter, repository),
-		inject: [GameSharedService, EventEmitter2, GAME_REPOSITORY],
-	},
-	{
-		provide: DeleteTeamUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-		) => new DeleteTeamUseCase(repository, gameSharedService, eventEmitter),
-		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
-	},
-	{
-		provide: StartPointingUseCase,
-		useFactory: (
-			gameSharedService: GameSharedService,
-			repository: IGameRepository,
-			eventEmitter: EventEmitter2,
-			roundScheduler: RoundScheduler,
-		) =>
-			new StartPointingUseCase(
-				gameSharedService,
-				repository,
-				eventEmitter,
-				roundScheduler,
-			),
-		inject: [
-			GameSharedService,
-			GAME_REPOSITORY,
-			EventEmitter2,
-			RoundScheduler,
-		],
-	},
-	{
-		provide: ChangeRoundTimeUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-			roundScheduler: RoundScheduler,
-		) =>
-			new ChangeRoundTimeUseCase(
-				repository,
-				gameSharedService,
-				eventEmitter,
-				roundScheduler,
-			),
-		inject: [
-			GAME_REPOSITORY,
-			GameSharedService,
-			EventEmitter2,
-			RoundScheduler,
-		],
-	},
-	{
-		provide: ShufflePlayersUseCase,
-		useFactory: (
-			repository: IGameRepository,
-			gameSharedService: GameSharedService,
-			eventEmitter: EventEmitter2,
-		) =>
-			new ShufflePlayersUseCase(
-				repository,
-				gameSharedService,
-				eventEmitter,
-			),
-		inject: [GAME_REPOSITORY, GameSharedService, EventEmitter2],
-	},
-];
+import { VoiceService } from "./application/voice.service";
 
 @Module({
 	providers: [
 		GameGateway,
 		GameSharedService,
 		RoundScheduler,
-		...useCaseProviders,
+		DictionaryService,
+		VoiceService,
 		GameFacade,
 		PlayerFacade,
 		RoundFacade,
 		TeamFacade,
-		DictionaryService,
 		{
 			provide: GAME_REPOSITORY,
 			useClass: RedisGameRepository,
 		},
+		// Use cases:
+		ChangeWordScoreUseCase,
+		CreateGameUseCase,
+		DeleteFinishedGameUseCase,
+		DeleteGameUseCase,
+		FindAllGamesUseCase,
+		FindOneGameUseCase,
+		GetGameCodeUseCase,
+		GetPrivatePlayerStateUseCase,
+		JoinGameUseCase,
+		LeaveGameUseCase,
+		NextRoundUseCase,
+		NextWordUseCase,
+		StartGameUseCase,
+		ToggleReadyUseCase,
+		UpdateGameSettingsUseCase,
+		ValidateCodeUseCase,
+		GetCurrentGameUseCase,
+		GetUserRoomUseCase,
+		KickPlayerUseCase,
+		SetPlayerOfflineUseCase,
+		StartRoundUseCase,
+		ToggleRoundReadyUseCase,
+		CreateTeamUseCase,
+		DeleteTeamUseCase,
+		MoveToTeamUseCase,
+		EndPointingUseCase,
+		FinishRoundUseCase,
+		EndGameUseCase,
+		SetGuesserUseCase,
+		ShufflePlayersUseCase,
+		ChangeRoundTimeUseCase,
+		StartPointingUseCase,
+		StartRoundForcedUseCase,
 	],
 	controllers: [GameController],
 	exports: [GameFacade, PlayerFacade, RoundFacade, TeamFacade],

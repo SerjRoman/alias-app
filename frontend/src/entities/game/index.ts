@@ -17,5 +17,13 @@ export {
 	PlayerItem,
 	PlayerPopover,
 	usePlayersDisplayMap,
+	GameVoiceRenderer,
 } from "./ui";
-export { useGameSlice, useGameSync, RoundStatus, GameStatus } from "./model";
+export { getVoiceParticipantUserId } from "./lib/voice";
+export {
+	useGameSlice,
+	useGameSync,
+	RoundStatus,
+	GameStatus,
+	useGameVoice,
+} from "./model";

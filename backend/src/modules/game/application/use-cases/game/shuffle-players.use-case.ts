@@ -1,13 +1,18 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameSharedService } from "../../game-shared.service";
 import { GameUpdatedPayload, GAME_UPDATED } from "../../game.events";
-import { IGameRepository } from "../../game.repository.interface";
+import {
+	GAME_REPOSITORY,
+	type IGameRepository,
+} from "../../game.repository.interface";
 import { UserDto } from "@common/dto/user.dto";
 import { ShufflePlayersDto } from "../../dto/body";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class ShufflePlayersUseCase {
 	constructor(
-		private readonly repository: IGameRepository,
+		@Inject(GAME_REPOSITORY) private readonly repository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 		private readonly eventEmitter: EventEmitter2,
 	) {}

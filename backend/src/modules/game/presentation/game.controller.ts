@@ -37,8 +37,10 @@ import {
 	GetRoomCodeResponseDto,
 	CurrentGameResponseDto,
 	ValidateCodeResponseDto,
+	GetVoiceTokenResponseDto,
 } from "../application/dto/response";
 import { GameHttpExceptionFilter } from "./filters/game-exception.filter";
+import { VoiceService } from "../application/voice.service";
 
 @ApiTags("Games")
 @Controller("games")
@@ -49,6 +51,7 @@ export class GameController {
 	constructor(
 		private readonly gameFacade: GameFacade,
 		private readonly playerFacade: PlayerFacade,
+		private readonly voiceService: VoiceService,
 	) {}
 
 	@Get()
@@ -251,6 +254,38 @@ export class GameController {
 		return plainToInstance(
 			ValidateCodeResponseDto,
 			{ valid: await this.gameFacade.validateCode(dto.roomId, dto.code) },
+			{ excludeExtraneousValues: true },
+		);
+	}
+	@Get(":id/voice-token")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({
+		summary: "Get a token to join the voice channel for a game room",
+	})
+	@ApiParam({
+		name: "id",
+		description: "The unique identifier of the game room.",
+		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "Returns a token to join the voice channel.",
+		type: GetVoiceTokenResponseDto,
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: "The game room with the specified ID was not found.",
+	})
+	async getVoiceRoomToken(
+		@Param("id") roomId: string,
+		@GetAuthenticatedUser() user: UserDto,
+	) {
+		const token = await this.voiceService.joinGameRoom(roomId, user.id);
+		console.log(token);
+		return plainToInstance(
+			GetVoiceTokenResponseDto,
+			{ token },
 			{ excludeExtraneousValues: true },
 		);
 	}

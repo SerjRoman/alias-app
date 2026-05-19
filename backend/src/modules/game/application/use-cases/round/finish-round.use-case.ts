@@ -1,6 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { GameSharedService } from "../../game-shared.service";
-import type { IGameRepository } from "../../game.repository.interface";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
 import { FinishRoundDto } from "../../dto/body";
 import { GAME_UPDATED, GameUpdatedPayload } from "../../game.events";
 import { EventEmitter2 } from "@nestjs/event-emitter";
@@ -10,6 +13,7 @@ import { UserDto } from "@common/dto/user.dto";
 export class FinishRoundUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 	) {}

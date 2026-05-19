@@ -1,7 +1,9 @@
 import { UserDto } from "@common/dto/user.dto";
 import { GetRoomCodeDto } from "../../dto/body";
-import { type GameSharedService } from "../../game-shared.service";
+import { GameSharedService } from "../../game-shared.service";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class GetGameCodeUseCase {
 	constructor(private readonly gameSharedService: GameSharedService) {}
 	async execute(dto: GetRoomCodeDto, actor: UserDto) {

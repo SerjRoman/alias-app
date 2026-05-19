@@ -1,20 +1,25 @@
 // TECH_DEBT: This use case is a bit of a hack to handle the case when a player disconnects without properly leaving the game. It should be refactored in the future to be more robust and handle edge cases better.
-import { Logger } from "@nestjs/common";
-import { type EventEmitter2 } from "@nestjs/event-emitter";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import {
 	PlayerNotFoundError,
 	RoomNotFoundError,
 } from "../../../domain/errors/game.errors";
-import type { GameSharedService } from "../../game-shared.service";
+import { GameSharedService } from "../../game-shared.service";
 import { type PlayersUpdatedPayload, PLAYERS_UPDATED } from "../../game.events";
-import type { IGameRepository } from "../../game.repository.interface";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
 import { UserDto } from "@common/dto/user.dto";
+import { Injectable, Inject, Logger } from "@nestjs/common";
 
+@Injectable()
 export class SetPlayerOfflineUseCase {
 	private readonly logger = new Logger(SetPlayerOfflineUseCase.name);
 
 	constructor(
 		private readonly gameSharedService: GameSharedService,
+		@Inject(GAME_REPOSITORY)
 		private readonly repository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 	) {}

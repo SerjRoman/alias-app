@@ -243,6 +243,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/games/{id}/voice-token": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a token to join the voice channel for a game room */
+        get: operations["GameController_getVoiceRoomToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/history/games/{userId}": {
         parameters: {
             query?: never;
@@ -556,6 +573,13 @@ export interface components {
         ValidateCodeResponseDto: {
             valid: boolean;
         };
+        GetVoiceTokenResponseDto: {
+            /**
+             * @description The token to join the voice room
+             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+             */
+            token: string;
+        };
         ParticipantDisplayDataDto: {
             isRegistered: boolean;
             userId: Record<string, never> | null;
@@ -684,6 +708,27 @@ export interface operations {
                     "application/json": components["schemas"]["LoginResponseDto"];
                 };
             };
+            /** @description Bad request. Validation failed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Unauthorized. Invalid email or password. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
         };
     };
     UserController_register: {
@@ -707,6 +752,27 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["LoginResponseDto"];
                 };
+            };
+            /** @description Bad request. Validation failed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Conflict. User with the same email or username already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Internal server error. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -1040,6 +1106,36 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ValidateCodeResponseDto"];
+                };
+            };
+            /** @description The game room with the specified ID was not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GameController_getVoiceRoomToken: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the game room. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns a token to join the voice channel. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GetVoiceTokenResponseDto"];
                 };
             };
             /** @description The game room with the specified ID was not found. */

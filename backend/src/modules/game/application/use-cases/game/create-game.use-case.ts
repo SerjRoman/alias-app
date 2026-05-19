@@ -4,11 +4,17 @@ import {
 	GameEntity,
 } from "../../../domain/entities/game.entity";
 import { CreateGameDto } from "../../dto/body";
-import { type GameSharedService } from "../../game-shared.service";
-import { type IGameRepository } from "../../game.repository.interface";
+import { GameSharedService } from "../../game-shared.service";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class CreateGameUseCase {
 	constructor(
+		@Inject(GAME_REPOSITORY)
 		private readonly repository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
 	) {}

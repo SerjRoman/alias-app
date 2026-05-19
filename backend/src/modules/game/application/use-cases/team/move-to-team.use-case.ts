@@ -1,14 +1,20 @@
-import { type EventEmitter2 } from "@nestjs/event-emitter";
-import { type GameSharedService } from "../../game-shared.service";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { GameSharedService } from "../../game-shared.service";
 import { TEAMS_UPDATED, type TeamsUpdatedPayload } from "../../game.events";
-import { type IGameRepository } from "../../game.repository.interface";
+import {
+	type IGameRepository,
+	GAME_REPOSITORY,
+} from "../../game.repository.interface";
 import { MoveToTeamDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
+import { Injectable, Inject } from "@nestjs/common";
 
+@Injectable()
 export class MoveToTeamUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
 		private readonly eventEmitter: EventEmitter2,
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 	) {}
 	async execute(dto: MoveToTeamDto, actor: UserDto) {

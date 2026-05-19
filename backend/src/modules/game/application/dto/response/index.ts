@@ -7,3 +7,4 @@ export { RoundResponseDto } from "./round-response.dto";
 export { TeamResponseDto } from "./team-response.dto";
 export { WordResponseDto } from "./word-response.dto";
 export { ValidateCodeResponseDto } from "./validate-code-response.dto";
+export { GetVoiceTokenResponseDto } from "./get-voice-token.dto";

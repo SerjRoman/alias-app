@@ -1,3 +1,4 @@
+export { useGameVoice } from "./game-voice.slice";
 export type {
 	GameSettings,
 	GameState,

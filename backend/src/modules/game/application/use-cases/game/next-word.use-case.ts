@@ -1,15 +1,20 @@
-import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { RoundNotActiveError } from "../../../domain/errors/round.errors";
 import { ROUND_UPDATED, type RoundUpdatedPayload } from "../../game.events";
-import type { GameSharedService } from "../../game-shared.service";
-import type { IGameRepository } from "../../game.repository.interface";
-import type { DictionaryService } from "../../dictionary.service";
+import { GameSharedService } from "../../game-shared.service";
+import {
+	GAME_REPOSITORY,
+	type IGameRepository,
+} from "../../game.repository.interface";
+import { DictionaryService } from "../../dictionary.service";
 import { UserDto } from "@common/dto/user.dto";
 import { NextWordDto } from "../../dto/body";
+import { Inject } from "@nestjs/common";
 
 export class NextWordUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
+		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 		private readonly dictionaryService: DictionaryService,

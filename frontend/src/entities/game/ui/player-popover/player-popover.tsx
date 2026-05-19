@@ -2,7 +2,7 @@ import * as Popover from "@radix-ui/react-popover";
 import styles from "./player-popover.module.css";
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Crown } from "lucide-react";
+import { ArrowLeft, Crown, Volume2 } from "lucide-react";
 import { USER_DEFAULT_AVATAR_URL } from "@shared/lib";
 
 interface PlayerPopoverProps {
@@ -14,6 +14,7 @@ interface PlayerPopoverProps {
 	playerIsReady?: boolean;
 	playerIsOwner?: boolean;
 	playerIsGuesser?: boolean;
+	playerIsSpeaking?: boolean;
 	playerAvatar?: string;
 	playerUsername?: string;
 	triggerClassName?: string;
@@ -26,6 +27,7 @@ export function PlayerPopover({
 	playerIsReady,
 	playerIsOwner,
 	playerIsGuesser,
+	playerIsSpeaking,
 	playerName,
 	playerScore,
 	playerAvatar,
@@ -42,9 +44,11 @@ export function PlayerPopover({
 		styles.triggerItem,
 		playerIsReady ? styles.ready : "",
 		playerIsOnline === false ? styles.offline : "",
+		playerIsSpeaking ? styles.speaking : "",
 	]
 		.filter(Boolean)
 		.join(" ");
+	const shouldShowMeta = playerIsOwner || playerIsGuesser || playerIsSpeaking;
 
 	return (
 		<Popover.Root>
@@ -57,8 +61,15 @@ export function PlayerPopover({
 							className={styles.triggerAvatar}
 						/>
 						<span className={styles.triggerName}>{displayName}</span>
-						{(playerIsOwner || playerIsGuesser) && (
+						{shouldShowMeta && (
 							<div className={styles.triggerMeta}>
+								{playerIsSpeaking && (
+									<Volume2
+										size={14}
+										className={styles.speakingIcon}
+										aria-label="Speaking"
+									/>
+								)}
 								{playerIsOwner && (
 									<Crown
 										size={14}
