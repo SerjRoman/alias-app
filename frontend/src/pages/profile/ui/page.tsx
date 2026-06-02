@@ -1,111 +1,22 @@
-import { useState } from "react";
-import styles from "./page.module.css";
 import { useQuery } from "@shared/api";
 import { useParams } from "react-router-dom";
-import type {
-	GameSummaryResponse,
-	GameWordsLevel,
-	ParticipantDisplayData,
-} from "@entities/game";
+import { useTranslation } from "react-i18next";
+import type { GameWordsLevel } from "@entities/game";
 import { useAuth } from "@entities/auth";
-
-const GamesList = ({ games }: { games: GameSummaryResponse[] }) => {
-	const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
-	// const { data: roundsData } = useQuery(
-	// 	"get",
-	// 	"/history/games/{gameId}/rounds",
-	// 	{
-	// 		params: { path: { gameId: expandedGameId || "" } },
-	// 	},
-	// 	{
-	// 		enabled: !!expandedGameId,
-	// 	},
-	// );
-	const toggleGame = (gameId: string) => {
-		setExpandedGameId((prev) => (prev === gameId ? null : gameId));
-	};
-	const selectedGame = games.find((g) => g.id === expandedGameId);
-	const participants = selectedGame?.participants.reduce(
-		(acc, participant) => {
-			acc.set(participant.participantId, participant.displayData);
-			return acc;
-		},
-		new Map<string, ParticipantDisplayData>(),
-	);
-	const teams = selectedGame?.teams.reduce((acc, team) => {
-		acc.set(team.id, team.name);
-		return acc;
-	}, new Map<string, string>());
-	return (
-		<div className={styles.gamesList}>
-			{games.map((game) => {
-				const isExpanded = expandedGameId === game.id;
-				return (
-					<div key={game.id} className={styles.gameCard}>
-						<div
-							className={styles.gameHeader}
-							onClick={() => toggleGame(game.id)}
-						>
-							<div className={styles.gameMainInfo}>
-								<span className={styles.gameName}>
-									Игра: {game.settings.name}
-								</span>
-								<span className={styles.gameDate}>
-									{new Date(game.createdAt).toLocaleString()}
-								</span>
-							</div>
-							<span className={styles.expandIcon}>
-								{isExpanded ? "▲" : "▼"}
-							</span>
-						</div>
-
-						{isExpanded && (
-							<div className={styles.gameDetails}>
-								<h4>Раунды:</h4>
-								{game.roundsSummary.length > 0 ? (
-									<ul className={styles.roundsList}>
-										{game.roundsSummary.map((round) => (
-											<li
-												key={round.id}
-												className={styles.roundItem}
-											>
-												<p>
-													Раунд {round.roundNumber}:
-												</p>
-												<p>
-													Команда{" "}
-													{teams?.get(round.teamId) ||
-														"Неизвестная команда"}
-												</p>
-												<p>
-													Ведущий:{" "}
-													{participants?.get(
-														round.guesserParticipantId,
-													)?.name || "Неизвестный"}
-												</p>
-											</li>
-										))}
-									</ul>
-								) : (
-									<p>Нет информации о раундах</p>
-								)}
-							</div>
-						)}
-					</div>
-				);
-			})}
-		</div>
-	);
-};
+import { ProfileInfo } from "./profile-info/profile-info";
+import { GamesList } from "./games-list/games-list";
+import styles from "./page.module.css";
 
 export const ProfilePage = () => {
+	const { t } = useTranslation();
 	const { userId } = useParams<{ userId: string }>();
 	const { token } = useAuth();
+
 	const { data: user, isError } = useQuery(
 		"get",
 		"/user/{id}/profile",
 		{
-			params: { path: { id: userId || "" } },
+			params: { path: { id: userId ?? "" } },
 		},
 		{ enabled: !!userId },
 	);
@@ -116,7 +27,7 @@ export const ProfilePage = () => {
 		{
 			params: {
 				query: { limit: 10, offset: 0 },
-				path: { userId: userId || "" },
+				path: { userId: userId ?? "" },
 			},
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -145,44 +56,29 @@ export const ProfilePage = () => {
 	);
 
 	if (!userId) {
-		return <div>Loading...</div>;
+		return <div className={styles.centeredMessage}>{t("common.loading")}</div>;
 	}
 
 	if (isError) {
-		return <div>User not found</div>;
+		return <div className={styles.centeredMessage}>{t("profile.notFound")}</div>;
 	}
 
 	if (!user) {
-		return <div>Loading user profile...</div>;
+		return <div className={styles.centeredMessage}>{t("profile.loading")}</div>;
 	}
 
 	return (
 		<div className={styles.container}>
-			<header className={styles.header}>
-				<img
-					src={user.avatarUrl || "/default-avatar.png"}
-					alt="Avatar"
-					className={styles.avatar}
-				/>
-				<div className={styles.userInfo}>
-					<h1 className={styles.name}>{user.name || "Без имени"}</h1>
-					<p className={styles.username}>@{user.username}</p>
-					<div className={styles.stats}>
-						<span>Сыграно: {user.totalGamesPlayed}</span>
-						<span>Побед: {user.totalWins}</span>
-						<span>Очки: {user.totalScore}</span>
-					</div>
-				</div>
-			</header>
+			<ProfileInfo user={user} />
 
 			<main className={styles.content}>
-				<h2>История игр</h2>
+				<h2>{t("profile.gamesHistory")}</h2>
 				{isGamesLoading ? (
-					<p>Загрузка игр...</p>
+					<p>{t("profile.loadingGames")}</p>
 				) : gamesData?.items && gamesData.items.length > 0 ? (
 					<GamesList games={gamesData.items} />
 				) : (
-					<p>Вы еще не сыграли ни одной игры.</p>
+					<p>{t("profile.noGames")}</p>
 				)}
 			</main>
 		</div>

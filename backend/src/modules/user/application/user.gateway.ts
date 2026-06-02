@@ -48,9 +48,9 @@ export class UserGateway implements OnGatewayConnection {
 			};
 		} catch (error) {
 			this.logger.error(
-				`Client ${client.id} disconnected: Invalid token`,
-				{ error },
+				`Client ${client.id} disconnected: Invalid token.`,
 			);
+			this.logger.error(error);
 			client.disconnect();
 		}
 	}

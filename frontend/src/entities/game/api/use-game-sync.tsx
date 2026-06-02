@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useGameSlice } from "./game.slice";
+import { useGameSlice } from "../model/game.slice";
 import { socketClient } from "@shared/api";
 
 export function useGameSync() {

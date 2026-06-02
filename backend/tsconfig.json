@@ -21,7 +21,7 @@
 		"strictPropertyInitialization": false,
 		"rootDir": "./",
 		"outDir": "./dist",
-		"types": ["express", "multer"],
+		"types": ["express", "multer", "jest"],
 		"paths": {
 			"@common/*": ["./src/common/*"]
 		}

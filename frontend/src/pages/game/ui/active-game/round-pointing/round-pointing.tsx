@@ -1,5 +1,5 @@
 import styles from "./round-pointing.module.css";
-import { useActiveGameActions } from "../../../model";
+import { useActiveGameActions } from "../../../api";
 import type { WordState } from "@entities/game";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@shared/ui/button";

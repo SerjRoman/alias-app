@@ -17,6 +17,7 @@ export function SettingsPanel({
 	const pointsInputRef = useRef<HTMLInputElement | null>(null);
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
 	const levelSelectRef = useRef<HTMLSelectElement | null>(null);
+	const voiceChatCheckboxRef = useRef<HTMLInputElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
 	const code = searchParams.get("code");
@@ -31,6 +32,9 @@ export function SettingsPanel({
 		if (levelSelectRef.current) {
 			levelSelectRef.current.value = game.settings.level;
 		}
+		if (voiceChatCheckboxRef.current) {
+			voiceChatCheckboxRef.current.checked = game.settings.isVoiceChatEnabled ?? true;
+		}
 	}, [game.settings]);
 
 	useEffect(() => {
@@ -41,7 +45,10 @@ export function SettingsPanel({
 		};
 	}, []);
 
-	const emitCurrentSettings = (overrideLevel?: GameWordsLevel) => {
+	const emitCurrentSettings = (
+		overrideLevel?: GameWordsLevel,
+		overrideVoiceChat?: boolean,
+	) => {
 		const points = Number(
 			pointsInputRef.current?.value ?? game.settings.pointsToWin,
 		);
@@ -52,12 +59,18 @@ export function SettingsPanel({
 			overrideLevel ??
 			(levelSelectRef.current?.value as GameWordsLevel) ??
 			game.settings.level;
+		const isVoiceChatEnabled =
+			overrideVoiceChat ??
+			voiceChatCheckboxRef.current?.checked ??
+			game.settings.isVoiceChatEnabled ??
+			true;
 
 		socketClient.emit("updateGameSettings", {
 			roomId: game.id,
 			pointsToWin: points,
 			roundTimeSeconds: time,
 			level,
+			isVoiceChatEnabled,
 		});
 	};
 
@@ -143,6 +156,18 @@ export function SettingsPanel({
 							</option>
 						))}
 					</Select>
+				</label>
+
+				<label className={styles.labelCheckbox}>
+					<input
+						ref={voiceChatCheckboxRef}
+						className={styles.checkboxInput}
+						type="checkbox"
+						defaultChecked={game.settings.isVoiceChatEnabled ?? true}
+						onChange={(e) => emitCurrentSettings(undefined, e.target.checked)}
+						disabled={!isOwner}
+					/>
+					<span>Voice Chat</span>
 				</label>
 			</div>
 		</div>

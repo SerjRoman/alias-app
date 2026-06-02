@@ -15,25 +15,6 @@ export function Header() {
 				Alias Game
 			</Link>
 			<div className={styles.rightSection}>
-				{/* {game !== null && (
-					<Button
-						variant="danger"
-						onClick={() =>
-							socketClient.emit(
-								"leaveGame",
-								{
-									roomId: game.id,
-								},
-								() => {
-									navigate("/games");
-								},
-							)
-						}
-					>
-						<DoorOpen size={20} />
-						{t("header.leaveGame")}
-					</Button>
-				)} */}
 				{user && (
 					<div
 						style={{

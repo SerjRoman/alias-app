@@ -7,7 +7,7 @@ import { UnassignedPlayersList } from "./unassigned-players-list/unassigned-play
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
-import { useLobbyActions } from "../../model";
+import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
 import { Button } from "@shared/ui/button";
 

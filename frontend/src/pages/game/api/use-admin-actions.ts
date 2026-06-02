@@ -16,6 +16,13 @@ export const useAdminActions = (gameId: string) => {
 		[gameId],
 	);
 
+	const banPlayer = useCallback(
+		(playerId: string) => {
+			adminSocketApi.banPlayer(gameId, playerId);
+		},
+		[gameId],
+	);
+
 	const startRound = useCallback(() => {
 		adminSocketApi.startRound(gameId);
 	}, [gameId]);
@@ -49,6 +56,7 @@ export const useAdminActions = (gameId: string) => {
 	return {
 		setGuesser,
 		kickPlayer,
+		banPlayer,
 		startRound,
 		// finishRound,
 		endGame,

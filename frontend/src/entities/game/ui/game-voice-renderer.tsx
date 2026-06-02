@@ -33,22 +33,14 @@ export function GameVoiceRenderer() {
 		// Если я не в команде (зритель), слышу всех
 		if (!myTeam) return true;
 
-		// Своих сокомандников слышим всегда
-		if (myTeam.playerIds.includes(participantId)) return true;
-
-		// Если сейчас идет раунд и мы НЕ активная команда, то мы должны слышать активную команду
-		if (activeTeamId && myTeam.id !== activeTeamId) {
-			const activeTeam = game.teams.find((t) => t.id === activeTeamId);
-			if (activeTeam?.playerIds.includes(participantId)) {
-				return true;
-			}
+		// Если мы - активная команда, слышим ТОЛЬКО своих сокомандников
+		if (myTeam.id === activeTeamId) {
+			const isTeammate = myTeam.playerIds.includes(participantId);
+			return isTeammate;
 		}
 
-		console.log(
-			`Отсекаем участника ${participantId} для игрока ${user.id} (команда ${myTeam.id})`,
-		);
-
-		return false;
+		// Если мы НЕ активная команда, слышим всех
+		return true;
 	};
 
 	return (

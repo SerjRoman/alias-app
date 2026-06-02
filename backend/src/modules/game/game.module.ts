@@ -30,6 +30,7 @@ import { GetCurrentGameUseCase } from "./application/use-cases/player/get-curren
 import { GetUserRoomUseCase } from "./application/use-cases/player/get-user-room.use-case";
 import { KickPlayerUseCase } from "./application/use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "./application/use-cases/player/set-player-offline.use-case";
+import { BanPlayerUseCase } from "./application/use-cases/player/ban-player.use-case";
 import { StartRoundUseCase } from "./application/use-cases/round/start-round.use-case";
 import { ToggleRoundReadyUseCase } from "./application/use-cases/round/toggle-round-ready.use-case";
 import { CreateTeamUseCase } from "./application/use-cases/team/create-team.use-case";
@@ -81,6 +82,7 @@ import { VoiceService } from "./application/voice.service";
 		GetUserRoomUseCase,
 		KickPlayerUseCase,
 		SetPlayerOfflineUseCase,
+		BanPlayerUseCase,
 		StartRoundUseCase,
 		ToggleRoundReadyUseCase,
 		CreateTeamUseCase,

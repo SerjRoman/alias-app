@@ -6,7 +6,6 @@ export function useActiveGameSync() {
 	const { setCurrentWord } = useGameSlice();
 	useEffect(() => {
 		function handlePrivateWord(word: WordState) {
-			console.log(word);
 			setCurrentWord(word);
 		}
 		socketClient.on("privateWord", handlePrivateWord);

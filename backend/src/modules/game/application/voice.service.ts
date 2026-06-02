@@ -6,7 +6,7 @@ import {
 	GAME_REPOSITORY,
 	type IGameRepository,
 } from "./game.repository.interface";
-import { RoomNotFoundError } from "../domain/errors/game.errors";
+import { RoomNotFoundError, VoiceChatDisabledError } from "../domain/errors/game.errors";
 
 class ToggleMuteDto {
 	roomId: string;
@@ -35,6 +35,9 @@ export class VoiceService {
 		const game = await this.gameRepository.findGameById(roomId);
 		if (!game) {
 			throw new RoomNotFoundError(roomId);
+		}
+		if (!game.settings.isVoiceChatEnabled) {
+			throw new VoiceChatDisabledError();
 		}
 		const key = this.configService.getOrThrow("LIVEKIT_KEY");
 		const secret = this.configService.getOrThrow("LIVEKIT_SECRET");

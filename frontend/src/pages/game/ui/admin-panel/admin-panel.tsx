@@ -1,10 +1,13 @@
 import type { GameStateDetails } from "@entities/game";
 import { useState } from "react";
 import styles from "./admin-panel.module.css";
-import { useAdminActions } from "../../model/use-admin-actions";
+import { useAdminActions } from "../../api/use-admin-actions";
 import { LogOut } from "lucide-react";
 import { Button } from "@shared/ui";
 import { Select } from "@shared/ui/select";
+import { useTranslation } from "react-i18next";
+import { ConfirmationModal, type ConfirmationModalProps } from "@shared/ui/modal";
+import { useModal } from "@shared/lib/hooks";
 
 export interface AdminPanelProps {
 	game: GameStateDetails;
@@ -12,13 +15,18 @@ export interface AdminPanelProps {
 }
 
 export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
+	const { t } = useTranslation();
 	const [selectedGuesserId, setSelectedGuesserId] = useState("");
 	const [selectedKickId, setSelectedKickId] = useState("");
 	const [selectedTeamId, setSelectedTeamId] = useState("");
 	const [selectedPlayerId, setSelectedPlayerId] = useState("");
+	const [modalControl, ModalProvider] = useModal<
+		Omit<ConfirmationModalProps, "isOpen" | "onClose">
+	>();
 	const {
 		setGuesser,
 		kickPlayer,
+		banPlayer,
 		startRound,
 		endGame,
 		assignPlayerToTeam,
@@ -174,32 +182,66 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 			)}
 
 			<div className={styles.row}>
-				<span>Кикнуть:</span>
-				<Select
-					className={styles.select}
-					value={selectedKickId}
-					onChange={(e) => setSelectedKickId(e.target.value)}
-				>
-					<option value="" disabled>
-						Выберите игрока
-					</option>
-					{game.players?.map((p) => (
-						<option key={p.id} value={p.id}>
-							{p.name}
+				<span>Исключить / Забанить:</span>
+				<div className={styles.controls}>
+					<Select
+						className={styles.select}
+						value={selectedKickId}
+						onChange={(e) => setSelectedKickId(e.target.value)}
+					>
+						<option value="" disabled>
+							Выберите игрока
 						</option>
-					))}
-				</Select>
-				<Button
-					variant="danger"
-					onClick={() => {
-						kickPlayer(selectedKickId);
-						setSelectedKickId("");
-					}}
-					disabled={!selectedKickId}
-				>
-					Выгнать
-				</Button>
+						{game.players?.map((p) => (
+							<option key={p.id} value={p.id}>
+								{p.name}
+							</option>
+						))}
+					</Select>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							if (!selectedKickId) return;
+							const playerName = game.players?.find((p) => p.id === selectedKickId)?.name || "";
+							modalControl.open({
+								title: t("admin.kickTitle"),
+								message: t("admin.kickConfirm", { name: playerName }),
+								confirmText: t("admin.kickButton"),
+								variant: "secondary",
+								onConfirm: () => {
+									kickPlayer(selectedKickId);
+									setSelectedKickId("");
+								},
+							});
+						}}
+						disabled={!selectedKickId}
+					>
+						{t("admin.kickButton")}
+					</Button>
+					<Button
+						variant="danger"
+						onClick={() => {
+							if (!selectedKickId) return;
+							const playerName = game.players?.find((p) => p.id === selectedKickId)?.name || "";
+							modalControl.open({
+								title: t("admin.banTitle"),
+								message: t("admin.banConfirm", { name: playerName }),
+								confirmText: t("admin.banButton"),
+								variant: "danger",
+								onConfirm: () => {
+									banPlayer(selectedKickId);
+									setSelectedKickId("");
+								},
+							});
+						}}
+						disabled={!selectedKickId}
+					>
+						{t("admin.banButton")}
+					</Button>
+				</div>
 			</div>
+
+			<ModalProvider ModalComponent={ConfirmationModal} />
 
 			{currentRound && (
 				<div className={styles.actionsBox}>

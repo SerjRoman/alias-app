@@ -23,6 +23,7 @@ export { getVoiceParticipantUserId } from "./lib/voice";
 export {
 	useGameSlice,
 	useGameSync,
+	useGameShortcuts,
 	RoundStatus,
 	GameStatus,
 	useGameVoice,

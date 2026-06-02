@@ -8,7 +8,9 @@ import {
 	IsNumber,
 	IsPositive,
 	IsUUID,
+	IsIn,
 } from "class-validator";
+import type { GameWordsLevel } from "../../../domain/entities/game.entity";
 
 export class UpdateGameSettingsDto {
 	@ApiProperty({
@@ -18,6 +20,7 @@ export class UpdateGameSettingsDto {
 	@IsString()
 	@IsUUID()
 	roomId: string;
+
 	@ApiProperty({
 		description: "The name of the game",
 		example: "My Awesome Game",
@@ -35,16 +38,17 @@ export class UpdateGameSettingsDto {
 	})
 	@IsOptional()
 	@IsBoolean()
-	isPrivate?: boolean = false;
+	isPrivate?: boolean;
+
 
 	@ApiProperty({
-		description: "The time limit for each turn in seconds",
+		description: "The round time in seconds",
 		example: 60,
 	})
 	@IsNumber()
 	@IsPositive()
 	@IsOptional()
-	timeLimit?: number = 60;
+	roundTimeSeconds?: number;
 
 	@ApiProperty({
 		description: "The number of points required to win the game",
@@ -53,5 +57,24 @@ export class UpdateGameSettingsDto {
 	@IsNumber()
 	@IsPositive()
 	@IsOptional()
-	pointsToWin?: number = 30;
+	pointsToWin?: number;
+
+	@ApiProperty({
+		description: "The difficulty level of the words used in the game",
+		example: "medium",
+		enum: ["easy", "medium", "hard"],
+	})
+	@IsString()
+	@IsOptional()
+	@IsIn(["easy", "medium", "hard"])
+	level?: GameWordsLevel;
+
+	@ApiProperty({
+		description: "Whether voice chat is enabled for the game",
+		example: true,
+		default: true,
+	})
+	@IsOptional()
+	@IsBoolean()
+	isVoiceChatEnabled?: boolean;
 }

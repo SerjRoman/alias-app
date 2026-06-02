@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, Suspense } from "react";
 import {
 	useNavigate,
 	Outlet,
@@ -9,6 +9,14 @@ import styles from "./base-layout.module.css";
 import { Header } from "@widgets/header";
 import { useAuth } from "@entities/auth";
 import { socketClient, useMutation } from "@shared/api";
+
+function PageLoader() {
+	return (
+		<div className={styles.spinnerContainer}>
+			<div className={styles.spinner} />
+		</div>
+	);
+}
 
 export function BaseLayout() {
 	const { token, user, setUser, setToken, hasHydrated } = useAuth();
@@ -136,7 +144,9 @@ export function BaseLayout() {
 		<div className={styles.layout}>
 			<Header />
 			<main className={styles.main}>
-				<Outlet />
+				<Suspense fallback={<PageLoader />}>
+					<Outlet />
+				</Suspense>
 			</main>
 		</div>
 	);

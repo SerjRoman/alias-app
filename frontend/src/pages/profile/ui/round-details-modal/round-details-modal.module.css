@@ -1,0 +1,227 @@
+.modalContainer {
+	background-color: var(--color-surface);
+	border-radius: var(--border-radius);
+	box-shadow: var(--box-shadow);
+	border: 1px solid var(--color-border);
+	width: 90vw;
+	max-width: 500px;
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+	from {
+		opacity: 0;
+		transform: scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--spacing-medium) var(--spacing-large);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.title {
+	margin: 0;
+	font-size: 1.25rem;
+	color: var(--color-text);
+	font-weight: 600;
+}
+
+.closeButton {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: var(--color-text);
+	opacity: 0.6;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border-radius: 50%;
+	transition: opacity 0.2s, background-color 0.2s;
+}
+
+.closeButton:hover {
+	opacity: 1;
+	background-color: var(--color-hover);
+}
+
+.content {
+	padding: var(--spacing-large);
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-large);
+}
+
+.loader, .error {
+	text-align: center;
+	padding: var(--spacing-large) 0;
+	color: var(--color-text);
+	font-size: 1rem;
+}
+
+.error {
+	color: var(--color-error);
+}
+
+.summarySection {
+	background-color: var(--color-background);
+	padding: var(--spacing-medium);
+	border-radius: var(--border-radius);
+	display: flex;
+	justify-content: space-around;
+	border: 1px solid var(--color-border);
+}
+
+.summaryItem {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+}
+
+.summaryLabel {
+	font-size: 0.85rem;
+	color: var(--color-text);
+	opacity: 0.7;
+}
+
+.summaryValue {
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+
+.positiveScore {
+	color: var(--color-success);
+}
+
+.negativeScore {
+	color: var(--color-error);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+}
+
+.section h4 {
+	margin: 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: var(--color-text);
+	border-bottom: 1px solid var(--color-border);
+	padding-bottom: 6px;
+}
+
+.statsList, .wordsList {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.statItem {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--spacing-small) var(--spacing-medium);
+	background-color: var(--color-background);
+	border-radius: var(--border-radius);
+	border: 1px solid var(--color-border);
+}
+
+.playerInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.playerName {
+	font-weight: 500;
+	color: var(--color-text);
+}
+
+.teamName {
+	font-size: 0.8rem;
+	color: var(--color-text);
+	opacity: 0.6;
+}
+
+.playerScore {
+	font-size: 0.9rem;
+	color: var(--color-text);
+}
+
+.wordItem {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--spacing-small) var(--spacing-medium);
+	border-radius: var(--border-radius);
+	border: 1px solid transparent;
+}
+
+.guessed {
+	background-color: rgba(82, 196, 26, 0.08);
+	border-color: rgba(82, 196, 26, 0.15);
+}
+
+.skipped {
+	background-color: rgba(245, 34, 45, 0.08);
+	border-color: rgba(245, 34, 45, 0.15);
+}
+
+.wordMain {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.guessedIcon {
+	color: var(--color-success);
+}
+
+.skippedIcon {
+	color: var(--color-error);
+}
+
+.wordText {
+	font-weight: 500;
+	color: var(--color-text);
+}
+
+.wordScore {
+	font-size: 0.9rem;
+	font-weight: 600;
+}
+
+.guessed .wordScore {
+	color: var(--color-success);
+}
+
+.skipped .wordScore {
+	color: var(--color-error);
+}
+
+.noWords {
+	color: var(--color-text);
+	opacity: 0.6;
+	text-align: center;
+	font-style: italic;
+	padding: var(--spacing-small) 0;
+}

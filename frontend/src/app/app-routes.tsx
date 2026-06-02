@@ -1,10 +1,27 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { BaseLayout } from "./layouts/base-layout";
 import { PrivateLayout } from "./layouts/private-layout";
-import { GamePage } from "../pages/game";
-import { GamesPage } from "../pages/games";
-import { AnonymousLoginPage, LoginPage } from "../pages/login";
-import { ProfilePage } from "../pages/profile";
+import { lazy } from "react";
+
+const GamePage = lazy(() =>
+	import("../pages/game").then((module) => ({ default: module.GamePage })),
+);
+const GamesPage = lazy(() =>
+	import("../pages/games").then((module) => ({ default: module.GamesPage })),
+);
+const LoginPage = lazy(() =>
+	import("../pages/login").then((module) => ({ default: module.LoginPage })),
+);
+const AnonymousLoginPage = lazy(() =>
+	import("../pages/login").then((module) => ({
+		default: module.AnonymousLoginPage,
+	})),
+);
+const ProfilePage = lazy(() =>
+	import("../pages/profile").then((module) => ({
+		default: module.ProfilePage,
+	})),
+);
 
 export function AppRoutes() {
 	return (

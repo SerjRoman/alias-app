@@ -8,7 +8,13 @@ export const adminSocketApi = {
 		socketClient.emit("admin:setGuesser", { roomId: gameId, playerId });
 	},
 	kickPlayer: (gameId: string, playerId: string) => {
-		socketClient.emit("kickPlayer", {
+		socketClient.emit("admin:kickPlayer", {
+			roomId: gameId,
+			playerId,
+		});
+	},
+	banPlayer: (gameId: string, playerId: string) => {
+		socketClient.emit("admin:banPlayer", {
 			roomId: gameId,
 			playerId,
 		});

@@ -38,6 +38,7 @@ import { RoundWsExceptionFilter } from "./filters/round-exception.filter";
 import {
 	JoinGameDto,
 	KickPlayerDto,
+	BanPlayerDto,
 	UpdateGameSettingsDto,
 	CreateTeamDto,
 	MoveToTeamDto,
@@ -256,6 +257,13 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.playerFacade.kickPlayer(dto, client.data.user);
 	}
+	@SubscribeMessage(ADMIN_EVENTS.banPlayer)
+	async banPlayer(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: BanPlayerDto,
+	) {
+		await this.playerFacade.banPlayer(dto, client.data.user);
+	}
 	@SubscribeMessage(ADMIN_EVENTS.endGame)
 	async endGame(
 		@ConnectedSocket() client: GameSocket,
@@ -349,10 +357,11 @@ export class GameGateway implements OnGatewayDisconnect {
 	}
 
 	@OnEvent(PLAYER_KICKED)
-	handlePlayerKicked(payload: PlayerKickedPayload) {
+	async handlePlayerKicked(payload: PlayerKickedPayload) {
 		this.server
 			.to(payload.roomId)
 			.emit("playerKicked", { kickedUserId: payload.kickedUserId });
+		await this.removePlayerFromRoom(payload.roomId, payload.kickedUserId);
 	}
 	@OnEvent(GAME_STARTED)
 	handleGameStarted(payload: GameStartedPayload) {
@@ -405,15 +414,21 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.server.to(payload.room.id).emit("gameFinished");
 	}
 	async handleDisconnect(client: AuthenticatedSocket) {
-		this.logger.log(
-			`Received disconnect from client ${client.id} UserID ${client.data.user.name}`,
-		);
-		const { roomId } = await this.playerFacade.getGameIdByUserId(
-			client.data.user.id,
-		);
-		if (!roomId) return;
-		await this.playerFacade.setPlayerOffline(roomId, client.data.user);
-		await this.removePlayerFromRoom(roomId, client.data.user.id);
+		try {
+			this.logger.log(
+				`Received disconnect from client ${client.id} UserID ${client.data.user.name}`,
+			);
+			const { roomId } = await this.playerFacade.getGameIdByUserId(
+				client.data.user.id,
+			);
+			if (!roomId) return;
+			await this.playerFacade.setPlayerOffline(roomId, client.data.user);
+			await this.removePlayerFromRoom(roomId, client.data.user.id);
+		} catch (error) {
+			this.logger.error(
+				`Error occurred while handling disconnect for client ${client.id}: ${error}`,
+			);
+		}
 	}
 
 	private async removePlayerFromRoom(roomId: string, playerId: string) {
@@ -424,7 +439,7 @@ export class GameGateway implements OnGatewayDisconnect {
 				playerId,
 		);
 		if (targetSocket) {
-			targetSocket.leave(playerId);
+			targetSocket.leave(roomId);
 		}
 	}
 }

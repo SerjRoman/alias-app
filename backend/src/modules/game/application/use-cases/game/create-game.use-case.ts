@@ -24,13 +24,14 @@ export class CreateGameUseCase {
 			: null;
 		const settings: GameSettings = {
 			name: createGameDto.name,
-			roundTimeSeconds: createGameDto.timeLimit,
+			roundTimeSeconds: createGameDto.roundTimeSeconds,
 			pointsToWin: createGameDto.pointsToWin,
 			code: code,
 			isPrivate: createGameDto.isPrivate || false,
 			level: createGameDto.level,
 			isOnlyOwnerCanNextRound: true,
 			isOnlyOwnerCanChangeScore: true,
+			isVoiceChatEnabled: true,
 		};
 		const newRoom = GameEntity.create(user.id, settings);
 

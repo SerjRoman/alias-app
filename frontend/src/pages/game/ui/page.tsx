@@ -1,9 +1,9 @@
-import { useGameSession } from "../model/use-game-session";
+import { useGameSession } from "../api/use-game-session";
 import { useSearchParams } from "react-router-dom";
 import { LobbyView } from "@pages/game/ui/lobby";
 import styles from "./page.module.css";
 import { Blocks } from "react-loader-spinner";
-import { useKickHandler } from "../model/use-kick-handler";
+import { useKickHandler } from "../api/use-kick-handler";
 import { useAuth } from "@entities/auth";
 import { GameVoiceRenderer, useGameSync } from "@entities/game";
 import { ActiveGameView } from "@pages/game/ui/active-game";
@@ -14,17 +14,18 @@ import { Settings } from "lucide-react";
 import { Button } from "@shared/ui/button";
 import {
 	LiveKitRoom,
-	ControlBar,
 	StartAudio,
 	useAudioPlayback,
+	ControlBar,
 } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { useGameVoice } from "@entities/game/model";
 import { useQuery } from "@shared/api";
+import { useTranslation } from "react-i18next";
 
 function AudioHandlingWrapper({ children }: { children: React.ReactNode }) {
 	const { canPlayAudio, startAudio } = useAudioPlayback();
-
+    const {t} = useTranslation();
 	useEffect(() => {
 		const handleFirstInteraction = () => {
 			if (!canPlayAudio) {
@@ -41,8 +42,8 @@ function AudioHandlingWrapper({ children }: { children: React.ReactNode }) {
 			{!canPlayAudio && (
 				<div className={styles.audioPrompt}>
 					<div className={styles.audioPromptContent}>
-						<p>Звук заблокирован браузером</p>
-						<StartAudio label="Включить звук" />
+						<p>{t("audio.prompt")}</p>
+						<StartAudio label={t("audio.enable")} />
 					</div>
 				</div>
 			)}
@@ -65,21 +66,24 @@ export function GamePage() {
 				id: game?.id || roomId || "",
 			},
 		},
+	}, {
+		enabled: !!game?.settings.isVoiceChatEnabled && !!(game?.id || roomId),
 	});
 	const liveKitUrl =
-		import.meta.env.VITE_LIVEKIT_URL ||
-		(window.location.protocol === "https:"
-			? "wss://localhost:7880"
-			: "ws://localhost:7880");
+		import.meta.env.VITE_LIVEKIT_URL
 
 	const { user } = useAuth();
 	useGameSync();
 	useKickHandler();
 	useEffect(() => {
+		if (!game?.settings.isVoiceChatEnabled) {
+			clearVoiceToken();
+			return;
+		}
 		if (data?.token && data.token !== voiceToken) {
 			setVoiceToken(data.token);
 		}
-	}, [data, setVoiceToken, voiceToken]);
+	}, [data, setVoiceToken, voiceToken, game?.settings.isVoiceChatEnabled, clearVoiceToken]);
 
 	useEffect(() => {
 		return () => {
@@ -139,32 +143,18 @@ export function GamePage() {
 			<div className={styles.container}>
 				<h1 className={styles.title}>{game.settings.name}</h1>
 
-				{voiceToken ? (
+				{voiceToken && game.settings.isVoiceChatEnabled ? (
 					<LiveKitRoom
 						token={voiceToken}
 						serverUrl={liveKitUrl}
 						connect={true}
 						audio={true}
 						video={false}
-						onConnected={() => {
-							console.log("Connected to LiveKit room");
-						}}
-						onDisconnected={(data) => {
-							console.log(
-								`Disconnected from LiveKit room: ${data}`,
-							);
-						}}
 					>
 						<AudioHandlingWrapper>
 							<GameVoiceRenderer />
 							<div style={{ marginBottom: "1rem" }}>
-								<ControlBar
-									variation="textOnly"
-									controls={{
-										camera: false,
-										screenShare: false,
-									}}
-								/>
+								<ControlBar />
 							</div>
 							{view[game.status]}
 						</AudioHandlingWrapper>

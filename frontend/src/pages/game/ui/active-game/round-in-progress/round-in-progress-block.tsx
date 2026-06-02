@@ -1,8 +1,8 @@
 import { Timer } from "@shared/ui/timer";
-import { useActiveGameActions } from "../../../model";
+import { useActiveGameActions } from "../../../api";
 import styles from "./round-in-progress-block.module.css";
 import { Check, X } from "lucide-react";
-import { useGameSlice, type WordState } from "@entities/game";
+import { useGameSlice, useGameShortcuts, type WordState } from "@entities/game";
 import { Button } from "@shared/ui/button";
 
 interface Props {
@@ -20,6 +20,11 @@ export function RoundInProgressBlock({
 }: Readonly<Props>) {
 	const { currentWord } = useGameSlice();
 	const { nextWord } = useActiveGameActions();
+
+	useGameShortcuts({
+		onNextWord: isGuesser ? () => nextWord(roomId, false) : undefined,
+		onSkipWord: isGuesser ? () => nextWord(roomId, true) : undefined,
+	});
 
 	return (
 		<>

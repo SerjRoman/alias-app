@@ -1,5 +1,5 @@
 import { Trash2 } from "lucide-react";
-import { useLobbyActions } from "../../../model/use-lobby-actions";
+import { useLobbyActions } from "../../../api/use-lobby-actions";
 import styles from "./lobby-team-view.module.css";
 import { useAuth } from "@entities/auth";
 import {

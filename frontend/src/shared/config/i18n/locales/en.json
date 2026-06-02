@@ -73,5 +73,46 @@
 			"validation": "Please check the entered data.",
 			"fallback": "An unexpected error occurred"
 		}
+	},
+	"profile": {
+		"title": "User Profile",
+		"loading": "Loading user profile...",
+		"notFound": "User not found",
+		"played": "Played: {{count}}",
+		"wins": "Wins: {{count}}",
+		"score": "Score: {{count}}",
+		"gamesHistory": "Games History",
+		"loadingGames": "Loading games...",
+		"noGames": "You haven't played any games yet.",
+		"game": "Game: {{name}}",
+		"rounds": "Rounds:",
+		"noRounds": "No round information",
+		"round": "Round {{number}}:",
+		"team": "Team {{name}}",
+		"unknownTeam": "Unknown team",
+		"host": "Host: {{name}}",
+		"unknownHost": "Unknown",
+		"roundDetails": {
+			"title": "Round #{{number}}",
+			"loading": "Loading round data...",
+			"error": "Error loading round details",
+			"score": "Round score:",
+			"playerStats": "Player statistics after round",
+			"wordsInRound": "Words in round ({{count}})",
+			"noWords": "No words were played in this round",
+			"points": "Points: {{count}}"
+		}
+	},
+	"audio": {
+		"prompt": "Audio is blocked by the browser",
+		"enable": "Enable Audio"
+	},
+	"admin": {
+		"kickTitle": "Kick Player",
+		"kickConfirm": "Are you sure you want to kick player {{name}}?",
+		"kickButton": "Kick",
+		"banTitle": "Ban Player",
+		"banConfirm": "Are you sure you want to ban player {{name}} permanently?",
+		"banButton": "Ban"
 	}
 }

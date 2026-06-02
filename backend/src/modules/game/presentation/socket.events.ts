@@ -1,6 +1,7 @@
 export const ADMIN_EVENTS = {
 	setGuesser: "admin:setGuesser",
 	kickPlayer: "admin:kickPlayer",
+	banPlayer: "admin:banPlayer",
 	startRound: "admin:startRound",
 	startPointing: "admin:startPointing",
 	finishRound: "admin:finishRound",

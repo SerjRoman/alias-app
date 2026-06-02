@@ -97,3 +97,52 @@
 	color: var(--color-text, #333);
 	transition: opacity 0.2s;
 }
+
+.modalContent {
+	background-color: var(--color-surface, #fff);
+	padding: var(--spacing-large, 24px);
+	border-radius: var(--border-radius, 8px);
+	width: 95%;
+	max-width: 400px;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.modalTitle {
+	margin: 0;
+	font-size: 1.2rem;
+	color: var(--color-text, #333);
+}
+
+.modalText {
+	margin: 0;
+	font-size: 0.95rem;
+	color: #666;
+	line-height: 1.4;
+}
+
+.checkboxLabel {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: 0.95rem;
+	color: var(--color-text, #333);
+	cursor: pointer;
+	user-select: none;
+}
+
+.checkbox {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--color-primary);
+	cursor: pointer;
+}
+
+.modalActions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 12px;
+	margin-top: 8px;
+}

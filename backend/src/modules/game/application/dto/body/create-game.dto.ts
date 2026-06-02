@@ -30,12 +30,12 @@ export class CreateGameDto {
 	isPrivate?: boolean = false;
 
 	@ApiProperty({
-		description: "The time limit for each turn in seconds",
+		description: "The round time in seconds",
 		example: 60,
 	})
 	@IsNumber()
 	@IsPositive()
-	timeLimit: number = 60;
+	roundTimeSeconds: number = 60;
 
 	@ApiProperty({
 		description: "The number of points required to win the game",

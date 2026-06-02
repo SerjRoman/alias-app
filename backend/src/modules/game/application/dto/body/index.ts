@@ -24,3 +24,4 @@ export { ShufflePlayersDto } from "./shuffle-players.dto";
 export { SetGuesserDto } from "./set-guesser.dto";
 export { ChangeRoundTimeDto } from "./change-round-time.dto";
 export { StartPointingDto } from "./start-pointing.dto";
+export { BanPlayerDto } from "./ban-player.dto";

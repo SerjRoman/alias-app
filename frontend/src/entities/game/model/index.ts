@@ -14,4 +14,5 @@ export type {
 } from "./game.types";
 export { GameStatus, RoundStatus } from "./game.types";
 export { useGameSlice } from "./game.slice";
-export { useGameSync } from "./use-game-sync";
+export { useGameShortcuts } from "./use-game-shortcuts";
+export { useGameSync } from "../api/use-game-sync";

@@ -24,6 +24,7 @@ import {
 	PlayerNotRoomOwnerError,
 	PlayersNotReadyError,
 	TeamNameExistsError,
+	PlayerPermanentlyKickedError,
 } from "../errors/game.errors";
 import { PlayerEntity } from "./player.entity";
 import { RoundEntity, RoundStatus } from "./round.entity";
@@ -60,6 +61,7 @@ export interface GameSettings {
 	level: GameWordsLevel;
 	isOnlyOwnerCanNextRound: boolean;
 	isOnlyOwnerCanChangeScore: boolean;
+	isVoiceChatEnabled: boolean;
 }
 type TeamState = ReturnType<TeamEntity["toPrimitives"]>;
 type PlayerState = ReturnType<PlayerEntity["toPrimitives"]>;
@@ -76,6 +78,7 @@ export interface GameState {
 	lastTeamPlayedIndex: number;
 	createdAt: number;
 	nextRoundNumber: number;
+	kickedPlayerIds?: string[];
 }
 
 export class GameEntity extends BaseEntity {
@@ -141,6 +144,11 @@ export class GameEntity extends BaseEntity {
 		return this._currentRound;
 	}
 	// Guards
+	assertNotBanned(playerId: string) {
+		if (this.state.kickedPlayerIds?.includes(playerId)) {
+			throw new PlayerPermanentlyKickedError();
+		}
+	}
 	assertRoomOwner(actorId: string) {
 		if (this.state.ownerId !== actorId) {
 			throw new PlayerNotRoomOwnerError();
@@ -223,6 +231,7 @@ export class GameEntity extends BaseEntity {
 		name: string,
 		role: "registered" | "anonymous" = "anonymous",
 	) {
+		this.assertNotBanned(playerId);
 		this.assertGameInLobby();
 		if (this._players.some((p) => p.id === playerId)) {
 			throw new PlayerAlreadyInGameError(playerId);
@@ -235,6 +244,7 @@ export class GameEntity extends BaseEntity {
 		player.isOnline = false;
 	}
 	setPlayerOnline(playerId: string) {
+		this.assertNotBanned(playerId);
 		const player = this.getPlayerOrThrow(playerId);
 		player.isOnline = true;
 	}
@@ -298,7 +308,19 @@ export class GameEntity extends BaseEntity {
 		if (this.state.ownerId === playerId) {
 			throw new GameError("Owner cannot kick himself");
 		}
+		this.setPlayerOffline(playerId);
+	}
+	banPlayer(actorId: string, playerId: string) {
+		this.assertRoomOwner(actorId);
+		this.getPlayerOrThrow(playerId);
+		if (this.state.ownerId === playerId) {
+			throw new GameError("Owner cannot kick himself");
+		}
 		this.leaveGame(playerId);
+		this.state.kickedPlayerIds ??= [];
+		if (!this.state.kickedPlayerIds.includes(playerId)) {
+			this.state.kickedPlayerIds.push(playerId);
+		}
 	}
 	startGame(actorId: string) {
 		this.assertCanStartGame(actorId);
@@ -497,6 +519,7 @@ export class GameEntity extends BaseEntity {
 				? this._currentRound.toPrimitives()
 				: null,
 			players: this._players.map((p) => p.toPrimitives()),
+			kickedPlayerIds: this.state.kickedPlayerIds ?? [],
 		};
 	}
 	static fromPrimitives(state: GameState): GameEntity {

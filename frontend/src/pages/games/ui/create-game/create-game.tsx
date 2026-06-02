@@ -107,7 +107,7 @@ export function CreateGameForm() {
 						{
 							body: {
 								name: gameName,
-								timeLimit: gameTimeLimit,
+								roundTimeSeconds: gameTimeLimit,
 								isPrivate: isPrivate,
 								pointsToWin: pointsToWin,
 								level: level as GameWordsLevel,

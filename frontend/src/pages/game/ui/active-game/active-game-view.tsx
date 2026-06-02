@@ -6,7 +6,7 @@ import { RoundFinishedResults } from "./round-finished-results/round-finished-re
 import styles from "./active-game-view.module.css";
 import { useAuth } from "@entities/auth";
 import { useGameSlice, RoundStatus } from "@entities/game";
-import { useActiveGameSync } from "../../model";
+import { useActiveGameSync } from "../../api";
 import { RoundPointing } from "./round-pointing/round-pointing";
 
 export function ActiveGameView() {

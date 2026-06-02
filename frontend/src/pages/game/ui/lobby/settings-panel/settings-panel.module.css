@@ -94,3 +94,31 @@ select.inputField {
 select.inputField:disabled {
 	cursor: not-allowed;
 }
+
+.labelCheckbox {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-small);
+	font-size: 0.95rem;
+	color: var(--color-text);
+	font-weight: 500;
+	cursor: pointer;
+	user-select: none;
+	margin-top: auto;
+	padding-bottom: 6px;
+}
+
+.checkboxInput {
+	width: 18px;
+	height: 18px;
+	border-radius: 4px;
+	border: 1px solid var(--color-border);
+	accent-color: var(--color-primary);
+	cursor: pointer;
+}
+
+.checkboxInput:disabled {
+	cursor: not-allowed;
+	opacity: 0.6;
+}
+

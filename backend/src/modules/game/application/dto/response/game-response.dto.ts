@@ -11,7 +11,7 @@ import { TeamResponseDto } from "./team-response.dto";
 
 type GameSettings = Pick<
 	DetailsGameSettings,
-	"name" | "roundTimeSeconds" | "pointsToWin" | "isPrivate"
+	"name" | "roundTimeSeconds" | "pointsToWin" | "isPrivate" | "isVoiceChatEnabled"
 >;
 export class GameSettingsDto implements GameSettings {
 	@ApiProperty({
@@ -56,6 +56,12 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	isOnlyOwnerCanChangeScore: boolean;
+	@ApiProperty({
+		description: "Whether voice chat is enabled for this game room",
+		example: true,
+	})
+	@Expose()
+	isVoiceChatEnabled: boolean;
 }
 export class GameResponseDto {
 	@ApiProperty({

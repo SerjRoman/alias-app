@@ -282,7 +282,6 @@ export class GameController {
 		@GetAuthenticatedUser() user: UserDto,
 	) {
 		const token = await this.voiceService.joinGameRoom(roomId, user.id);
-		console.log(token);
 		return plainToInstance(
 			GetVoiceTokenResponseDto,
 			{ token },

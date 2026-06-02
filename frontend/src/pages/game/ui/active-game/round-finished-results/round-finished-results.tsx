@@ -1,6 +1,6 @@
 import styles from "./round-finished-results.module.css";
-import { useActiveGameActions } from "../../../model";
-import type { WordState } from "@entities/game";
+import { useActiveGameActions } from "../../../api";
+import { useGameShortcuts, type WordState } from "@entities/game";
 import { Button } from "@shared/ui/button";
 
 export interface RoundFinishedResultsProps {
@@ -15,6 +15,11 @@ export function RoundFinishedResults({
 	isOwner,
 }: Readonly<RoundFinishedResultsProps>) {
 	const { nextRound } = useActiveGameActions();
+	
+	useGameShortcuts({
+		onNextRound: isOwner ? () => nextRound(roomId) : undefined,
+	});
+
 	const scoreColor = (score: number) => {
 		if (score > 0) return "#5fca78";
 		if (score < 0) return "#e57373";

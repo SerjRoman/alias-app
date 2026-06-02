@@ -80,3 +80,15 @@ export class GameNotInLobbyError extends GameError {
 		super("Game is not in lobby");
 	}
 }
+
+export class VoiceChatDisabledError extends GameError {
+	constructor() {
+		super("Voice chat is disabled for this game room");
+	}
+}
+
+export class PlayerPermanentlyKickedError extends GameError {
+	constructor() {
+		super("Player is permanently kicked from this game room");
+	}
+}
