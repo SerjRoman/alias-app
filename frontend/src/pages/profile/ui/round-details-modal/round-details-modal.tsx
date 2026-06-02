@@ -1,6 +1,6 @@
 import { Modal } from "@shared/ui/modal";
 import { useQuery, translateApiError } from "@shared/api";
-import { X, Check } from "lucide-react";
+import { X, Check, Crown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import styles from "./round-details-modal.module.css";
 import type { ParticipantDisplayData } from "@entities/game";
@@ -41,6 +41,15 @@ export function RoundDetailsModal({
 		? translateApiError(t, error, { fallback: "profile.roundDetails.error" })
 		: null;
 
+	const statsByTeam = new Map<string, NonNullable<typeof round>["participantsStats"]>();
+	if (round?.participantsStats) {
+		round.participantsStats.forEach((stat) => {
+			const list = statsByTeam.get(stat.teamId) || [];
+			list.push(stat);
+			statsByTeam.set(stat.teamId, list);
+		});
+	}
+
 	return (
 		<Modal
 			isOpen={isOpen}
@@ -76,23 +85,50 @@ export function RoundDetailsModal({
 
 						<div className={styles.section}>
 							<h4>{t("profile.roundDetails.playerStats")}</h4>
-							<ul className={styles.statsList}>
-								{round.participantsStats.map((stat) => {
-									const participantName = participantsMap?.get(stat.participantId)?.name ?? t("profile.unknownHost");
-									const teamName = teamsMap?.get(stat.teamId) ?? t("profile.unknownTeam");
+							<div className={styles.teamsGrid}>
+								{Array.from(statsByTeam.entries()).map(([teamId, stats]) => {
+									const teamName = teamsMap?.get(teamId) ?? t("profile.unknownTeam");
+									const isActiveTeam = teamId === round.teamId;
+
 									return (
-										<li key={stat.participantId} className={styles.statItem}>
-											<div className={styles.playerInfo}>
-												<span className={styles.playerName}>{participantName}</span>
-												<span className={styles.teamName}>{teamName}</span>
+										<div key={teamId} className={`${styles.teamBlock} ${isActiveTeam ? styles.activeTeamBlock : ""}`}>
+											<div className={styles.teamBlockHeader}>
+												<span className={styles.teamBlockTitle}>{teamName}</span>
+												{isActiveTeam && (
+													<span className={styles.playingBadge}>
+														{t("profile.roundDetails.activeTeamBadge")}
+													</span>
+												)}
 											</div>
-											<span className={styles.playerScore}>
-												{t("profile.roundDetails.points", { count: stat.scoreAfterRound })}
-											</span>
-										</li>
+											<ul className={styles.statsList}>
+												{stats.map((stat) => {
+													const participantName = participantsMap?.get(stat.participantId)?.name ?? t("profile.unknownHost");
+													const isHost = stat.participantId === round.guesserId;
+
+													return (
+														<li key={stat.participantId} className={styles.statItem}>
+															<div className={styles.playerInfo}>
+																<div className={styles.playerNameWrapper}>
+																	<span className={styles.playerName}>{participantName}</span>
+																	{isHost && (
+																		<span className={styles.hostBadge}>
+																			<Crown size={12} fill="currentColor" />
+																			{t("profile.roundDetails.hostBadge")}
+																		</span>
+																	)}
+																</div>
+															</div>
+															<span className={styles.playerScore}>
+																{t("profile.roundDetails.points", { count: stat.scoreAfterRound })}
+															</span>
+														</li>
+													);
+												})}
+											</ul>
+										</div>
 									);
 								})}
-							</ul>
+							</div>
 						</div>
 
 						<div className={styles.section}>

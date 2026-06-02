@@ -26,6 +26,14 @@ export class RoundDetailsResponseDto {
 	@Expose()
 	number: number;
 
+	@ApiProperty()
+	@Expose()
+	guesserId: string;
+
+	@ApiProperty()
+	@Expose()
+	teamId: string;
+
 	@ApiProperty({
 		description: "Words for the round",
 		type: [WordResponseDto],

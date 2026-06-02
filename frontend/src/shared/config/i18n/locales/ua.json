@@ -104,7 +104,9 @@
 			"playerStats": "Статистика гравців після раунду",
 			"wordsInRound": "Слова в раунді ({{count}})",
 			"noWords": "У цьому раунді не було зіграно слів",
-			"points": "Очки: {{count}}"
+			"points": "Очки: {{count}}",
+			"hostBadge": "Ведучий",
+			"activeTeamBadge": "Активна команда"
 		}
 	},
 	"audio": {

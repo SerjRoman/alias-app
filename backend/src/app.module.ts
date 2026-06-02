@@ -21,17 +21,20 @@ import { LoggerModule } from "nestjs-pino";
 		ScheduleModule.forRoot({}),
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
-			useFactory: (configService: ConfigService) => ({
-				type: "postgres",
-				host: configService.getOrThrow<string>("DB_HOST"),
-				port: configService.get<number>("DB_PORT", 5432),
-				username: configService.getOrThrow<string>("DB_USERNAME"),
-				password: configService.getOrThrow<string>("DB_PASSWORD"),
-				database: configService.getOrThrow<string>("DB_NAME"),
-				autoLoadEntities: true,
-				synchronize: true,
-				ssl: true,
-			}),
+			useFactory: (configService: ConfigService) => {
+				const isProd = configService.get<string>("NODE_ENV") === "production";
+				return {
+					type: "postgres",
+					host: configService.getOrThrow<string>("DB_HOST"),
+					port: configService.get<number>("DB_PORT", 5432),
+					username: configService.getOrThrow<string>("DB_USERNAME"),
+					password: configService.getOrThrow<string>("DB_PASSWORD"),
+					database: configService.getOrThrow<string>("DB_NAME"),
+					autoLoadEntities: true,
+					synchronize: true,
+					ssl: isProd ? { rejectUnauthorized: false } : false,
+				};
+			},
 		}),
 		CloudinaryModule,
 		RedisModule,

@@ -59,7 +59,6 @@ export function CreateGameForm() {
 	});
 
 	const onSubmit = (data: CreateGameValues) => {
-		console.log(data);
 		createGame(
 			{
 				body: {

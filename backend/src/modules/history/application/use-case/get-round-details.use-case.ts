@@ -19,10 +19,12 @@ export class GetRoundDetailsUseCase {
 		}
 
 		const primitives = round.toPrimitives();
-
+        console.log("Round primitives:", primitives); // Debug log to check the structure of primitives
 		return {
 			roundId: primitives.id,
-			number: primitives.roundNumber,
+			number: primitives.roundNumber, 
+			guesserId: primitives.guesserId,
+			teamId: primitives.teamId,
 			words: primitives.words,
 			participantsStats: primitives.participants.map((p) => ({
 				participantId: p.playerId || "",

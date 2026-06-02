@@ -31,6 +31,8 @@ export class FindRoundsByGameIdUseCase {
 			return {
 				roundId: primitives.id,
 				number: primitives.roundNumber,
+				guesserId: primitives.guesserId,
+				teamId: primitives.teamId,
 				words: primitives.words,
 				participantsStats: primitives.participants.map((p) => ({
 					participantId: p.playerId || "",

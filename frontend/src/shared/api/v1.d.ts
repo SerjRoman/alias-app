@@ -645,6 +645,8 @@ export interface components {
         RoundDetailsResponseDto: {
             roundId: string;
             number: number;
+            guesserId: string;
+            teamId: string;
             /** @description Words for the round */
             words: components["schemas"]["WordResponseDto"][];
             participantsStats: components["schemas"]["ParticipantStatsDto"][];

@@ -104,7 +104,9 @@
 			"playerStats": "Player statistics after round",
 			"wordsInRound": "Words in round ({{count}})",
 			"noWords": "No words were played in this round",
-			"points": "Points: {{count}}"
+			"points": "Points: {{count}}",
+			"hostBadge": "Host",
+			"activeTeamBadge": "Active Team"
 		}
 	},
 	"audio": {

@@ -5,10 +5,16 @@ import { ValidationPipe } from "@nestjs/common";
 import { Logger } from "nestjs-pino";
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
-        bufferLogs: true,
-        cors: { origin: "https://alias-app-frontend-qzcx.vercel.app" },
-    });
+	const isProd = process.env.NODE_ENV === "production";
+	const app = await NestFactory.create(AppModule, {
+		bufferLogs: true,
+		cors: {
+			origin: isProd
+				? (process.env.FRONTEND_URL ?? "https://alias-app-frontend-qzcx.vercel.app")
+				: "*",
+			credentials: true,
+		},
+	});
     app.useGlobalPipes(
         new ValidationPipe({
             transform: true,

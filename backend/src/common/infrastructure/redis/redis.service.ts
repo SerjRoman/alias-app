@@ -15,17 +15,20 @@ export class RedisService
 	private readonly logger = new Logger(RedisService.name);
 	constructor(private readonly configService: ConfigService) {
 		super(
-			process.env.NODE_ENV === "production"
-				? configService.getOrThrow("REDIS_SERVICE_URL")
-				: {
-						password: configService.getOrThrow(
-							"REDIS_SERVICE_PASSWORD",
-						),
-						host: configService.getOrThrow("REDIS_SERVICE_HOST"),
-						port: configService.getOrThrow("REDIS_SERVICE_PORT"),
-						maxLoadingRetryTime: 5,
-						enableOfflineQueue: true,
-					},
+			(() => {
+				const isProd = configService.get<string>("NODE_ENV") === "production";
+				const redisUrl = configService.get<string>("REDIS_SERVICE_URL");
+				if (isProd || redisUrl) {
+					return (redisUrl || configService.getOrThrow<string>("REDIS_SERVICE_URL"));
+				}
+				return {
+					host: configService.get<string>("REDIS_SERVICE_HOST") ?? "localhost",
+					port: configService.get<number>("REDIS_SERVICE_PORT") ?? 6379,
+					password: configService.get<string>("REDIS_SERVICE_PASSWORD") || undefined,
+					maxLoadingRetryTime: 5,
+					enableOfflineQueue: true,
+				};
+			})() as any
 		);
 	}
 	onModuleInit() {

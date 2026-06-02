@@ -29,9 +29,6 @@ export class FindAllGamesByUserIdUseCase {
 				limit,
 				offset,
 			);
-		this.logger.log(
-			`Found ${JSON.stringify(games)} games for user ${dto.userId} (total: ${total})`,
-		);
 		const uniqueUserIds = new Set<string>();
 		games.forEach((game) => {
 			game.toPrimitives().participants.forEach((p) => {
@@ -58,7 +55,10 @@ export class FindAllGamesByUserIdUseCase {
 			primitives.participants.forEach((participant) => {
 				participantIdByPlayerId.set(participant.id, participant.id);
 				if (participant.userId) {
-					participantIdByPlayerId.set(participant.userId, participant.id);
+					participantIdByPlayerId.set(
+						participant.userId,
+						participant.id,
+					);
 				}
 				const separatorIndex = participant.id.indexOf(":");
 				if (separatorIndex !== -1) {

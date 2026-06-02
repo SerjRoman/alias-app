@@ -25,6 +25,9 @@ export function GamesList({ games }: Readonly<GamesListProps>) {
 	const allParticipants = games.reduce((acc, game) => {
 		game.participants.forEach((p) => {
 			acc.set(p.participantId, p.displayData);
+			if (p.displayData.userId) {
+				acc.set(p.displayData.userId, p.displayData);
+			}
 		});
 		return acc;
 	}, new Map<string, ParticipantDisplayData>());
