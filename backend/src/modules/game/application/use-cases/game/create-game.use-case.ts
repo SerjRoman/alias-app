@@ -29,6 +29,7 @@ export class CreateGameUseCase {
 			code: code,
 			isPrivate: createGameDto.isPrivate || false,
 			level: createGameDto.level,
+			language: createGameDto.language || "ru",
 			isOnlyOwnerCanNextRound: true,
 			isOnlyOwnerCanChangeScore: true,
 			isVoiceChatEnabled: true,

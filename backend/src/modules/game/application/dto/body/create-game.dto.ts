@@ -63,4 +63,14 @@ export class CreateGameDto {
 	@IsBoolean()
 	@IsOptional()
 	isOnlyOwnerCanChangeScore?: boolean = true;
+
+	@ApiProperty({
+		description: "The language of the words used in the game",
+		example: "ru",
+		enum: ["ru", "en"],
+		default: "ru",
+	})
+	@IsString()
+	@IsOptional()
+	language?: "ru" | "en" = "ru";
 }

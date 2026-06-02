@@ -1,5 +1,7 @@
-import type { GameSharedService } from "../../game-shared.service";
+import { Injectable } from "@nestjs/common";
+import { GameSharedService } from "../../game-shared.service";
 
+@Injectable()
 export class ValidateCodeUseCase {
 	constructor(private readonly gameSharedService: GameSharedService) {}
 

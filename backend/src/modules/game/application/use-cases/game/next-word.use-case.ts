@@ -31,7 +31,7 @@ export class NextWordUseCase {
 		room.assertIsGuesser(actor.id);
 
 		if (room.currentRound.currentWord !== null) {
-			this.dictionaryService.popWordForGame(room.id);
+			await this.dictionaryService.popWordForGame(room.id);
 		}
 
 		const text = await this.gameSharedService.getWordForGameSession(room);

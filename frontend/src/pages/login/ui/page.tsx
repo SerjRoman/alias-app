@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
 import { useAuth, type User } from "@entities/auth";
-import { useMutation } from "@shared/api";
-import { Button } from "@shared/ui/button";
+import { Button, Input } from "@shared/ui";
+import { useMutation, translateApiError } from "@shared/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,6 +13,10 @@ import {
 	type RegisterValues,
 } from "../model/schemas";
 import { useTranslation } from "react-i18next";
+import {
+	LOGIN_ERROR_MESSAGES,
+	REGISTER_ERROR_MESSAGES,
+} from "../api/error.messages";
 
 type AuthTab = "login" | "register";
 
@@ -76,13 +80,6 @@ export function LoginPage() {
 			},
 		);
 	};
-
-	const errorStyle = {
-		color: "#e57373",
-		fontSize: "0.8rem",
-		marginTop: "4px",
-	};
-
 	return (
 		<div className={styles.loginPage}>
 			<div className={styles.loginCard}>
@@ -117,45 +114,24 @@ export function LoginPage() {
 
 				{activeTab === "login" ? (
 					<form
+						key="login-form"
 						className={styles.form}
 						onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
 					>
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("login.email")}
-							</span>
-							<input
-								className={styles.input}
-								type="email"
-								autoComplete="email"
-								{...loginForm.register("email")}
-							/>
-							{loginForm.formState.errors.email && (
-								<span style={errorStyle}>
-									{loginForm.formState.errors.email.message}
-								</span>
-							)}
-						</label>
+						<Input
+							type="email"
+							label={t("login.email")}
+							error={loginForm.formState.errors.email?.message}
+							autoComplete="email"
+							{...loginForm.register("email")}
+						/>
 
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("login.password")}
-							</span>
-							<input
-								className={styles.input}
-								type="password"
-								autoComplete="current-password"
-								{...loginForm.register("password")}
-							/>
-							{loginForm.formState.errors.password && (
-								<span style={errorStyle}>
-									{
-										loginForm.formState.errors.password
-											.message
-									}
-								</span>
-							)}
-						</label>
+						<Input.Password
+							label={t("login.password")}
+							error={loginForm.formState.errors.password?.message}
+							autoComplete="current-password"
+							{...loginForm.register("password")}
+						/>
 
 						<Button
 							className={styles.button}
@@ -166,90 +142,55 @@ export function LoginPage() {
 								? t("common.loading")
 								: t("login.submit")}
 						</Button>
+
+						{loginMutation.isError && (
+							<div className={styles.serverError}>
+								{translateApiError(t, loginMutation.error, LOGIN_ERROR_MESSAGES)}
+							</div>
+						)}
 					</form>
 				) : (
 					<form
+						key="register-form"
 						className={styles.form}
 						onSubmit={registerForm.handleSubmit(
 							handleRegisterSubmit,
 						)}
 					>
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("register.name")}
-							</span>
-							<input
-								className={styles.input}
-								type="text"
-								autoComplete="name"
-								{...registerForm.register("name")}
-							/>
-							{registerForm.formState.errors.name && (
-								<span style={errorStyle}>
-									{registerForm.formState.errors.name.message}
-								</span>
-							)}
-						</label>
+						<Input
+							type="text"
+							label={t("register.name")}
+							error={registerForm.formState.errors.name?.message}
+							autoComplete="name"
+							{...registerForm.register("name")}
+						/>
 
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("register.username")}
-							</span>
-							<input
-								className={styles.input}
-								type="text"
-								autoComplete="username"
-								{...registerForm.register("username")}
-							/>
-							{registerForm.formState.errors.username && (
-								<span style={errorStyle}>
-									{
-										registerForm.formState.errors.username
-											.message
-									}
-								</span>
-							)}
-						</label>
+						<Input
+							type="text"
+							label={t("register.username")}
+							error={
+								registerForm.formState.errors.username?.message
+							}
+							autoComplete="username"
+							{...registerForm.register("username")}
+						/>
 
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("register.email")}
-							</span>
-							<input
-								className={styles.input}
-								type="email"
-								autoComplete="email"
-								{...registerForm.register("email")}
-							/>
-							{registerForm.formState.errors.email && (
-								<span style={errorStyle}>
-									{
-										registerForm.formState.errors.email
-											.message
-									}
-								</span>
-							)}
-						</label>
+						<Input
+							type="email"
+							label={t("register.email")}
+							error={registerForm.formState.errors.email?.message}
+							autoComplete="email"
+							{...registerForm.register("email")}
+						/>
 
-						<label className={styles.field}>
-							<span className={styles.label}>
-								{t("register.password")}
-							</span>
-							<input
-								className={styles.input}
-								type="password"
-								autoComplete="new-password"
-								{...registerForm.register("password")}
-							/>
-							{registerForm.formState.errors.password && (
-								<span style={errorStyle}>
-									{
-										registerForm.formState.errors.password
-											.message
-									}
-								</span>
-							)}
-						</label>
+						<Input.Password
+							label={t("register.password")}
+							error={
+								registerForm.formState.errors.password?.message
+							}
+							autoComplete="new-password"
+							{...registerForm.register("password")}
+						/>
 
 						<Button
 							className={styles.button}
@@ -260,6 +201,12 @@ export function LoginPage() {
 								? t("common.loading")
 								: t("register.submit")}
 						</Button>
+
+						{registerMutation.isError && (
+							<div className={styles.serverError}>
+								{translateApiError(t, registerMutation.error, REGISTER_ERROR_MESSAGES)}
+							</div>
+						)}
 					</form>
 				)}
 

@@ -18,6 +18,7 @@ export function SettingsPanel({
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
 	const levelSelectRef = useRef<HTMLSelectElement | null>(null);
 	const voiceChatCheckboxRef = useRef<HTMLInputElement | null>(null);
+	const languageSelectRef = useRef<HTMLSelectElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
 	const code = searchParams.get("code");
@@ -35,6 +36,9 @@ export function SettingsPanel({
 		if (voiceChatCheckboxRef.current) {
 			voiceChatCheckboxRef.current.checked = game.settings.isVoiceChatEnabled ?? true;
 		}
+		if (languageSelectRef.current) {
+			languageSelectRef.current.value = game.settings.language ?? "ru";
+		}
 	}, [game.settings]);
 
 	useEffect(() => {
@@ -48,6 +52,7 @@ export function SettingsPanel({
 	const emitCurrentSettings = (
 		overrideLevel?: GameWordsLevel,
 		overrideVoiceChat?: boolean,
+		overrideLanguage?: "ru" | "en",
 	) => {
 		const points = Number(
 			pointsInputRef.current?.value ?? game.settings.pointsToWin,
@@ -64,6 +69,11 @@ export function SettingsPanel({
 			voiceChatCheckboxRef.current?.checked ??
 			game.settings.isVoiceChatEnabled ??
 			true;
+		const language =
+			overrideLanguage ??
+			(languageSelectRef.current?.value as "ru" | "en") ??
+			game.settings.language ??
+			"ru";
 
 		socketClient.emit("updateGameSettings", {
 			roomId: game.id,
@@ -71,6 +81,7 @@ export function SettingsPanel({
 			roundTimeSeconds: time,
 			level,
 			isVoiceChatEnabled,
+			language,
 		});
 	};
 
@@ -98,6 +109,11 @@ export function SettingsPanel({
 	const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
 		const newLevel = e.target.value as GameWordsLevel;
 		emitCurrentSettings(newLevel);
+	};
+
+	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const newLang = e.target.value as "ru" | "en";
+		emitCurrentSettings(undefined, undefined, newLang);
 	};
 
 	return (
@@ -155,6 +171,20 @@ export function SettingsPanel({
 								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
 							</option>
 						))}
+					</Select>
+				</label>
+
+				<label className={styles.label}>
+					<span>Words Language:</span>
+					<Select
+						ref={languageSelectRef}
+						className={styles.inputField}
+						defaultValue={game.settings.language ?? "ru"}
+						onChange={handleLanguageChange}
+						disabled={!isOwner}
+					>
+						<option value="ru">Русский (RU)</option>
+						<option value="en">English (EN)</option>
 					</Select>
 				</label>
 

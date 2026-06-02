@@ -30,6 +30,7 @@ import { LoggerModule } from "nestjs-pino";
 				database: configService.getOrThrow<string>("DB_NAME"),
 				autoLoadEntities: true,
 				synchronize: true,
+				ssl: true,
 			}),
 		}),
 		CloudinaryModule,

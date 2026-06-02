@@ -9,10 +9,13 @@ import { useTranslation } from "react-i18next";
 import { useMemo } from "react";
 import "./App.css";
 import { AppRoutes } from "./app-routes";
-import { setAuthTokenProvider } from "@shared/api";
+import { setAuthTokenProvider, setRefreshTokenProvider } from "@shared/api";
 import { useAuth } from "@entities/auth";
 
 setAuthTokenProvider(() => useAuth.getState().token);
+setRefreshTokenProvider(async () => {
+	useAuth.setState({ token: null, user: null });
+});
 
 export function App() {
 	const { t } = useTranslation();

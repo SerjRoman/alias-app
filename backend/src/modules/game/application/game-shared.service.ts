@@ -20,7 +20,7 @@ export class GameSharedService {
 	}
 
 	public async getWordForGameSession(room: GameEntity) {
-		let text: string | null = this.dictionaryService.getLastWordForGame(
+		let text: string | null = await this.dictionaryService.getLastWordForGame(
 			room.id,
 		);
 		if (!text) {
@@ -28,9 +28,10 @@ export class GameSharedService {
 				room.id,
 				100,
 				room.settings.level,
+				room.settings.language,
 			);
 		}
-		text = this.dictionaryService.getLastWordForGame(room.id);
+		text = await this.dictionaryService.getLastWordForGame(room.id);
 		if (!text) {
 			throw new GameError(
 				"Unexpected error: no words available for the game",
@@ -40,11 +41,13 @@ export class GameSharedService {
 	}
 
 	public async checkAndSetWordsForGame(room: GameEntity) {
-		if (this.dictionaryService.getWordsForGame(room.id).length < 10) {
+		const words = await this.dictionaryService.getWordsForGame(room.id);
+		if (words.length < 10) {
 			await this.dictionaryService.setWordsForGame(
 				room.id,
 				100,
 				room.settings.level,
+				room.settings.language,
 			);
 		}
 	}

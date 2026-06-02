@@ -20,32 +20,61 @@ export function getApiError(
 ): string {
 	if (!error) return messagesMap?.fallback || "An unknown error occurred";
 
-	// Type cast error to access its properties safely
+	// Log the error to console for debugging
+	console.error("API Error encountered:", error);
+
 	const err = error as {
 		status?: number;
-		data?: { message?: string | string[]; error?: string };
+		statusCode?: number;
+		response?: { status?: number };
+		data?: {
+			statusCode?: number;
+			message?: string | string[];
+			error?: string;
+		};
 		message?: string;
+		error?: string | string[];
 	};
 
-	// If error is an openapi-fetch error object
-	const status = err.status;
+	// Extract status code from various potential structures
+	const status =
+		err.status ??
+		err.statusCode ??
+		err.data?.statusCode ??
+		err.response?.status;
 
 	if (status && messagesMap?.[status]) {
 		return messagesMap[status];
 	}
 
-	// Try to get message from API standard error response structure { message: string | string[] }
-	if (err.data?.message) {
-		const message = err.data.message;
+	// Try to get message from standard NestJS or OpenAPI fetch response structures
+	const message =
+		err.data?.message ?? err.message ?? err.data?.error ?? err.error;
+
+	if (message) {
 		return Array.isArray(message) ? message.join(", ") : message;
 	}
 
-	if (err.data?.error) {
-		return err.data.error;
-	}
+	return messagesMap?.fallback || "An unexpected error occurred";
+}
 
-	// Fallback to error object message or map fallback
-	return (
-		messagesMap?.fallback || err.message || "An unexpected error occurred"
-	);
+/**
+ * Helper to extract and translate API response error using i18next translation function.
+ * It encapsulates the type casting required for i18next key types in one place.
+ *
+ * @param t - The translate function from useTranslation()
+ * @param error - The API error object
+ * @param messagesMap - Map of custom error translation keys based on status code
+ * @returns Translated error string
+ */
+import type { TFunction } from "i18next";
+
+export function translateApiError(
+	t: TFunction,
+	error: unknown,
+	messagesMap?: ErrorMessagesMap,
+): string {
+	const keyOrMessage = getApiError(error, messagesMap);
+	const translate = t as unknown as (key: string) => string;
+	return translate(keyOrMessage);
 }

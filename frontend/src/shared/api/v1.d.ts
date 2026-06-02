@@ -472,6 +472,7 @@ export interface components {
              * @example true
              */
             isOnlyOwnerCanChangeScore: boolean;
+            language?: "ru" | "en";
         };
         GameResponseDto: {
             /**
@@ -520,6 +521,7 @@ export interface components {
             isOnlyOwnerCanNextRound: boolean;
             /** @default true */
             isOnlyOwnerCanChangeScore: boolean;
+            language?: "ru" | "en";
         };
         CreateGameResponseDto: {
             /**

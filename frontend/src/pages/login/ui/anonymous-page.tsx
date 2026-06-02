@@ -2,8 +2,8 @@ import { type SubmitEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
 import { useAuth, type User } from "@entities/auth";
-import { useMutation } from "@shared/api";
-import { Button } from "@shared/ui/button";
+import { useMutation, translateApiError } from "@shared/api";
+import { Button, Input } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
 type LoginResponse = {
@@ -23,7 +23,7 @@ function applyAuthResult(
 export function AnonymousLoginPage() {
 	const { setToken, setUser } = useAuth();
 	const [name, setName] = useState("");
-	const { mutate, isPending } = useMutation("post", "/user/login/anonymous");
+	const { mutate, isPending, error, isError } = useMutation("post", "/user/login/anonymous");
 	const { t } = useTranslation();
 	const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -54,20 +54,15 @@ export function AnonymousLoginPage() {
 				</div>
 
 				<form className={styles.form} onSubmit={handleSubmit}>
-					<label className={styles.field}>
-						<span className={styles.label}>
-							{t("anonymousLogin.guestName")}
-						</span>
-						<input
-							className={styles.input}
-							type="text"
-							value={name}
-							onChange={(event) => setName(event.target.value)}
-							placeholder="Guest_123"
-							autoComplete="off"
-							required
-						/>
-					</label>
+					<Input
+						type="text"
+						label={t("anonymousLogin.guestName")}
+						value={name}
+						onChange={(event) => setName(event.target.value)}
+						placeholder="Guest_123"
+						autoComplete="off"
+						required
+					/>
 
 					<Button
 						className={styles.button}
@@ -78,6 +73,12 @@ export function AnonymousLoginPage() {
 							? t("common.loading")
 							: t("anonymousLogin.continue")}
 					</Button>
+
+					{isError && (
+						<div className={styles.serverError}>
+							{translateApiError(t, error)}
+						</div>
+					)}
 				</form>
 
 				<Link className={styles.secondaryLink} to="/login">

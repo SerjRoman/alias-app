@@ -10,33 +10,35 @@
 		"creating": "Создание..."
 	},
 	"login": {
-		"access": "Доступ к вашему аккаунту Alias",
+		"access": "Войдите в свой аккаунт Alias",
 		"login": "Войти",
 		"title": "Добро пожаловать в Alias!",
 		"description": "Войдите в свой аккаунт или создайте новый, чтобы сохранить свой прогресс.",
-		"email": "Электронная почта",
+		"email": "Email",
 		"password": "Пароль",
 		"asGuest": "Продолжить как гость",
-		"submit": "Войти"
+		"submit": "Войти",
+		"errorInvalidCredentials": "Неверный email или пароль"
 	},
 	"anonymousLogin": {
 		"access": "Доступ к Alias как гость",
 		"title": "Добро пожаловать в Alias!",
 		"description": "Продолжите как гость, чтобы начать играть сразу. Ваш прогресс не будет сохранен, поэтому рассмотрите возможность создания аккаунта для лучшего опыта.",
 		"continue": "Продолжить как гость",
-		"backToAccountLogin": "Вернуться к входу в аккаунт"
+		"backToAccountLogin": "Вернуться к входу в аккаунт",
+		"guestName": "Имя гостя"
 	},
 	"register": {
-		"access": "Доступ к вашему аккаунту Alias",
-		"register": "Зарегистрироваться",
+		"access": "Войдите в свой аккаунт Alias",
+		"register": "Регистрация",
 		"title": "Добро пожаловать в Alias!",
 		"description": "Войдите в свой аккаунт или создайте новый, чтобы сохранить свой прогресс.",
-		"email": "Электронная почта",
+		"email": "Email",
 		"password": "Пароль",
 		"name": "Имя",
-		"asGuest": "Продолжить как гость",
 		"username": "Имя пользователя",
-		"submit": "Зарегистрироваться"
+		"submit": "Зарегистрироваться",
+		"errorEmailExists": "Пользователь с таким email/username уже существует"
 	},
 	"games": {
 		"available": "Доступные игры",
@@ -52,6 +54,7 @@
 		"pointsToWinPlaceholder": "Очки для победы",
 		"level": "Уровень",
 		"levelPlaceholder": "Уровень",
+		"language": "Язык",
 		"private": "Приватная игра?",
 		"join": "Присоединиться",
 		"create": "Создать",
@@ -113,6 +116,60 @@
 		"kickButton": "Исключить",
 		"banTitle": "Забанить игрока",
 		"banConfirm": "Вы уверены, что хотите забанить игрока {{name}} навсегда?",
-		"banButton": "Забанить"
+		"banButton": "Забанить",
+		"title": "Панель администратора",
+		"time": "Время:",
+		"movePlayerToTeam": "Переместить игрока в команду:",
+		"selectPlayer": "Выбрать игрока",
+		"selectTeam": "Выбрать команду",
+		"assign": "Назначить",
+		"shuffle": "Перемешать игроков",
+		"guesser": "Отгадывающий:",
+		"kickOrBan": "Исключить / Забанить:",
+		"startRound": "Начать раунд",
+		"startPointing": "Начать проверку слов",
+		"endGame": "Завершить игру"
+	},
+	"lobby": {
+		"teams": "Команды",
+		"newTeamPlaceholder": "Название новой команды",
+		"addTeam": "Добавить",
+		"noTeams": "Команды еще не созданы.",
+		"readyToStart": "Готов к старту",
+		"startGame": "Начать игру",
+		"joined": "Присоединился",
+		"joinTeam": "Вступить в команду",
+		"spectators": "Зрители / Без команды"
+	},
+	"activeGame": {
+		"score": "Очки: {{score}}",
+		"loading": "Загрузка...",
+		"skip": "ПРОПУСТИТЬ (-1)",
+		"correct": "ПРАВИЛЬНО (+1)",
+		"prepareTitle": "Подготовка к раунду",
+		"waitingForReady": "Ожидание готовности играющей команды...",
+		"readyForNextRound": "Готовы к следующему раунду",
+		"waitingForTeammates": "Ожидание товарищей по команде...",
+		"endPointing": "Завершить проверку",
+		"nextRound": "Следующий раунд"
+	},
+	"gameFinished": {
+		"title": "Игра завершена",
+		"description": "Спасибо за игру! Игра окончена.",
+		"backToList": "Назад к списку игр",
+		"deleteGame": "Удалить игру"
+	},
+	"userProfile": {
+		"uploading": "Загрузка...",
+		"uploadAvatar": "Загрузить аватар",
+		"profile": "Профиль",
+		"signOut": "Выйти"
+	},
+	"playerPopover": {
+		"unknownPlayer": "Неизвестный игрок",
+		"online": "В сети ✅",
+		"offline": "Не в сети ❌",
+		"viewProfile": "Посмотреть профиль",
+		"score": "Очки: {{score}}"
 	}
 }

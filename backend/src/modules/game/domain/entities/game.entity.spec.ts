@@ -17,6 +17,7 @@ describe("GameEntity Domain", () => {
 			code: "ABCD",
 			isPrivate: false,
 			level: "medium",
+			language: "ru",
 			isOnlyOwnerCanNextRound: false,
 			isOnlyOwnerCanChangeScore: false,
 			isVoiceChatEnabled: true,

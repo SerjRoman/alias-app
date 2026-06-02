@@ -32,6 +32,7 @@ export function Header() {
 				>
 					<option value="en">English</option>
 					<option value="ru">Русский</option>
+					<option value="ua">Українська</option>
 				</Select>
 			</div>
 		</header>

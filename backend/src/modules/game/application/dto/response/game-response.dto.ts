@@ -59,9 +59,18 @@ export class GameSettingsDto implements GameSettings {
 	@ApiProperty({
 		description: "Whether voice chat is enabled for this game room",
 		example: true,
+		default: true,
 	})
 	@Expose()
 	isVoiceChatEnabled: boolean;
+
+	@ApiProperty({
+		description: "The language of the words used in the game",
+		example: "ru",
+		enum: ["ru", "en"],
+	})
+	@Expose()
+	language: "ru" | "en";
 }
 export class GameResponseDto {
 	@ApiProperty({

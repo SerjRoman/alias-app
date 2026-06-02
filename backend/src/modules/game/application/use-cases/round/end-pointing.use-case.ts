@@ -34,7 +34,7 @@ export class EndPointingUseCase {
 				24 * 60 * 60 * 1000,
 			);
 		} else {
-			this.dictionaryService.popWordForGame(room.id);
+			await this.dictionaryService.popWordForGame(room.id);
 		}
 
 		const eventPayload: GameUpdatedPayload = {

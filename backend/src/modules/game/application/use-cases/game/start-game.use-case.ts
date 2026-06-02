@@ -24,6 +24,7 @@ export class StartGameUseCase {
 			roomId,
 			100,
 			room.settings.level,
+			room.settings.language,
 		);
 		room.startGame(actor.id);
 		room.createRound();

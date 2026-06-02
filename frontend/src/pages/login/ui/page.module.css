@@ -76,33 +76,6 @@
 	gap: 16px;
 }
 
-.field {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-}
-
-.label {
-	font-size: 0.9rem;
-	font-weight: 600;
-	color: var(--color-text);
-}
-
-.input {
-	width: 100%;
-	padding: var(--spacing-medium);
-	border: 1px solid var(--color-border);
-	border-radius: var(--border-radius);
-	font-size: 1rem;
-	transition: border-color 0.2s;
-	background-color: var(--color-surface);
-}
-
-.input:focus {
-	outline: none;
-	border-color: var(--color-primary);
-}
-
 .button {
 	width: 100%;
 	padding: var(--spacing-medium);
@@ -134,4 +107,14 @@
 
 .secondaryLink:hover {
 	text-decoration: underline;
+}
+
+.serverError {
+	padding: var(--spacing-medium);
+	background-color: rgba(229, 115, 115, 0.1);
+	border: 1px solid #e57373;
+	border-radius: var(--border-radius);
+	color: #e57373;
+	font-size: 0.9rem;
+	text-align: center;
 }

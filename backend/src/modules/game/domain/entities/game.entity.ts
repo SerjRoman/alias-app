@@ -59,6 +59,7 @@ export interface GameSettings {
 	code: string | null;
 	isPrivate: boolean;
 	level: GameWordsLevel;
+	language: "ru" | "en";
 	isOnlyOwnerCanNextRound: boolean;
 	isOnlyOwnerCanChangeScore: boolean;
 	isVoiceChatEnabled: boolean;

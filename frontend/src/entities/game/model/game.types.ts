@@ -51,6 +51,7 @@ export interface GameSettings {
 	pointsToWin: number;
 	isPrivate: boolean;
 	level: GameWordsLevel;
+	language?: "ru" | "en";
 	isVoiceChatEnabled?: boolean;
 }
 export interface GameState {

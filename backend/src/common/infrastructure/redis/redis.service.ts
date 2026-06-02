@@ -14,13 +14,19 @@ export class RedisService
 {
 	private readonly logger = new Logger(RedisService.name);
 	constructor(private readonly configService: ConfigService) {
-		super({
-			password: configService.getOrThrow("REDIS_SERVICE_PASSWORD"),
-			host: configService.getOrThrow("REDIS_SERVICE_HOST"),
-			port: configService.getOrThrow("REDIS_SERVICE_PORT"),
-			maxLoadingRetryTime: 5,
-			enableOfflineQueue: true,
-		});
+		super(
+			process.env.NODE_ENV === "production"
+				? configService.getOrThrow("REDIS_SERVICE_URL")
+				: {
+						password: configService.getOrThrow(
+							"REDIS_SERVICE_PASSWORD",
+						),
+						host: configService.getOrThrow("REDIS_SERVICE_HOST"),
+						port: configService.getOrThrow("REDIS_SERVICE_PORT"),
+						maxLoadingRetryTime: 5,
+						enableOfflineQueue: true,
+					},
+		);
 	}
 	onModuleInit() {
 		const start = Date.now();

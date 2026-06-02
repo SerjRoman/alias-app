@@ -5,5 +5,10 @@ export {
 	queryOptions,
 	client,
 	setAuthTokenProvider,
+	setRefreshTokenProvider,
 } from "./api";
-export { getApiError, type ErrorMessagesMap } from "./error-helper";
+export {
+	getApiError,
+	translateApiError,
+	type ErrorMessagesMap,
+} from "./error-helper";

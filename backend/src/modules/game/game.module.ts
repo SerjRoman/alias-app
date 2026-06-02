@@ -44,6 +44,10 @@ import { ShufflePlayersUseCase } from "./application/use-cases/game/shuffle-play
 import { ChangeRoundTimeUseCase } from "./application/use-cases/round/change-round-time.use-case";
 import { StartPointingUseCase } from "./application/use-cases/round/start-pointing.use-case";
 import { StartRoundForcedUseCase } from "./application/use-cases/round/start-round-forced.use-case";
+import {
+	DICTIONARY_REPOSITORY,
+} from "./application/dictionary.repository.interface";
+import { RedisDictionaryRepository } from "./infrastructure/redis-dictionary.repository";
 import { VoiceService } from "./application/voice.service";
 
 @Module({
@@ -60,6 +64,10 @@ import { VoiceService } from "./application/voice.service";
 		{
 			provide: GAME_REPOSITORY,
 			useClass: RedisGameRepository,
+		},
+		{
+			provide: DICTIONARY_REPOSITORY,
+			useClass: RedisDictionaryRepository,
 		},
 		// Use cases:
 		ChangeWordScoreUseCase,

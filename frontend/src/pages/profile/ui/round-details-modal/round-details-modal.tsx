@@ -1,5 +1,5 @@
 import { Modal } from "@shared/ui/modal";
-import { useQuery, getApiError } from "@shared/api";
+import { useQuery, translateApiError } from "@shared/api";
 import { X, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import styles from "./round-details-modal.module.css";
@@ -38,7 +38,7 @@ export function RoundDetailsModal({
 	const roundNumber = round?.number;
 	const totalScore = round?.words.reduce((sum, word) => sum + word.score, 0) ?? 0;
 	const errorMessage = error
-		? getApiError(error, { fallback: t("profile.roundDetails.error") })
+		? translateApiError(t, error, { fallback: "profile.roundDetails.error" })
 		: null;
 
 	return (

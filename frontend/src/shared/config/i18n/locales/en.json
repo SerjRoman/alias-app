@@ -17,7 +17,8 @@
 		"email": "Email",
 		"password": "Password",
 		"asGuest": "Continue as Guest",
-		"submit": "Log In"
+		"submit": "Log In",
+		"errorInvalidCredentials": "Invalid email or password"
 	},
 	"anonymousLogin": {
 		"access": "Access Alias as a guest",
@@ -36,7 +37,8 @@
 		"password": "Password",
 		"name": "Name",
 		"username": "Username",
-		"submit": "Register"
+		"submit": "Register",
+		"errorEmailExists": "User with this email/username already exists"
 	},
 	"games": {
 		"available": "Available Games",
@@ -52,6 +54,7 @@
 		"pointsToWinPlaceholder": "Points to win",
 		"level": "Level",
 		"levelPlaceholder": "Level",
+		"language": "Language",
 		"private": "Private game?",
 		"join": "Join",
 		"create": "Create",
@@ -113,6 +116,61 @@
 		"kickButton": "Kick",
 		"banTitle": "Ban Player",
 		"banConfirm": "Are you sure you want to ban player {{name}} permanently?",
-		"banButton": "Ban"
+		"banButton": "Ban",
+		"title": "Admin Panel",
+		"time": "Time:",
+		"movePlayerToTeam": "Move player to team:",
+		"selectPlayer": "Select player",
+		"selectTeam": "Select team",
+		"assign": "Assign",
+		"shuffle": "Shuffle players",
+		"guesser": "Guesser:",
+		"kickOrBan": "Kick / Ban:",
+		"startRound": "Start Round",
+		"startPointing": "Start Pointing",
+		"endGame": "End Game"
+	},
+	"lobby": {
+		"teams": "Teams",
+		"newTeamPlaceholder": "New Team Name",
+		"addTeam": "Add",
+		"noTeams": "No teams created yet.",
+		"readyToStart": "Ready to Start",
+		"startGame": "Start Game",
+		"joined": "Joined",
+		"joinTeam": "Join Team",
+		"spectators": "Spectators / Unassigned"
+	},
+	"activeGame": {
+		"score": "Score: {{score}}",
+		"loading": "Loading...",
+		"skip": "SKIP (-1)",
+		"correct": "CORRECT (+1)",
+		"prepareTitle": "Prepare for the Round",
+		"waitingForReady": "Waiting for the playing team to be ready...",
+		"readyForNextRound": "Ready For Next Round",
+		"waitingForTeammates": "Waiting for teammates...",
+		"endPointing": "End Pointing",
+		"nextRound": "Next Round"
+	},
+	"gameFinished": {
+		"title": "Game Finished",
+		"description": "Thanks for playing! The game has ended.",
+		"backToList": "Back to Game List",
+		"deleteGame": "Delete game"
+	},
+	"userProfile": {
+		"uploading": "Uploading...",
+		"uploadAvatar": "Upload Avatar",
+		"profile": "Profile",
+		"signOut": "Sign out"
+	},
+	"playerPopover": {
+		"unknownPlayer": "Unknown Player",
+		"online": "Online ✅",
+		"offline": "Offline ❌",
+		"viewProfile": "View profile",
+		"score": "Score: {{score}}"
 	}
 }
+
