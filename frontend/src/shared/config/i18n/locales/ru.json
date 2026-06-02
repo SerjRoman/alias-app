@@ -67,7 +67,8 @@
 		"lobby": "Лобби",
 		"inProgress": "В процессе",
 		"finished": "Завершена",
-		"started": "Началась"
+		"started": "Началась",
+		"noSuchGame": "Игра не найдена. Вернуться к списку игр"
 	},
 	"api": {
 		"errors": {
@@ -139,7 +140,9 @@
 		"startGame": "Начать игру",
 		"joined": "Присоединился",
 		"joinTeam": "Вступить в команду",
-		"spectators": "Зрители / Без команды"
+		"spectators": "Зрители / Без команды",
+		"deleteTeamTooltip": "Удалить команду",
+		"ready": "Готов!"
 	},
 	"activeGame": {
 		"score": "Очки: {{score}}",
@@ -170,6 +173,23 @@
 		"online": "В сети ✅",
 		"offline": "Не в сети ❌",
 		"viewProfile": "Посмотреть профиль",
-		"score": "Очки: {{score}}"
+		"score": "Очки: {{score}}",
+		"scoreLabel": "Очки"
+	},
+	"gameSettings": {
+		"title": "Настройки игры",
+		"copyLink": "Скопировать ссылку",
+		"copied": "Скопировано!",
+		"copyInviteLink": "Скопировать ссылку-приглашение",
+		"roundTime": "Время раунда (сек):",
+		"pointsToWin": "Очки для победы:",
+		"wordsDifficulty": "Сложность слов:",
+		"wordsLanguage": "Язык слов:",
+		"voiceChat": "Голосовой чат",
+		"difficulty": {
+			"easy": "Легко",
+			"medium": "Средне",
+			"hard": "Сложно"
+		}
 	}
 }

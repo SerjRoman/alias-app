@@ -4,6 +4,7 @@ import styles from "./round-in-progress-block.module.css";
 import { Check, X } from "lucide-react";
 import { useGameSlice, useGameShortcuts, type WordState } from "@entities/game";
 import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 interface Props {
 	roomId: string;
@@ -18,6 +19,7 @@ export function RoundInProgressBlock({
 	endTime,
 	words,
 }: Readonly<Props>) {
+	const { t } = useTranslation();
 	const { currentWord } = useGameSlice();
 	const { nextWord } = useActiveGameActions();
 
@@ -33,7 +35,7 @@ export function RoundInProgressBlock({
 			{isGuesser && (
 				<div className={styles.wordCard}>
 					<div className={styles.secretWord}>
-						{currentWord?.text || "Loading..."}
+						{currentWord?.text || t("common.loading")}
 					</div>
 					<div className={styles.actionButtons}>
 						<Button
@@ -41,14 +43,14 @@ export function RoundInProgressBlock({
 							onClick={() => nextWord(roomId, true)}
 						>
 							<X size={24} />
-							<div>SKIP (-1)</div>
+							<div>{t("activeGame.skip")}</div>
 						</Button>
 						<Button
 							className={styles.btnNext}
 							onClick={() => nextWord(roomId, false)}
 						>
 							<Check size={24} />
-							<div>CORRECT (+1)</div>
+							<div>{t("activeGame.correct")}</div>
 						</Button>
 					</div>
 				</div>

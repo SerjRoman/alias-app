@@ -67,7 +67,8 @@
 		"lobby": "Лоббі",
 		"inProgress": "В процесі",
 		"finished": "Завершена",
-		"started": "Розпочалася"
+		"started": "Розпочалася",
+		"noSuchGame": "Гра не знайдена. Повернутися до списку ігор"
 	},
 	"api": {
 		"errors": {
@@ -139,7 +140,9 @@
 		"startGame": "Розпочати гру",
 		"joined": "Приєднався",
 		"joinTeam": "Приєднатися до команди",
-		"spectators": "Глядачі / Без команди"
+		"spectators": "Глядачі / Без команди",
+		"deleteTeamTooltip": "Вилучити команду",
+		"ready": "Готовий!"
 	},
 	"activeGame": {
 		"score": "Очки: {{score}}",
@@ -170,6 +173,23 @@
 		"online": "В мережі ✅",
 		"offline": "Поза мережею ❌",
 		"viewProfile": "Переглянути профіль",
-		"score": "Очки: {{score}}"
+		"score": "Очки: {{score}}",
+		"scoreLabel": "Очки"
+	},
+	"gameSettings": {
+		"title": "Налаштування гри",
+		"copyLink": "Скопіювати посилання",
+		"copied": "Скопійовано!",
+		"copyInviteLink": "Скопіювати посилання-запрошення",
+		"roundTime": "Час раунду (сек):",
+		"pointsToWin": "Очки для перемоги:",
+		"wordsDifficulty": "Складність слів:",
+		"wordsLanguage": "Мова слів:",
+		"voiceChat": "Голосовий чат",
+		"difficulty": {
+			"easy": "Легко",
+			"medium": "Середньо",
+			"hard": "Складно"
+		}
 	}
 }

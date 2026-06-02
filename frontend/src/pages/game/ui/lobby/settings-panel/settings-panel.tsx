@@ -6,11 +6,13 @@ import type { GameStateDetails, GameWordsLevel } from "@entities/game";
 import { socketClient } from "@shared/api";
 import { Button } from "@shared/ui/button";
 import { Select } from "@shared/ui/select";
+import { useTranslation } from "react-i18next";
 
 export function SettingsPanel({
 	game,
 	isOwner,
 }: Readonly<{ game: GameStateDetails; isOwner: boolean }>) {
+	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const isCopiedTimeoutRef = useRef<number | null>(null);
 
@@ -120,21 +122,21 @@ export function SettingsPanel({
 		<div className={styles.panel}>
 			<div className={styles.header}>
 				<h3 className={styles.title}>
-					<Settings size={18} /> Game Settings
+					<Settings size={18} /> {t("gameSettings.title")}
 				</h3>
 				<Button
 					className={`${styles.copyButton} ${isCopied ? styles.copied : ""}`}
 					onClick={handleCopyLink}
-					title="Copy invite link"
+					title={t("gameSettings.copyInviteLink")}
 				>
 					{isCopied ? <Check size={14} /> : <Copy size={14} />}
-					{isCopied ? "Copied!" : "Copy Link"}
+					{isCopied ? t("gameSettings.copied") : t("gameSettings.copyLink")}
 				</Button>
 			</div>
 
 			<div className={styles.formGroup}>
 				<label className={styles.label}>
-					<span>Round Time (sec):</span>
+					<span>{t("gameSettings.roundTime")}</span>
 					<input
 						ref={timeInputRef}
 						className={styles.inputField}
@@ -146,7 +148,7 @@ export function SettingsPanel({
 				</label>
 
 				<label className={styles.label}>
-					<span>Points to Win:</span>
+					<span>{t("gameSettings.pointsToWin")}</span>
 					<input
 						ref={pointsInputRef}
 						className={styles.inputField}
@@ -158,7 +160,7 @@ export function SettingsPanel({
 				</label>
 
 				<label className={styles.label}>
-					<span>Words Difficulty:</span>
+					<span>{t("gameSettings.wordsDifficulty")}</span>
 					<Select
 						ref={levelSelectRef}
 						className={styles.inputField}
@@ -168,14 +170,14 @@ export function SettingsPanel({
 					>
 						{["easy", "medium", "hard"].map((lvl) => (
 							<option key={lvl} value={lvl}>
-								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
+								{t(`gameSettings.difficulty.${lvl}` as "gameSettings.difficulty.easy" | "gameSettings.difficulty.medium" | "gameSettings.difficulty.hard")}
 							</option>
 						))}
 					</Select>
 				</label>
 
 				<label className={styles.label}>
-					<span>Words Language:</span>
+					<span>{t("gameSettings.wordsLanguage")}</span>
 					<Select
 						ref={languageSelectRef}
 						className={styles.inputField}
@@ -197,7 +199,7 @@ export function SettingsPanel({
 						onChange={(e) => emitCurrentSettings(undefined, e.target.checked)}
 						disabled={!isOwner}
 					/>
-					<span>Voice Chat</span>
+					<span>{t("gameSettings.voiceChat")}</span>
 				</label>
 			</div>
 		</div>

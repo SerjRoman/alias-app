@@ -10,12 +10,14 @@ import {
 	usePlayersDisplayMap,
 } from "@entities/game";
 import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 export function LobbyTeamView({
 	team,
 }: Readonly<{
 	team: TeamState;
 }>) {
+	const { t } = useTranslation();
 	const currentUserId = useAuth((state) => state.user!.id);
 	const roomId = useGameSlice((state) => state.game!.id);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
@@ -35,7 +37,7 @@ export function LobbyTeamView({
 					<Button
 						className={styles.deleteButton}
 						onClick={() => deleteTeam(roomId, team.id)}
-						title="Delete team"
+						title={t("lobby.deleteTeamTooltip")}
 						variant="danger"
 					>
 						<Trash2 size={16} />
@@ -44,13 +46,13 @@ export function LobbyTeamView({
 			}
 			footer={
 				isMyTeam ? (
-					<div className={styles.joinedText}>Joined</div>
+					<div className={styles.joinedText}>{t("lobby.joined")}</div>
 				) : (
 					<Button
 						className={styles.joinButton}
 						onClick={() => joinTeam(roomId, team.id)}
 					>
-						Join Team
+						{t("lobby.joinTeam")}
 					</Button>
 				)
 			}
@@ -68,7 +70,7 @@ export function LobbyTeamView({
 							playerName={
 								playerDisplayInfo?.name ||
 								player.name ||
-								"Unknown Player"
+								t("playerPopover.unknownPlayer")
 							}
 							triggerClassName={styles.triggerButton}
 						/>

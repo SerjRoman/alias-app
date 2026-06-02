@@ -3,6 +3,7 @@ import { useActiveGameActions } from "../../../api";
 import type { WordState } from "@entities/game";
 import { Plus, Minus } from "lucide-react";
 import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 export interface RoundPointingProps {
 	roomId: string;
@@ -15,6 +16,7 @@ export function RoundPointing({
 	words,
 	isOwner,
 }: Readonly<RoundPointingProps>) {
+	const { t } = useTranslation();
 	const { endPointing, changeWordScore } = useActiveGameActions();
 	const scoreColor = (score: number) => {
 		if (score > 0) return "#5fca78";
@@ -63,7 +65,7 @@ export function RoundPointing({
 					}}
 					className={styles.nextRoundBtn}
 				>
-					End Pointing
+					{t("activeGame.endPointing")}
 				</Button>
 			)}
 		</div>

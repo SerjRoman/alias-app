@@ -4,6 +4,7 @@ import styles from "./round-pending-controls.module.css";
 import { ToggleRoundReadyButton } from "../round-ready-button/round-ready-button";
 import { Button } from "@shared/ui/button";
 import { useGameShortcuts } from "@entities/game";
+import { useTranslation } from "react-i18next";
 
 interface RoundPendingControlsProps {
 	roomId: string;
@@ -20,6 +21,7 @@ export function RoundPendingControls({
 	isAllReady,
 	myReadyState,
 }: Readonly<RoundPendingControlsProps>) {
+	const { t } = useTranslation();
 	const { startRound } = useActiveGameActions();
 
 	useGameShortcuts({
@@ -28,7 +30,7 @@ export function RoundPendingControls({
 
 	return (
 		<div className={styles.container}>
-			<h2>Prepare for the Round</h2>
+			<h2>{t("activeGame.prepareTitle")}</h2>
 			{isMyTeamPlaying ? (
 				<ToggleRoundReadyButton
 					roomId={roomId}
@@ -36,7 +38,7 @@ export function RoundPendingControls({
 				/>
 			) : (
 				<p className={styles.spectatorMessage}>
-					Waiting for the playing team to be ready...
+					{t("activeGame.waitingForReady")}
 				</p>
 			)}
 
@@ -47,7 +49,7 @@ export function RoundPendingControls({
 					disabled={!isAllReady}
 				>
 					<Play fill="white" size={24} />
-					{isAllReady ? "Start Round" : "Waiting for teammates..."}
+					{isAllReady ? t("admin.startRound") : t("activeGame.waitingForTeammates")}
 				</Button>
 			)}
 		</div>

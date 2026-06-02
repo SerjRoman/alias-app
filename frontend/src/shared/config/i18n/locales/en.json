@@ -67,7 +67,8 @@
 		"lobby": "Lobby",
 		"inProgress": "In Progress",
 		"finished": "Finished",
-		"started": "Started"
+		"started": "Started",
+		"noSuchGame": "No such game. Go back to game list"
 	},
 	"api": {
 		"errors": {
@@ -139,7 +140,9 @@
 		"startGame": "Start Game",
 		"joined": "Joined",
 		"joinTeam": "Join Team",
-		"spectators": "Spectators / Unassigned"
+		"spectators": "Spectators / Unassigned",
+		"deleteTeamTooltip": "Delete team",
+		"ready": "Ready!"
 	},
 	"activeGame": {
 		"score": "Score: {{score}}",
@@ -170,7 +173,24 @@
 		"online": "Online ✅",
 		"offline": "Offline ❌",
 		"viewProfile": "View profile",
-		"score": "Score: {{score}}"
+		"score": "Score: {{score}}",
+		"scoreLabel": "Score"
+	},
+	"gameSettings": {
+		"title": "Game Settings",
+		"copyLink": "Copy Link",
+		"copied": "Copied!",
+		"copyInviteLink": "Copy invite link",
+		"roundTime": "Round Time (sec):",
+		"pointsToWin": "Points to Win:",
+		"wordsDifficulty": "Words Difficulty:",
+		"wordsLanguage": "Words Language:",
+		"voiceChat": "Voice Chat",
+		"difficulty": {
+			"easy": "Easy",
+			"medium": "Medium",
+			"hard": "Hard"
+		}
 	}
 }
 

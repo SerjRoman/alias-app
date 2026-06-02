@@ -10,8 +10,10 @@ import { useGameSlice } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
 import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 export function LobbyView() {
+	const { t } = useTranslation();
 	const [newTeamName, setNewTeamName] = useState("");
 	const { game } = useGameSlice();
 	const { user } = useAuth();
@@ -45,7 +47,7 @@ export function LobbyView() {
 
 			<div className={styles.teamContainer}>
 				<div className={styles.teamListHeader}>
-					<h2>Teams</h2>
+					<h2>{t("lobby.teams")}</h2>
 					{isOwner && (
 						<div className={styles.createTeamWrapper}>
 							<input
@@ -53,7 +55,7 @@ export function LobbyView() {
 								className={styles.teamNameInput}
 								value={newTeamName}
 								onChange={(e) => setNewTeamName(e.target.value)}
-								placeholder="New Team Name"
+								placeholder={t("lobby.newTeamPlaceholder")}
 								onKeyDown={(e) =>
 									e.key === "Enter" && handleCreateTeam()
 								}
@@ -63,7 +65,7 @@ export function LobbyView() {
 								disabled={!newTeamName.trim()}
 								className={styles.addTeamButton}
 							>
-								<Plus size={16} /> Add
+								<Plus size={16} /> {t("lobby.addTeam")}
 							</Button>
 						</div>
 					)}
@@ -76,7 +78,7 @@ export function LobbyView() {
 				</div>
 
 				{game.teams.length === 0 && (
-					<p className={styles.emptyMessage}>No teams created yet.</p>
+					<p className={styles.emptyMessage}>{t("lobby.noTeams")}</p>
 				)}
 			</div>
 			{allAssignedIds.has(user.id) && (
@@ -94,7 +96,7 @@ export function LobbyView() {
 						className={styles.startGameButton}
 						disabled={game.teams.length < 2 || !isAllReady}
 					>
-						<Play fill="currentColor" size={20} /> Start Game
+						<Play fill="currentColor" size={20} /> {t("lobby.startGame")}
 					</Button>
 				</div>
 			)}

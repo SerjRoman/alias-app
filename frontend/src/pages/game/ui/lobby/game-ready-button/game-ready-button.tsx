@@ -1,5 +1,6 @@
 import { BaseReadyButton } from "@shared/ui/base-ready-button";
 import { readyApi } from "../../../api/ready-api";
+import { useTranslation } from "react-i18next";
 
 interface ToggleReadyProps {
 	roomId: string;
@@ -12,12 +13,14 @@ export function ToggleGameReadyButton({
 	isReady,
 	disabled,
 }: Readonly<ToggleReadyProps>) {
+	const { t } = useTranslation();
 	return (
 		<BaseReadyButton
 			isReady={isReady}
 			disabled={disabled}
 			onClick={() => readyApi.toggleGameReady(roomId)}
-			labelNotReady="Ready to Start"
+			labelNotReady={t("lobby.readyToStart")}
+			labelReady={t("lobby.ready")}
 		/>
 	);
 }

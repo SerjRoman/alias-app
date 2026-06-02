@@ -2,6 +2,7 @@ import styles from "./round-finished-results.module.css";
 import { useActiveGameActions } from "../../../api";
 import { useGameShortcuts, type WordState } from "@entities/game";
 import { Button } from "@shared/ui/button";
+import { useTranslation } from "react-i18next";
 
 export interface RoundFinishedResultsProps {
 	roomId: string;
@@ -14,6 +15,7 @@ export function RoundFinishedResults({
 	words,
 	isOwner,
 }: Readonly<RoundFinishedResultsProps>) {
+	const { t } = useTranslation();
 	const { nextRound } = useActiveGameActions();
 	
 	useGameShortcuts({
@@ -51,7 +53,7 @@ export function RoundFinishedResults({
 					}}
 					className={styles.nextRoundBtn}
 				>
-					Next Round
+					{t("activeGame.nextRound")}
 				</Button>
 			)}
 		</div>

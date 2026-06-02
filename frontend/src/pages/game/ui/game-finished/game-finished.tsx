@@ -4,8 +4,10 @@ import { socketClient } from "@shared/api";
 import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
 import { Button } from "@shared/ui";
+import { useTranslation } from "react-i18next";
 
 export function GameFinished() {
+	const { t } = useTranslation();
 	const { user } = useAuth();
 	const { game } = useGameSlice();
 	const navigate = useNavigate();
@@ -17,10 +19,10 @@ export function GameFinished() {
 
 	return (
 		<div>
-			<h2>Game Finished</h2>
-			<p>Thanks for playing! The game has ended.</p>
+			<h2>{t("gameFinished.title")}</h2>
+			<p>{t("gameFinished.description")}</p>
 			<Button onClick={() => navigate("/games")}>
-				Back to Game List
+				{t("gameFinished.backToList")}
 			</Button>
 			{game.ownerId === user.id && (
 				<Button
@@ -30,7 +32,7 @@ export function GameFinished() {
 						navigate("/games");
 					}}
 				>
-					Delete game
+					{t("gameFinished.deleteGame")}
 				</Button>
 			)}
 			<img src={winnerImage} alt="Winner" />

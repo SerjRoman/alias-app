@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next";
 
 function AudioHandlingWrapper({ children }: { children: React.ReactNode }) {
 	const { canPlayAudio, startAudio } = useAudioPlayback();
-    const {t} = useTranslation();
+	const { t } = useTranslation();
 	useEffect(() => {
 		const handleFirstInteraction = () => {
 			if (!canPlayAudio) {
@@ -53,6 +53,7 @@ function AudioHandlingWrapper({ children }: { children: React.ReactNode }) {
 }
 
 export function GamePage() {
+	const { t } = useTranslation();
 	const [searchParams] = useSearchParams();
 	const roomId = searchParams.get("id");
 	const code = searchParams.get("code");
@@ -60,17 +61,22 @@ export function GamePage() {
 	const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
 
 	const { setVoiceToken, voiceToken, clearVoiceToken } = useGameVoice();
-	const { data } = useQuery("get", "/games/{id}/voice-token", {
-		params: {
-			path: {
-				id: game?.id || roomId || "",
+	const { data } = useQuery(
+		"get",
+		"/games/{id}/voice-token",
+		{
+			params: {
+				path: {
+					id: game?.id || roomId || "",
+				},
 			},
 		},
-	}, {
-		enabled: !!game?.settings.isVoiceChatEnabled && !!(game?.id || roomId),
-	});
-	const liveKitUrl =
-		import.meta.env.VITE_LIVEKIT_URL
+		{
+			enabled:
+				!!game?.settings.isVoiceChatEnabled && !!(game?.id || roomId),
+		},
+	);
+	const liveKitUrl = import.meta.env.VITE_LIVEKIT_URL;
 
 	const { user } = useAuth();
 	useGameSync();
@@ -83,7 +89,13 @@ export function GamePage() {
 		if (data?.token && data.token !== voiceToken) {
 			setVoiceToken(data.token);
 		}
-	}, [data, setVoiceToken, voiceToken, game?.settings.isVoiceChatEnabled, clearVoiceToken]);
+	}, [
+		data,
+		setVoiceToken,
+		voiceToken,
+		game?.settings.isVoiceChatEnabled,
+		clearVoiceToken,
+	]);
 
 	useEffect(() => {
 		return () => {
@@ -104,7 +116,7 @@ export function GamePage() {
 		);
 	}
 	if (!game) {
-		return <div>No such game. Go back to game list</div>;
+		return <div>{t("games.noSuchGame")}</div>;
 	}
 
 	const isAdmin = game.ownerId === user.id;
@@ -147,7 +159,7 @@ export function GamePage() {
 					<LiveKitRoom
 						token={voiceToken}
 						serverUrl={liveKitUrl}
-						connect={true}
+						connect={false}
 						audio={true}
 						video={false}
 					>

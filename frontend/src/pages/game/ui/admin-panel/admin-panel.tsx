@@ -47,7 +47,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 	return (
 		<div className={styles.panel}>
 			<div className={styles.header}>
-				<h3 className={styles.title}>Панель администратора</h3>
+				<h3 className={styles.title}>{t("admin.title")}</h3>
 				<Button
 					onClick={onClose}
 					variant="secondary"
@@ -59,7 +59,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 
 			{currentRound?.status === "IN_PROGRESS" && (
 				<div className={styles.row}>
-					<span>Время:</span>
+					<span>{t("admin.time")}</span>
 					<div className={styles.controls}>
 						<Button
 							variant="secondary"
@@ -90,14 +90,14 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 			)}
 			{isGameInLobby && (
 				<div className={styles.row}>
-					<span>Переместить игрока в команду:</span>
+					<span>{t("admin.movePlayerToTeam")}</span>
 					<Select
 						className={styles.select}
 						value={selectedPlayerId}
 						onChange={(e) => setSelectedPlayerId(e.target.value)}
 					>
 						<option value="" disabled>
-							Выберите игрока
+							{t("admin.selectPlayer")}
 						</option>
 						{game.players?.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -111,7 +111,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						onChange={(e) => setSelectedTeamId(e.target.value)}
 					>
 						<option value="" disabled>
-							Выберите команду
+							{t("admin.selectTeam")}
 						</option>
 						{game.teams?.map((t) => (
 							<option key={t.id} value={t.id}>
@@ -132,7 +132,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						}}
 						disabled={!selectedPlayerId}
 					>
-						Назначить
+						{t("admin.assign")}
 					</Button>
 				</div>
 			)}
@@ -147,20 +147,20 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 							game.teams.length < 1 || !game.players?.length
 						}
 					>
-						Перетасовать игроков
+						{t("admin.shuffle")}
 					</Button>
 				</div>
 			)}
 			{game.currentRound?.status === "PENDING" && (
 				<div className={styles.row}>
-					<span>Ведущий:</span>
+					<span>{t("admin.guesser")}</span>
 					<Select
 						className={styles.select}
 						value={selectedGuesserId}
 						onChange={(e) => setSelectedGuesserId(e.target.value)}
 					>
 						<option value="" disabled>
-							Выберите игрока
+							{t("admin.selectPlayer")}
 						</option>
 						{teamPlayers.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -176,13 +176,13 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						}}
 						disabled={!selectedGuesserId}
 					>
-						Назначить
+						{t("admin.assign")}
 					</Button>
 				</div>
 			)}
 
 			<div className={styles.row}>
-				<span>Исключить / Забанить:</span>
+				<span>{t("admin.kickOrBan")}</span>
 				<div className={styles.controls}>
 					<Select
 						className={styles.select}
@@ -190,7 +190,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						onChange={(e) => setSelectedKickId(e.target.value)}
 					>
 						<option value="" disabled>
-							Выберите игрока
+							{t("admin.selectPlayer")}
 						</option>
 						{game.players?.map((p) => (
 							<option key={p.id} value={p.id}>
@@ -250,14 +250,14 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						onClick={startRound}
 						disabled={currentRound.status !== "PENDING"}
 					>
-						Запустить раунд
+						{t("admin.startRound")}
 					</Button>
 					<Button
 						variant="primary"
 						onClick={startPointing}
 						disabled={currentRound.status !== "IN_PROGRESS"}
 					>
-						Запустить оценивание
+						{t("admin.startPointing")}
 					</Button>
 				</div>
 			)}
@@ -266,7 +266,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 				style={{ marginTop: "auto" }}
 				onClick={endGame}
 			>
-				Завершить игру
+				{t("admin.endGame")}
 			</Button>
 		</div>
 	);

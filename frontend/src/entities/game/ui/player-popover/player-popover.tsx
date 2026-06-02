@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, Crown, Volume2 } from "lucide-react";
 import { USER_DEFAULT_AVATAR_URL } from "@shared/lib";
+import { useTranslation } from "react-i18next";
 
 interface PlayerPopoverProps {
 	renderActions?: (playerId: string) => ReactNode;
@@ -34,8 +35,9 @@ export function PlayerPopover({
 	playerUsername,
 	triggerClassName,
 }: Readonly<PlayerPopoverProps>) {
+	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const displayName = playerName || "Unknown Player";
+	const displayName = playerName || t("playerPopover.unknownPlayer");
 	const displayAvatar = playerAvatar || USER_DEFAULT_AVATAR_URL;
 	const triggerClassNames = [styles.triggerButton, triggerClassName]
 		.filter(Boolean)
@@ -116,15 +118,15 @@ export function PlayerPopover({
 								)}
 								{playerScore != undefined && (
 									<p className={styles.popoverText}>
-										Score: <strong>{playerScore}</strong>
+										{t("playerPopover.scoreLabel")}: <strong>{playerScore}</strong>
 									</p>
 								)}
 
 								{playerIsOnline != undefined && (
 									<p className={styles.popoverText}>
 										{playerIsOnline
-											? "Online ✅"
-											: "Offline ❌"}
+											? t("playerPopover.online")
+											: t("playerPopover.offline")}
 									</p>
 								)}
 							</div>
@@ -134,7 +136,7 @@ export function PlayerPopover({
 								className={styles.buttonViewProfile}
 								onClick={() => navigate(`/profile/${playerId}`)}
 							>
-								View profile
+								{t("playerPopover.viewProfile")}
 							</button>
 						)}
 						{renderActions?.(playerId)}

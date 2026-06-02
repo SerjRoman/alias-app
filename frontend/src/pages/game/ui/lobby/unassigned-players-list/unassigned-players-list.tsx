@@ -5,6 +5,7 @@ import {
 	useGameSlice,
 	usePlayersDisplayMap,
 } from "@entities/game";
+import { useTranslation } from "react-i18next";
 
 interface UnassignedPlayersListProps {
 	players: PlayerState[];
@@ -13,13 +14,14 @@ interface UnassignedPlayersListProps {
 export function UnassignedPlayersList({
 	players,
 }: Readonly<UnassignedPlayersListProps>) {
+	const { t } = useTranslation();
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const playersDisplayMap = usePlayersDisplayMap(players);
 	if (players.length === 0) return null;
 
 	return (
 		<div className={styles.container}>
-			<h4>Spectators / Unassigned</h4>
+			<h4>{t("lobby.spectators")}</h4>
 			<div className={styles.list}>
 				{players.map((p) => {
 					const playerDisplayInfo = playersDisplayMap.get(p.id);
@@ -35,7 +37,7 @@ export function UnassignedPlayersList({
 							playerName={
 								playerDisplayInfo?.name ||
 								p.name ||
-								"Unknown Player"
+								t("playerPopover.unknownPlayer")
 							}
 						/>
 					);
