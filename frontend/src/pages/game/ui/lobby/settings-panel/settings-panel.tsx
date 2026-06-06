@@ -190,8 +190,8 @@ export function SettingsPanel({
 						onChange={handleLanguageChange}
 						disabled={!isOwner}
 					>
-						<option value="ru">Русский (RU)</option>
-						<option value="en">English (EN)</option>
+						<option value="ru">{t("games.languageRu")} (RU)</option>
+						<option value="en">{t("games.languageEn")} (EN)</option>
 					</Select>
 				</label>
 
