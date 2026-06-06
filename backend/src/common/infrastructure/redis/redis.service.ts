@@ -15,16 +15,21 @@ export class RedisService
 	private readonly logger = new Logger(RedisService.name);
 	constructor(private readonly configService: ConfigService) {
 		const start = Date.now();
-		super({
-			host:
-				configService.get<string>("REDIS_SERVICE_HOST") ?? "localhost",
-			port: configService.get<number>("REDIS_SERVICE_PORT") ?? 6379,
-			password:
-				configService.get<string>("REDIS_SERVICE_PASSWORD") ||
-				undefined,
-			maxLoadingRetryTime: 5,
-			enableOfflineQueue: true,
-		});
+		const isProd = configService.get<string>("NODE_ENV") === "production";
+		if (isProd) {
+			super(configService.getOrThrow<string>("REDIS_URL"));
+		} else
+			super({
+				host:
+					configService.get<string>("REDIS_SERVICE_HOST") ??
+					"localhost",
+				port: configService.get<number>("REDIS_SERVICE_PORT") ?? 6379,
+				password:
+					configService.get<string>("REDIS_SERVICE_PASSWORD") ||
+					undefined,
+				maxLoadingRetryTime: 5,
+				enableOfflineQueue: true,
+			});
 
 		this.on("connect", () => {
 			this.logger.log("Redis connecting...");
