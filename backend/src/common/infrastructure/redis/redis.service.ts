@@ -16,7 +16,7 @@ export class RedisService
 	constructor(private readonly configService: ConfigService) {
 		super(
 			configService.get<string>("NODE_ENV") === "production"
-				? configService.getOrThrow("REDIS_URL")
+				? configService.getOrThrow("REDIS_SERVICE_URL")
 				: {
 						host:
 							configService.get<string>("REDIS_SERVICE_HOST") ??
