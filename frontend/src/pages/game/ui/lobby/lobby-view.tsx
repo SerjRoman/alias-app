@@ -9,7 +9,7 @@ import { useAuth } from "@entities/auth";
 import { useGameSlice } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
-import { Button } from "@shared/ui/button";
+import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
 export function LobbyView() {
@@ -60,13 +60,15 @@ export function LobbyView() {
 									e.key === "Enter" && handleCreateTeam()
 								}
 							/>
-							<Button
-								onClick={handleCreateTeam}
-								disabled={!newTeamName.trim()}
-								className={styles.addTeamButton}
-							>
-								<Plus size={16} /> {t("lobby.addTeam")}
-							</Button>
+							<Tooltip text={t("tooltips.addTeam")}>
+								<Button
+									onClick={handleCreateTeam}
+									disabled={!newTeamName.trim()}
+									className={styles.addTeamButton}
+								>
+									<Plus size={16} /> {t("lobby.addTeam")}
+								</Button>
+							</Tooltip>
 						</div>
 					)}
 				</div>
@@ -91,13 +93,16 @@ export function LobbyView() {
 			)}
 			{isOwner && (
 				<div className={styles.startGameContainer}>
-					<Button
-						onClick={() => startGame(game.id)}
-						className={styles.startGameButton}
-						disabled={game.teams.length < 2 || !isAllReady}
-					>
-						<Play fill="currentColor" size={20} /> {t("lobby.startGame")}
-					</Button>
+					<Tooltip text={t("tooltips.startGame")} position="top">
+						<Button
+							onClick={() => startGame(game.id)}
+							className={styles.startGameButton}
+							disabled={game.teams.length < 2 || !isAllReady}
+						>
+							<Play fill="currentColor" size={20} />{" "}
+							{t("lobby.startGame")}
+						</Button>
+					</Tooltip>
 				</div>
 			)}
 		</div>

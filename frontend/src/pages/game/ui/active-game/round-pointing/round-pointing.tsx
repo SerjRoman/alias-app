@@ -2,7 +2,7 @@ import styles from "./round-pointing.module.css";
 import { useActiveGameActions } from "../../../api";
 import type { WordState } from "@entities/game";
 import { Plus, Minus } from "lucide-react";
-import { Button } from "@shared/ui/button";
+import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
 export interface RoundPointingProps {
@@ -59,14 +59,16 @@ export function RoundPointing({
 				))}
 			</div>
 			{isOwner && (
-				<Button
-					onClick={() => {
-						endPointing(roomId);
-					}}
-					className={styles.nextRoundBtn}
-				>
-					{t("activeGame.endPointing")}
-				</Button>
+				<Tooltip text={t("tooltips.endPointing")} position="top">
+					<Button
+						onClick={() => {
+							endPointing(roomId);
+						}}
+						className={styles.nextRoundBtn}
+					>
+						{t("activeGame.endPointing")}
+					</Button>
+				</Tooltip>
 			)}
 		</div>
 	);

@@ -5,6 +5,9 @@ import { API_URL } from "./urls";
 
 export const client = createFetchClient<paths>({
 	baseUrl: API_URL,
+	headers: {
+		"ngrok-skip-browser-warning": "true",
+	},
 });
 
 let getTokenProvider: () => string | null = () => null;

@@ -68,7 +68,14 @@
 		"inProgress": "In Progress",
 		"finished": "Finished",
 		"started": "Started",
-		"noSuchGame": "No such game. Go back to game list"
+		"noSuchGame": "No such game. Go back to game list",
+		"assistant": {
+			"availableGames": "Here you can see all available games. You can join a public game or enter a private lobby using an access code provided by the organizer.",
+			"codeInputFocus": "To connect to this private game, you must enter the correct access code, otherwise you won't be able to join.",
+			"createFormFocus": "To create a new game, configure the parameters: enter a lobby name, specify round duration, points to win, privacy, difficulty, and words language."
+		},
+		"languageEn": "English",
+		"languageRu": "Russian"
 	},
 	"api": {
 		"errors": {
@@ -144,6 +151,8 @@
 		"joinTeam": "Join Team",
 		"spectators": "Spectators / Unassigned",
 		"deleteTeamTooltip": "Delete team",
+		"deleteTeamTitle": "Delete Team",
+		"deleteTeamConfirm": "Are you sure you want to delete the team {{name}}?",
 		"ready": "Ready!"
 	},
 	"activeGame": {
@@ -168,7 +177,8 @@
 		"uploading": "Uploading...",
 		"uploadAvatar": "Upload Avatar",
 		"profile": "Profile",
-		"signOut": "Sign out"
+		"signOut": "Sign out",
+		"disableAssistant": "Disable Assistant"
 	},
 	"playerPopover": {
 		"unknownPlayer": "Unknown Player",
@@ -192,7 +202,60 @@
 			"easy": "Easy",
 			"medium": "Medium",
 			"hard": "Hard"
-		}
+		},
+		"myMicrophone": "My Microphone"
+	},
+	"voice": {
+		"mute": "Mute microphone",
+		"unmute": "Unmute microphone",
+		"join": "Connect to voice chat",
+		"leave": "Disconnect from voice chat",
+		"selectDevice": "Select audio device",
+		"connectedTip": "You have successfully connected to the voice chat! You can mute your microphone, change your input device, or leave the voice chat using the panel in the bottom-left corner."
+	},
+	"gameMaster": {
+		"title": "Game Master",
+		"lobby": {
+			"admin": "You are the game creator! You can change round time, difficulty, and points to win in the settings panel. When all teams are ready, click 'Start Game'!",
+			"player": "Welcome to the lobby! Join a team. Once you're in a team, don't forget to click 'Ready'!",
+			"noTeams": "To start the game, you need to divide into teams. There must be at least 2 teams."
+		},
+		"pending": {
+			"myTurnExplainer": "You are explaining words in this round! Make sure you are ready, and click 'Ready'. You will have limited time.",
+			"myTurnGuesser": "Your team is playing! Your teammate will explain words to you. Get ready to guess and click 'Ready'.",
+			"otherTurn": "Another team is playing now. You can relax and listen. Waiting for them to get ready."
+		},
+		"inProgress": {
+			"myTurnExplainer": "Fast! Explain the word on the screen! Use synonyms, descriptions, or gestures. Do not use root words! Press 🟢 for correct or 🔴 to skip.",
+			"myTurnGuesser": "Listen closely to your teammate! Guess words and say them out loud so they can mark it.",
+			"otherTurn": "Round in progress! Listen carefully to the opponents. If they break the rules, you can point it out!"
+		},
+		"pointing": {
+			"admin": "Time to verify answers! Click on words in the list to toggle status (correct/incorrect) if there was a mistake. When done, click 'End Pointing'.",
+			"player": "Pointing is in progress. The host is reviewing the round answers. Next round starts soon!"
+		},
+		"finished": {
+			"admin": "Round finished! Check out the results. Click 'Next Round' when everyone is ready to continue.",
+			"player": "Round finished! Review the results and get ready for the next round."
+		},
+		"gameFinished": "Game finished! Great match! Congratulations to the winners 🎉. You can go back to the game list or start a new lobby."
+	},
+	"tooltips": {
+		"copyLink": "Copy invite link to clipboard",
+		"addTeam": "Create a new team with the entered name",
+		"startGame": "Start the game (Requires at least 2 teams and all players ready)",
+		"deleteTeam": "Delete this team",
+		"joinTeam": "Join this team",
+		"kickPlayer": "Kick player from the game",
+		"ready": "Confirm you are ready to start the round",
+		"correct": "Mark the word as correct (+1 point)",
+		"skip": "Skip the word (-1 point)",
+		"timer": "Remaining time for the round",
+		"nextRound": "Advance to the next round",
+		"endPointing": "Confirm answers and distribute scores",
+		"settingsToggle": "Toggle admin panel settings"
+	},
+	"assistant": {
+		"title": "Game Assistant"
 	}
 }
-

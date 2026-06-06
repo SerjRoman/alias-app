@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@entities/auth";
 import { Button } from "@shared/ui/button";
 import { useTranslation } from "react-i18next";
+import { Assistant, useAssistant } from "@shared/ui";
+import { useUserSettings } from "@entities/user-profile";
 
 export function GamesPage() {
 	const {
@@ -23,6 +25,8 @@ export function GamesPage() {
 		{ refetchInterval: 5000 },
 	);
 	const { t } = useTranslation();
+	const { isAssistantDisabled } = useUserSettings();
+	const assistantState = useAssistant(t("games.assistant.availableGames"));
 
 	const sortedGames = games
 		? [...games].sort(
@@ -94,11 +98,13 @@ export function GamesPage() {
 						<GameList
 							games={sortedGames as GameState[]}
 							onJoin={handleJoin}
+							showAssistant={assistantState.show}
 						/>
 					)
 				)}
 			</div>
-			<CreateGameForm />
+			<CreateGameForm showAssistant={assistantState.show} />
+			{!isAssistantDisabled && <Assistant {...assistantState} />}
 		</div>
 	);
 }

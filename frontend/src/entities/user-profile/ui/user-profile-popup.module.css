@@ -53,6 +53,30 @@
 	display: none;
 }
 
+.settingsRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px 0;
+	border-top: 1px solid var(--color-border);
+	border-bottom: 1px solid var(--color-border);
+	font-size: 0.9rem;
+}
+
+.settingsRow label {
+	cursor: pointer;
+	user-select: none;
+	color: var(--color-text);
+}
+
+.settingsRow input[type="checkbox"] {
+	cursor: pointer;
+	width: 16px;
+	height: 16px;
+}
+
+
 
 
 

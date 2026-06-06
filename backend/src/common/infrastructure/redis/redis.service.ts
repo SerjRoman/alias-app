@@ -14,27 +14,18 @@ export class RedisService
 {
 	private readonly logger = new Logger(RedisService.name);
 	constructor(private readonly configService: ConfigService) {
-		super(
-			(() => {
-				const isProd = configService.get<string>("NODE_ENV") === "production";
-				const redisUrl = configService.get<string>("REDIS_SERVICE_URL");
-				if (isProd || redisUrl) {
-					return (redisUrl || configService.getOrThrow<string>("REDIS_SERVICE_URL"));
-				}
-				return {
-					host: configService.get<string>("REDIS_SERVICE_HOST") ?? "localhost",
-					port: configService.get<number>("REDIS_SERVICE_PORT") ?? 6379,
-					password: configService.get<string>("REDIS_SERVICE_PASSWORD") || undefined,
-					maxLoadingRetryTime: 5,
-					enableOfflineQueue: true,
-				};
-			})() as any
-		);
-	}
-	onModuleInit() {
 		const start = Date.now();
+		super({
+			host:
+				configService.get<string>("REDIS_SERVICE_HOST") ?? "localhost",
+			port: configService.get<number>("REDIS_SERVICE_PORT") ?? 6379,
+			password:
+				configService.get<string>("REDIS_SERVICE_PASSWORD") ||
+				undefined,
+			maxLoadingRetryTime: 5,
+			enableOfflineQueue: true,
+		});
 
-		this.logger.log("Init Redis connection...");
 		this.on("connect", () => {
 			this.logger.log("Redis connecting...");
 		});
@@ -51,6 +42,9 @@ export class RedisService
 		this.on("reconnecting", () => {
 			this.logger.log("Redis reconnecting...");
 		});
+	}
+	onModuleInit() {
+		this.logger.log("Init Redis connection...");
 	}
 	async onModuleDestroy() {
 		this.logger.log("Closing Redis connection...");

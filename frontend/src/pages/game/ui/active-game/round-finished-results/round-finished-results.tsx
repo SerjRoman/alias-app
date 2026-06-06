@@ -1,7 +1,7 @@
 import styles from "./round-finished-results.module.css";
 import { useActiveGameActions } from "../../../api";
 import { useGameShortcuts, type WordState } from "@entities/game";
-import { Button } from "@shared/ui/button";
+import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
 export interface RoundFinishedResultsProps {
@@ -47,14 +47,16 @@ export function RoundFinishedResults({
 				))}
 			</div>
 			{isOwner && (
-				<Button
-					onClick={() => {
-						nextRound(roomId);
-					}}
-					className={styles.nextRoundBtn}
-				>
-					{t("activeGame.nextRound")}
-				</Button>
+				<Tooltip text={t("tooltips.nextRound")} position="top">
+					<Button
+						onClick={() => {
+							nextRound(roomId);
+						}}
+						className={styles.nextRoundBtn}
+					>
+						{t("activeGame.nextRound")}
+					</Button>
+				</Tooltip>
 			)}
 		</div>
 	);

@@ -22,18 +22,37 @@ import { LoggerModule } from "nestjs-pino";
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => {
-				const isProd = configService.get<string>("NODE_ENV") === "production";
-				return {
-					type: "postgres",
-					host: configService.getOrThrow<string>("DB_HOST"),
-					port: configService.get<number>("DB_PORT", 5432),
-					username: configService.getOrThrow<string>("DB_USERNAME"),
-					password: configService.getOrThrow<string>("DB_PASSWORD"),
-					database: configService.getOrThrow<string>("DB_NAME"),
-					autoLoadEntities: true,
-					synchronize: true,
-					ssl: isProd ? { rejectUnauthorized: false } : false,
-				};
+				const isProd =
+					configService.get<string>("NODE_ENV") === "production";
+				if (isProd) {
+					return {
+						type: "postgres",
+						host: configService.getOrThrow<string>("DB_HOST"),
+						port: configService.get<number>("DB_PORT", 5432),
+						username:
+							configService.getOrThrow<string>("DB_USERNAME"),
+						password:
+							configService.getOrThrow<string>("DB_PASSWORD"),
+						database: configService.getOrThrow<string>("DB_NAME"),
+						autoLoadEntities: true,
+						synchronize: true,
+						ssl: isProd ? { rejectUnauthorized: false } : false,
+					};
+				} else {
+					return {
+						type: "postgres",
+						host: configService.getOrThrow<string>("DEV_DB_HOST"),
+						port: configService.get<number>("DEV_DB_PORT", 5432),
+						username:
+							configService.getOrThrow<string>("DEV_DB_USERNAME"),
+						password:
+							configService.getOrThrow<string>("DEV_DB_PASSWORD"),
+						database:
+							configService.getOrThrow<string>("DEV_DB_NAME"),
+						autoLoadEntities: true,
+						synchronize: true,
+					};
+				}
 			},
 		}),
 		CloudinaryModule,
@@ -65,6 +84,14 @@ import { LoggerModule } from "nestjs-pino";
 									},
 								]
 							: [
+									{
+										target: "pino-pretty",
+										options: {
+											colorize: true,
+											singleLine: true,
+										},
+										level: "info",
+									},
 									{
 										target: "pino/file",
 										options: {

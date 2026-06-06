@@ -2,11 +2,13 @@ import { Check, Copy, Settings } from "lucide-react";
 import styles from "./settings-panel.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import type { GameStateDetails, GameWordsLevel } from "@entities/game";
+import { type GameStateDetails, type GameWordsLevel } from "@entities/game";
 import { socketClient } from "@shared/api";
-import { Button } from "@shared/ui/button";
+import { Button, Tooltip } from "@shared/ui";
 import { Select } from "@shared/ui/select";
 import { useTranslation } from "react-i18next";
+
+const LEVELS = ["easy", "medium", "hard"] as const;
 
 export function SettingsPanel({
 	game,
@@ -36,7 +38,8 @@ export function SettingsPanel({
 			levelSelectRef.current.value = game.settings.level;
 		}
 		if (voiceChatCheckboxRef.current) {
-			voiceChatCheckboxRef.current.checked = game.settings.isVoiceChatEnabled ?? true;
+			voiceChatCheckboxRef.current.checked =
+				game.settings.isVoiceChatEnabled ?? true;
 		}
 		if (languageSelectRef.current) {
 			languageSelectRef.current.value = game.settings.language ?? "ru";
@@ -124,14 +127,17 @@ export function SettingsPanel({
 				<h3 className={styles.title}>
 					<Settings size={18} /> {t("gameSettings.title")}
 				</h3>
-				<Button
-					className={`${styles.copyButton} ${isCopied ? styles.copied : ""}`}
-					onClick={handleCopyLink}
-					title={t("gameSettings.copyInviteLink")}
-				>
-					{isCopied ? <Check size={14} /> : <Copy size={14} />}
-					{isCopied ? t("gameSettings.copied") : t("gameSettings.copyLink")}
-				</Button>
+				<Tooltip text={t("tooltips.copyLink")}>
+					<Button
+						className={`${styles.copyButton} ${isCopied ? styles.copied : ""}`}
+						onClick={handleCopyLink}
+					>
+						{isCopied ? <Check size={14} /> : <Copy size={14} />}
+						{isCopied
+							? t("gameSettings.copied")
+							: t("gameSettings.copyLink")}
+					</Button>
+				</Tooltip>
 			</div>
 
 			<div className={styles.formGroup}>
@@ -168,9 +174,9 @@ export function SettingsPanel({
 						onChange={handleLevelChange}
 						disabled={!isOwner}
 					>
-						{["easy", "medium", "hard"].map((lvl) => (
+						{LEVELS.map((lvl) => (
 							<option key={lvl} value={lvl}>
-								{t(`gameSettings.difficulty.${lvl}` as "gameSettings.difficulty.easy" | "gameSettings.difficulty.medium" | "gameSettings.difficulty.hard")}
+								{t(`gameSettings.difficulty.${lvl}`)}
 							</option>
 						))}
 					</Select>
@@ -180,7 +186,6 @@ export function SettingsPanel({
 					<span>{t("gameSettings.wordsLanguage")}</span>
 					<Select
 						ref={languageSelectRef}
-						className={styles.inputField}
 						defaultValue={game.settings.language ?? "ru"}
 						onChange={handleLanguageChange}
 						disabled={!isOwner}
@@ -195,8 +200,12 @@ export function SettingsPanel({
 						ref={voiceChatCheckboxRef}
 						className={styles.checkboxInput}
 						type="checkbox"
-						defaultChecked={game.settings.isVoiceChatEnabled ?? true}
-						onChange={(e) => emitCurrentSettings(undefined, e.target.checked)}
+						defaultChecked={
+							game.settings.isVoiceChatEnabled ?? true
+						}
+						onChange={(e) =>
+							emitCurrentSettings(undefined, e.target.checked)
+						}
 						disabled={!isOwner}
 					/>
 					<span>{t("gameSettings.voiceChat")}</span>

@@ -5,6 +5,9 @@ import styles from "./user-profile-popup.module.css";
 import { useMutation } from "@shared/api";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@shared/ui";
+import { useTranslation } from "react-i18next";
+import { useUserSettings } from "../model/user-settings.slice";
+import { USER_DEFAULT_AVATAR_URL } from "@shared/lib";
 
 export function UserProfilePopup() {
 	const { user, setUser, token, setToken } = useAuth();
@@ -14,6 +17,8 @@ export function UserProfilePopup() {
 		"/user/avatar",
 	);
 	const navigate = useNavigate();
+	const { t } = useTranslation();
+	const { isAssistantDisabled, setAssistantDisabled } = useUserSettings();
 
 	if (!user) return null;
 
@@ -49,15 +54,11 @@ export function UserProfilePopup() {
 			<Popover.Trigger asChild>
 				<button className={styles.trigger} aria-label="Update profile">
 					<span className={styles.triggerName}>{user.name}</span>
-					{user.avatarUrl ? (
-						<img
-							src={user.avatarUrl}
-							alt="Avatar"
-							className={styles.avatar}
-						/>
-					) : (
-						<div className={styles.avatar} />
-					)}
+					<img
+						src={user.avatarUrl ?? USER_DEFAULT_AVATAR_URL}
+						alt="Avatar"
+						className={styles.avatar}
+					/>
 				</button>
 			</Popover.Trigger>
 			<Popover.Portal>
@@ -88,15 +89,35 @@ export function UserProfilePopup() {
 						disabled={isUploading || user.role !== "registered"}
 						onClick={() => fileInputRef.current?.click()}
 					>
-						{isUploading ? "Uploading..." : "Upload Avatar"}
+						{isUploading
+							? t("userProfile.uploading", "Uploading...")
+							: t("userProfile.uploadAvatar", "Upload Avatar")}
 					</Button>
 					<Button
 						variant="secondary"
 						aria-label="Profile"
 						onClick={() => navigate(`/profile/${user.id}`)}
 					>
-						Profile
+						{t("userProfile.profile", "Profile")}
 					</Button>
+
+					<div className={styles.settingsRow}>
+						<label htmlFor="disable-assistant-checkbox">
+							{t(
+								"userProfile.disableAssistant",
+								"Disable Assistant",
+							)}
+						</label>
+						<input
+							id="disable-assistant-checkbox"
+							type="checkbox"
+							checked={isAssistantDisabled}
+							onChange={(e) =>
+								setAssistantDisabled(e.target.checked)
+							}
+						/>
+					</div>
+
 					<Button
 						variant="danger"
 						onClick={() => {
@@ -105,7 +126,7 @@ export function UserProfilePopup() {
 							navigate("/login");
 						}}
 					>
-						Sign out
+						{t("userProfile.signOut", "Sign out")}
 					</Button>
 
 					<Popover.Arrow className="PopoverArrow" />

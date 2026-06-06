@@ -3,7 +3,7 @@ import { useActiveGameActions } from "../../../api";
 import styles from "./round-in-progress-block.module.css";
 import { Check, X } from "lucide-react";
 import { useGameSlice, useGameShortcuts, type WordState } from "@entities/game";
-import { Button } from "@shared/ui/button";
+import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
 interface Props {
@@ -38,20 +38,24 @@ export function RoundInProgressBlock({
 						{currentWord?.text || t("common.loading")}
 					</div>
 					<div className={styles.actionButtons}>
-						<Button
-							className={styles.btnSkip}
-							onClick={() => nextWord(roomId, true)}
-						>
-							<X size={24} />
-							<div>{t("activeGame.skip")}</div>
-						</Button>
-						<Button
-							className={styles.btnNext}
-							onClick={() => nextWord(roomId, false)}
-						>
-							<Check size={24} />
-							<div>{t("activeGame.correct")}</div>
-						</Button>
+						<Tooltip text={t("tooltips.skip")} position="bottom">
+							<Button
+								className={styles.btnSkip}
+								onClick={() => nextWord(roomId, true)}
+							>
+								<X size={24} />
+								<div>{t("activeGame.skip")}</div>
+							</Button>
+						</Tooltip>
+						<Tooltip text={t("tooltips.correct")} position="bottom">
+							<Button
+								className={styles.btnNext}
+								onClick={() => nextWord(roomId, false)}
+							>
+								<Check size={24} />
+								<div>{t("activeGame.correct")}</div>
+							</Button>
+						</Tooltip>
 					</div>
 				</div>
 			)}

@@ -31,7 +31,11 @@ const createGameSchema = z.object({
 
 type CreateGameValues = z.infer<typeof createGameSchema>;
 
-export function CreateGameForm() {
+export function CreateGameForm({
+	showAssistant,
+}: Readonly<{
+	showAssistant?: (msg: any) => void;
+}>) {
 	const {
 		mutate: createGame,
 		isPending,
@@ -94,7 +98,10 @@ export function CreateGameForm() {
 					label={`${t("games.name")}:`}
 					placeholder={t("games.namePlaceholder")}
 					error={errors.name?.message}
-					{...register("name")}
+					{...register("name", {
+						onBlur: () => showAssistant?.(null),
+					})}
+					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
 				/>
 
 				<Input
@@ -102,7 +109,11 @@ export function CreateGameForm() {
 					label={`${t("games.timeLimit")}:`}
 					placeholder={t("games.timeLimitPlaceholder")}
 					error={errors.roundTimeSeconds?.message}
-					{...register("roundTimeSeconds", { valueAsNumber: true })}
+					{...register("roundTimeSeconds", {
+						valueAsNumber: true,
+						onBlur: () => showAssistant?.(null),
+					})}
+					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
 				/>
 
 				<Input
@@ -110,7 +121,11 @@ export function CreateGameForm() {
 					label={`${t("games.pointsToWin")}:`}
 					placeholder={t("games.pointsToWinPlaceholder")}
 					error={errors.pointsToWin?.message}
-					{...register("pointsToWin", { valueAsNumber: true })}
+					{...register("pointsToWin", {
+						valueAsNumber: true,
+						onBlur: () => showAssistant?.(null),
+					})}
+					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
 				/>
 
 				<div className={styles.privateBlock}>
@@ -159,8 +174,8 @@ export function CreateGameForm() {
 						className={styles.selectLevel}
 						{...register("language")}
 					>
-						<option value="ru">Русский (RU)</option>
-						<option value="en">English (EN)</option>
+						<option value="ru">{t("games.languageRu")} (RU)</option>
+						<option value="en">{t("games.languageEn")} (EN)</option>
 					</Select>
 				</label>
 			</div>

@@ -5,52 +5,26 @@ import styles from "./page.module.css";
 import { Blocks } from "react-loader-spinner";
 import { useKickHandler } from "../api/use-kick-handler";
 import { useAuth } from "@entities/auth";
-import { GameVoiceRenderer, useGameSync } from "@entities/game";
+import {
+	GameVoiceRenderer,
+	useGameSync,
+	useGameShortcuts,
+	useGameVoice,
+} from "@entities/game";
 import { ActiveGameView } from "@pages/game/ui/active-game";
 import { GameFinished } from "@pages/game/ui/game-finished";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { AdminPanel } from "./admin-panel/admin-panel";
 import { Settings } from "lucide-react";
-import { Button } from "@shared/ui/button";
-import {
-	LiveKitRoom,
-	StartAudio,
-	useAudioPlayback,
-	ControlBar,
-} from "@livekit/components-react";
+import { Button, Tooltip, Assistant, useAssistant } from "@shared/ui";
+import { LiveKitRoom } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { useGameVoice } from "@entities/game/model";
 import { useQuery } from "@shared/api";
 import { useTranslation } from "react-i18next";
-
-function AudioHandlingWrapper({ children }: { children: React.ReactNode }) {
-	const { canPlayAudio, startAudio } = useAudioPlayback();
-	const { t } = useTranslation();
-	useEffect(() => {
-		const handleFirstInteraction = () => {
-			if (!canPlayAudio) {
-				startAudio().catch(console.error);
-			}
-		};
-		window.addEventListener("click", handleFirstInteraction);
-		return () =>
-			window.removeEventListener("click", handleFirstInteraction);
-	}, [canPlayAudio, startAudio]);
-
-	return (
-		<>
-			{!canPlayAudio && (
-				<div className={styles.audioPrompt}>
-					<div className={styles.audioPromptContent}>
-						<p>{t("audio.prompt")}</p>
-						<StartAudio label={t("audio.enable")} />
-					</div>
-				</div>
-			)}
-			{children}
-		</>
-	);
-}
+import { useGameAssistant } from "../api";
+import { AudioHandlingWrapper } from "./audio-handling-wrapper";
+import { FloatingVoiceControl } from "./floating-voice-control";
+import { useUserSettings } from "@entities/user-profile";
 
 export function GamePage() {
 	const { t } = useTranslation();
@@ -59,6 +33,7 @@ export function GamePage() {
 	const code = searchParams.get("code");
 	const { game, isLoading } = useGameSession(roomId, code);
 	const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+	const [isVoiceConnected, setIsVoiceConnected] = useState(true);
 
 	const { setVoiceToken, voiceToken, clearVoiceToken } = useGameVoice();
 	const { data } = useQuery(
@@ -102,10 +77,33 @@ export function GamePage() {
 			clearVoiceToken();
 		};
 	}, [clearVoiceToken]);
+	useGameShortcuts({
+		onAdminMenuToggle: () => setIsAdminMenuOpen((prev) => !prev),
+	});
+	const { isAssistantDisabled } = useUserSettings();
+	const assistantMessage = useGameAssistant(game, user?.id || "");
+	const assistantState = useAssistant(assistantMessage);
+	const hasVoice = !!(voiceToken && game?.settings.isVoiceChatEnabled);
+
+	const prevVoiceConnectedRef = useRef(false);
+	useEffect(() => {
+		const isCurrentlyConnected = hasVoice && isVoiceConnected;
+		if (isCurrentlyConnected && !prevVoiceConnectedRef.current && !isAssistantDisabled) {
+			assistantState.show(
+				{
+					text: t("voice.connectedTip"),
+					variant: "success",
+					priority: "high",
+				},
+				{ duration: 8000 }
+			);
+		}
+		prevVoiceConnectedRef.current = isCurrentlyConnected;
+	}, [hasVoice, isVoiceConnected, isAssistantDisabled, assistantState, t]);
 
 	if (isLoading || !user) {
 		return (
-			<div className={styles.page}>
+			<div className={styles.loading}>
 				<Blocks
 					height="80"
 					width="80"
@@ -126,17 +124,27 @@ export function GamePage() {
 		IN_PROGRESS: <ActiveGameView />,
 		FINISHED: <GameFinished />,
 	};
-	return (
-		<div className={styles.page}>
+	const currentView = view[game.status];
+
+	const mainContent = (
+		<div className={`${styles.page} ${hasVoice ? styles.hasVoice : ""}`}>
 			{isAdmin && (
 				<>
 					{!isAdminMenuOpen && (
-						<Button
-							className={`${styles.adminToggle}`}
-							onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
+						<Tooltip
+							text={t("tooltips.settingsToggle")}
+							position="left"
+							className={styles.adminToggleContainer}
 						>
-							<Settings />
-						</Button>
+							<Button
+								className={`${styles.adminToggle}`}
+								onClick={() =>
+									setIsAdminMenuOpen(!isAdminMenuOpen)
+								}
+							>
+								<Settings />
+							</Button>
+						</Tooltip>
 					)}
 
 					{isAdminMenuOpen && (
@@ -154,27 +162,38 @@ export function GamePage() {
 
 			<div className={styles.container}>
 				<h1 className={styles.title}>{game.settings.name}</h1>
-
-				{voiceToken && game.settings.isVoiceChatEnabled ? (
-					<LiveKitRoom
-						token={voiceToken}
-						serverUrl={liveKitUrl}
-						connect={false}
-						audio={true}
-						video={false}
-					>
-						<AudioHandlingWrapper>
-							<GameVoiceRenderer />
-							<div style={{ marginBottom: "1rem" }}>
-								<ControlBar />
-							</div>
-							{view[game.status]}
-						</AudioHandlingWrapper>
-					</LiveKitRoom>
-				) : (
-					view[game.status]
-				)}
+				{currentView}
 			</div>
+
+			{hasVoice && (
+				<FloatingVoiceControl
+					isConnected={isVoiceConnected}
+					setIsConnected={setIsVoiceConnected}
+				/>
+			)}
+
+			{!isAssistantDisabled && <Assistant {...assistantState} />}
 		</div>
 	);
+
+	if (hasVoice) {
+		return (
+			<LiveKitRoom
+				token={voiceToken}
+				serverUrl={liveKitUrl}
+				connect={isVoiceConnected}
+				audio={true}
+				video={false}
+			>
+				<AudioHandlingWrapper>
+					<GameVoiceRenderer />
+					{mainContent}
+				</AudioHandlingWrapper>
+			</LiveKitRoom>
+		);
+	}
+
+	return mainContent;
 }
+
+

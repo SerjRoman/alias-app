@@ -7,9 +7,7 @@ export function useLobbyActions() {
 	};
 
 	const deleteTeam = (roomId: string, teamId: string) => {
-		if (confirm("Delete this team?")) {
-			socketClient.emit("deleteTeam", { roomId, teamId });
-		}
+		socketClient.emit("deleteTeam", { roomId, teamId });
 	};
 
 	const joinTeam = (roomId: string, teamId: string) => {

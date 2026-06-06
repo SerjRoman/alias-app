@@ -9,9 +9,10 @@ type GameListProps = {
 		game: GameState,
 		code: string | null,
 	) => Promise<string | null | void>;
+	showAssistant?: (msg: any) => void;
 };
 
-export function GameList({ games, onJoin }: Readonly<GameListProps>) {
+export function GameList({ games, onJoin, showAssistant }: Readonly<GameListProps>) {
 	const { t } = useTranslation();
 	if (games.length === 0) {
 		return (
@@ -24,7 +25,7 @@ export function GameList({ games, onJoin }: Readonly<GameListProps>) {
 	return (
 		<div className={styles.grid}>
 			{games.map((game) => (
-				<GameCard onJoin={onJoin} key={game.id} game={game} />
+				<GameCard onJoin={onJoin} key={game.id} game={game} showAssistant={showAssistant} />
 			))}
 		</div>
 	);
@@ -33,12 +34,14 @@ export function GameList({ games, onJoin }: Readonly<GameListProps>) {
 function GameCard({
 	game,
 	onJoin,
+	showAssistant,
 }: Readonly<{
 	game: GameState;
 	onJoin: (
 		game: GameState,
 		code: string | null,
 	) => Promise<string | null | void>;
+	showAssistant?: (msg: any) => void;
 }>) {
 	const { t } = useTranslation();
 	const [code, setCode] = useState<string>("");
@@ -75,7 +78,11 @@ function GameCard({
 							className={styles.codeInput}
 							value={code}
 							onChange={(e) => setCode(e.target.value)}
-							onFocus={() => setError(null)}
+							onFocus={() => {
+								setError(null);
+								showAssistant?.(t("games.assistant.codeInputFocus"));
+							}}
+							onBlur={() => showAssistant?.(null)}
 						/>
 					</div>
 				)}

@@ -1,0 +1,109 @@
+.floatingVoiceContainer {
+	position: fixed;
+	left: 20px;
+	bottom: 20px;
+	z-index: 1000;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.floatingVoiceButtons {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.micButton {
+	width: 48px;
+	height: 48px;
+	border-radius: 50% !important;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	padding: 0 !important;
+	background-color: var(--color-surface, #fff) !important;
+	color: var(--color-primary) !important;
+	border: 1px solid var(--color-border, #ccc) !important;
+	box-shadow: var(--box-shadow, 0 2px 8px rgba(0, 0, 0, 0.15)) !important;
+}
+
+.micButton:hover {
+	background-color: var(--color-hover, #f0f0f0) !important;
+}
+
+.micButton.muted {
+	color: var(--color-error) !important;
+	border-color: var(--color-error) !important;
+}
+
+.micButton.joinBtn {
+	background-color: var(--color-success, #52c41a) !important;
+	color: #fff !important;
+	border-color: var(--color-success, #52c41a) !important;
+}
+
+.micButton.joinBtn:hover {
+	background-color: #389e0d !important;
+	border-color: #389e0d !important;
+}
+
+.micButton.leaveBtn {
+	background-color: var(--color-error, #f5222d) !important;
+	color: #fff !important;
+	border-color: var(--color-error, #f5222d) !important;
+}
+
+.micButton.leaveBtn:hover {
+	background-color: #cf1322 !important;
+	border-color: #cf1322 !important;
+}
+
+.micButton.activeSelect {
+	background-color: var(--color-active, #e6f7ff) !important;
+	color: var(--color-primary) !important;
+	border-color: var(--color-primary) !important;
+}
+
+.micButton.activeSelect:hover {
+	background-color: #bae7ff !important;
+}
+
+.deviceDropdown {
+	position: absolute;
+	bottom: 58px;
+	left: 0;
+	background-color: var(--color-surface, #fff);
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: 8px;
+	padding: 6px 0;
+	margin: 0;
+	list-style: none;
+	min-width: 200px;
+	max-width: 300px;
+	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+	max-height: 200px;
+	overflow-y: auto;
+	z-index: 1001;
+}
+
+.deviceItem {
+	padding: 8px 12px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	color: var(--color-text, #333);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: background-color 0.2s;
+}
+
+.deviceItem:hover {
+	background-color: var(--color-hover, #f0f0f0);
+}
+
+.activeDevice {
+	font-weight: bold;
+	color: var(--color-primary);
+	background-color: var(--color-active, #e6f7ff);
+}

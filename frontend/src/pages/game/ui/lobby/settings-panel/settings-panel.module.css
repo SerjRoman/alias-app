@@ -122,3 +122,24 @@ select.inputField:disabled {
 	opacity: 0.6;
 }
 
+.voiceControlRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+	margin-top: var(--spacing-medium);
+	padding-top: var(--spacing-medium);
+	border-top: 1px solid var(--color-border);
+}
+
+.voiceControlRow span {
+	font-weight: 500;
+	font-size: 0.95rem;
+}
+
+.micToggleBtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+}
+

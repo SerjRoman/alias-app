@@ -13,3 +13,4 @@ export { useActiveGameActions } from "./use-active-game-actions";
 export { useLobbyActions } from "./use-lobby-actions";
 export { useGameSession } from "./use-game-session";
 export { useAdminActions } from "./use-admin-actions";
+export { useGameAssistant } from "./use-game-assistant";

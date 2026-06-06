@@ -1,28 +1,53 @@
 .page {
-	display: flex;
-
+	display: grid;
+	grid-template-columns: repeat(12, 1fr);
+	gap: var(--spacing-large);
 	padding: 20px;
-
 	flex: 1;
-	flex-direction: row;
-
-	justify-content: center;
+	align-items: start;
+	width: 100%;
 }
 .title {
 	text-align: center;
 }
 .container {
-	flex: 0.5;
-    display: flex;
-    flex-direction: column;
+	grid-column: 3 / span 8;
+	display: flex;
+	flex-direction: column;
 	gap: var(--spacing-medium);
+	width: 100%;
 }
 
-.adminToggle {
+.loading {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-height: 50vh;
+	width: 100%;
+	flex: 1;
+}
+
+
+
+@media (max-width: 992px) {
+	.page {
+		grid-template-columns: 1fr;
+		gap: var(--spacing-medium);
+	}
+	.container {
+		grid-column: 1 / -1 !important;
+	}
+}
+
+.adminToggleContainer {
 	position: fixed;
 	right: 20px;
 	top: 80px;
 	z-index: 1002;
+	transition: right 0.3s ease;
+}
+
+.adminToggle {
 	padding: 8px 16px;
 	background-color: var(--color-surface, #fff);
 	color: var(--color-text, #333);
@@ -31,7 +56,6 @@
 	cursor: pointer;
 	box-shadow: var(--box-shadow, 0 2px 4px rgba(0, 0, 0, 0.1));
 	font-weight: bold;
-	transition: right 0.3s ease;
 }
 
 .sideMenu {
@@ -61,30 +85,4 @@
 	flex: 1;
 }
 
-.audioPrompt {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background: rgba(0, 0, 0, 0.7);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	z-index: 2000;
-	backdrop-filter: blur(4px);
-}
 
-.audioPromptContent {
-	background: var(--color-surface, #fff);
-	padding: 2rem;
-	border-radius: 12px;
-	text-align: center;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-}
-
-.audioPromptContent p {
-	margin-bottom: 1.5rem;
-	font-size: 1.1rem;
-	font-weight: 500;
-}

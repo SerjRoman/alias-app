@@ -68,7 +68,6 @@ export function BaseLayout() {
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
-					"ngrok-skip-browser-warning": "true",
 				},
 			},
 			{

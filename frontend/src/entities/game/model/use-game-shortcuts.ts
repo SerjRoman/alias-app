@@ -5,6 +5,7 @@ export interface UseGameShortcutsProps {
 	onToggleReady?: () => void;
 	onNextWord?: () => void;
 	onSkipWord?: () => void;
+	onAdminMenuToggle?: () => void;
 }
 
 export function useGameShortcuts({
@@ -12,6 +13,7 @@ export function useGameShortcuts({
 	onToggleReady,
 	onNextWord,
 	onSkipWord,
+	onAdminMenuToggle,
 }: UseGameShortcutsProps = {}) {
 	useEffect(() => {
 		const handleKeyDown = (event: KeyboardEvent) => {
@@ -48,6 +50,12 @@ export function useGameShortcuts({
 						onNextWord();
 					}
 					break;
+				case "KeyS":
+					if (onAdminMenuToggle) {
+						event.preventDefault();
+						onAdminMenuToggle();
+					}
+					break;
 				case "KeyE":
 					if (onSkipWord) {
 						event.preventDefault();
@@ -57,7 +65,7 @@ export function useGameShortcuts({
 			}
 		};
 
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [onNextRound, onToggleReady, onNextWord, onSkipWord]);
+		globalThis.addEventListener("keydown", handleKeyDown);
+		return () => globalThis.removeEventListener("keydown", handleKeyDown);
+	}, [onNextRound, onToggleReady, onNextWord, onSkipWord, onAdminMenuToggle]);
 }
