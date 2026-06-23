@@ -3,13 +3,11 @@ import { useGameSlice } from "../model/game.slice";
 import { socketClient } from "@shared/api";
 
 export function useGameSync() {
-	const {
-		updatePlayers,
-		updateTeams,
-		updateSettings,
-		setGameState,
-		updateRound,
-	} = useGameSlice();
+	const updatePlayers = useGameSlice((state) => state.updatePlayers);
+	const updateTeams = useGameSlice((state) => state.updateTeams);
+	const updateSettings = useGameSlice((state) => state.updateSettings);
+	const setGameState = useGameSlice((state) => state.setGameState);
+	const updateRound = useGameSlice((state) => state.updateRound);
 
 	useEffect(() => {
 		socketClient.on("playersUpdated", updatePlayers);

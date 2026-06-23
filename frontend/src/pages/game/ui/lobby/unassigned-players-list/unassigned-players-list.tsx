@@ -3,20 +3,21 @@ import {
 	type PlayerState,
 	PlayerPopover,
 	useGameSlice,
-	usePlayersDisplayMap,
+	type PlayerDisplayInfo,
 } from "@entities/game";
 import { useTranslation } from "react-i18next";
 
 interface UnassignedPlayersListProps {
 	players: PlayerState[];
 	roomId: string;
+	playersDisplayMap: Map<string, PlayerDisplayInfo>;
 }
 export function UnassignedPlayersList({
 	players,
+	playersDisplayMap,
 }: Readonly<UnassignedPlayersListProps>) {
 	const { t } = useTranslation();
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
-	const playersDisplayMap = usePlayersDisplayMap(players);
 	if (players.length === 0) return null;
 
 	return (

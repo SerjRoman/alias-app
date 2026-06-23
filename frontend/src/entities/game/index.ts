@@ -18,6 +18,7 @@ export {
 	PlayerPopover,
 	usePlayersDisplayMap,
 	GameVoiceRenderer,
+	type PlayerDisplayInfo,
 } from "./ui";
 export { getVoiceParticipantUserId } from "./lib/voice";
 export {

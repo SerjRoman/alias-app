@@ -29,7 +29,7 @@ export const useGameSlice = create<GameSliceState>((set) => ({
 		set({ game: newGameState }),
 	setCurrentWord: (newWord: WordState) =>
 		set((state) => ({ ...state, currentWord: newWord })),
-	resetCurrentWord: () => set(() => ({})),
+	resetCurrentWord: () => set({ currentWord: null }),
 	updateTeams: (newTeams: TeamState[]) =>
 		set((state) => {
 			if (!state.game) {

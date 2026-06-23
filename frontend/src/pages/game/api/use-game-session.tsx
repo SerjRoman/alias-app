@@ -30,6 +30,22 @@ export function useGameSession(roomId: string | null, code: string | null) {
 	}, [roomId, code, game, setGameState]);
 
 	useEffect(() => {
+		if (!roomId) return;
+
+		const handleConnect = () => {
+			console.log("Socket reconnected. Rejoining room:", roomId);
+			joinGame(roomId, code, (gameData) => {
+				setGameState(gameData);
+			});
+		};
+
+		socketClient.on("connect", handleConnect);
+		return () => {
+			socketClient.off("connect", handleConnect);
+		};
+	}, [roomId, code, setGameState]);
+
+	useEffect(() => {
 		return () => {
 			const activeId = gameIdRef.current;
 			if (activeId) {

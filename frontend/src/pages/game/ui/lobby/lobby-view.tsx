@@ -6,13 +6,17 @@ import { LobbyTeamView } from "./lobby-team-view/lobby-team-view";
 import { UnassignedPlayersList } from "./unassigned-players-list/unassigned-players-list";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@entities/auth";
-import { useGameSlice } from "@entities/game";
+import { useGameSlice, type PlayerDisplayInfo } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
 import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
-export function LobbyView() {
+interface LobbyViewProps {
+	playersDisplayMap: Map<string, PlayerDisplayInfo>;
+}
+
+export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 	const { t } = useTranslation();
 	const [newTeamName, setNewTeamName] = useState("");
 	const { game } = useGameSlice();
@@ -43,6 +47,7 @@ export function LobbyView() {
 			<UnassignedPlayersList
 				players={unassignedPlayers}
 				roomId={game.id}
+				playersDisplayMap={playersDisplayMap}
 			/>
 
 			<div className={styles.teamContainer}>
@@ -75,7 +80,7 @@ export function LobbyView() {
 
 				<div className={styles.teamsGrid}>
 					{game.teams.map((team) => (
-						<LobbyTeamView key={team.id} team={team} />
+						<LobbyTeamView key={team.id} team={team} playersDisplayMap={playersDisplayMap} />
 					))}
 				</div>
 

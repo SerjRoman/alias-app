@@ -2,12 +2,13 @@ import { Trash2 } from "lucide-react";
 import { useLobbyActions } from "../../../api/use-lobby-actions";
 import styles from "./lobby-team-view.module.css";
 import { useAuth } from "@entities/auth";
+import { useMemo } from "react";
 import {
 	type TeamState,
 	useGameSlice,
 	TeamCard,
 	PlayerPopover,
-	usePlayersDisplayMap,
+	type PlayerDisplayInfo,
 } from "@entities/game";
 import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
@@ -16,8 +17,10 @@ import { useModal } from "@shared/lib/hooks";
 
 export function LobbyTeamView({
 	team,
+	playersDisplayMap,
 }: Readonly<{
 	team: TeamState;
+	playersDisplayMap: Map<string, PlayerDisplayInfo>;
 }>) {
 	const { t } = useTranslation();
 	const currentUserId = useAuth((state) => state.user!.id);
@@ -28,8 +31,7 @@ export function LobbyTeamView({
 	const isMyTeam = team.playerIds.includes(currentUserId);
 	const isOwner = currentUserId === ownerId;
 	const { deleteTeam, joinTeam } = useLobbyActions();
-	const playersMap = new Map(players.map((p) => [p.id, p]));
-	const playersDisplayMap = usePlayersDisplayMap(players);
+	const playersMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 	const [modalControl, ModalProvider] = useModal<
 		Omit<ConfirmationModalProps, "isOpen" | "onClose">
 	>();

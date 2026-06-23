@@ -10,6 +10,7 @@ import {
 	useGameSync,
 	useGameShortcuts,
 	useGameVoice,
+	usePlayersDisplayMap,
 } from "@entities/game";
 import { ActiveGameView } from "@pages/game/ui/active-game";
 import { GameFinished } from "@pages/game/ui/game-finished";
@@ -34,6 +35,8 @@ export function GamePage() {
 	const { game, isLoading } = useGameSession(roomId, code);
 	const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
 	const [isVoiceConnected, setIsVoiceConnected] = useState(true);
+
+	const playersDisplayMap = usePlayersDisplayMap(game?.players ?? []);
 
 	const { setVoiceToken, voiceToken, clearVoiceToken } = useGameVoice();
 	const { data } = useQuery(
@@ -119,12 +122,19 @@ export function GamePage() {
 
 	const isAdmin = game.ownerId === user.id;
 
-	const view = {
-		LOBBY: <LobbyView />,
-		IN_PROGRESS: <ActiveGameView />,
-		FINISHED: <GameFinished />,
+	const renderCurrentView = () => {
+		switch (game.status) {
+			case "LOBBY":
+				return <LobbyView playersDisplayMap={playersDisplayMap} />;
+			case "IN_PROGRESS":
+				return <ActiveGameView playersDisplayMap={playersDisplayMap} />;
+			case "FINISHED":
+				return <GameFinished />;
+			default:
+				return null;
+		}
 	};
-	const currentView = view[game.status];
+	const currentView = renderCurrentView();
 
 	const mainContent = (
 		<div className={`${styles.page} ${hasVoice ? styles.hasVoice : ""}`}>

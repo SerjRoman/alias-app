@@ -3,18 +3,19 @@ import {
 	useGameSlice,
 	TeamCard,
 	PlayerPopover,
-	usePlayersDisplayMap,
 	getVoiceParticipantUserId,
+	type PlayerDisplayInfo,
 } from "@entities/game";
 import styles from "./team-view.module.css";
 import { useSpeakingParticipants, useMaybeRoomContext } from "@livekit/components-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 interface TeamViewProps {
 	team: TeamState;
 	isOwner: boolean;
 	roomId: string;
+	playersDisplayMap: Map<string, PlayerDisplayInfo>;
 }
 
 function ActiveSpeakingPlayerIdsWatcher({
@@ -35,15 +36,14 @@ function ActiveSpeakingPlayerIdsWatcher({
 	return null;
 }
 
-export function ActiveGameTeamView({ team }: Readonly<TeamViewProps>) {
+export function ActiveGameTeamView({ team, playersDisplayMap }: Readonly<TeamViewProps>) {
 	const players = useGameSlice((state) => state.game!.players);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
     const {t} = useTranslation()
 	const currentGuesserId = useGameSlice(
 		(state) => state.game?.currentRound?.guesserId,
 	);
-	const playersMap = new Map(players.map((p) => [p.id, p]));
-	const playersDisplayMap = usePlayersDisplayMap(players);
+	const playersMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 	const isPlayingTeam = team.playerIds.includes(currentGuesserId!);
 
 	const roomContext = useMaybeRoomContext();

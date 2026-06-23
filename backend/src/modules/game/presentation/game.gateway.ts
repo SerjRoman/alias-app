@@ -82,6 +82,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	@WebSocketServer() server: GameServer;
 
 	private readonly logger = new Logger(GameGateway.name);
+	private disconnectTimeouts = new Map<string, NodeJS.Timeout>();
 	constructor(
 		private readonly gameFacade: GameFacade,
 		private readonly playerFacade: PlayerFacade,
@@ -118,6 +119,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received joinGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
+		const userId = client.data.user.id;
+		if (this.disconnectTimeouts.has(userId)) {
+			this.logger.log(
+				`User ${client.data.user.name} rejoined within grace period. Cancelling offline status change.`,
+			);
+			clearTimeout(this.disconnectTimeouts.get(userId));
+			this.disconnectTimeouts.delete(userId);
+		}
 		const room = await this.gameFacade.joinGame(dto, client.data.user);
 		await client.join(dto.roomId);
 		const publicState = plainToInstance(GameResponseDetailsDto, room, {
@@ -175,6 +184,11 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.logger.log(
 			`Received leaveGame from client ${client.id} UserID ${client.data.user.name}`,
 		);
+		const userId = client.data.user.id;
+		if (this.disconnectTimeouts.has(userId)) {
+			clearTimeout(this.disconnectTimeouts.get(userId));
+			this.disconnectTimeouts.delete(userId);
+		}
 		await this.gameFacade.leaveGame(body.roomId, client.data.user);
 		return { success: true };
 	}
@@ -422,8 +436,29 @@ export class GameGateway implements OnGatewayDisconnect {
 				client.data.user.id,
 			);
 			if (!roomId) return;
-			await this.playerFacade.setPlayerOffline(roomId, client.data.user);
+
 			await this.removePlayerFromRoom(roomId, client.data.user.id);
+
+			const userId = client.data.user.id;
+			if (this.disconnectTimeouts.has(userId)) {
+				clearTimeout(this.disconnectTimeouts.get(userId));
+			}
+
+			const timeout = setTimeout(async () => {
+				this.disconnectTimeouts.delete(userId);
+				try {
+					this.logger.log(
+						`Grace period expired for user ${client.data.user.name}. Marking offline.`,
+					);
+					await this.playerFacade.setPlayerOffline(roomId, client.data.user);
+				} catch (err) {
+					this.logger.error(
+						`Error in offline grace period timeout for user ${userId}: ${err}`,
+					);
+				}
+			}, 5000); // 5 seconds grace period
+
+			this.disconnectTimeouts.set(userId, timeout);
 		} catch (error) {
 			this.logger.error(
 				`Error occurred while handling disconnect for client ${client.id}: ${error}`,

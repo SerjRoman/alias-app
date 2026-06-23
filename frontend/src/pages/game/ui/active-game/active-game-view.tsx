@@ -5,11 +5,15 @@ import { RoundPendingControls } from "./round-pending-controls/round-pending-con
 import { RoundFinishedResults } from "./round-finished-results/round-finished-results";
 import styles from "./active-game-view.module.css";
 import { useAuth } from "@entities/auth";
-import { useGameSlice, RoundStatus } from "@entities/game";
+import { useGameSlice, RoundStatus, type PlayerDisplayInfo } from "@entities/game";
 import { useActiveGameSync } from "../../api";
 import { RoundPointing } from "./round-pointing/round-pointing";
 
-export function ActiveGameView() {
+interface ActiveGameViewProps {
+	playersDisplayMap: Map<string, PlayerDisplayInfo>;
+}
+
+export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewProps>) {
 	const { game } = useGameSlice();
 	const { user } = useAuth();
 	const navigate = useNavigate();
@@ -44,6 +48,7 @@ export function ActiveGameView() {
 						team={team}
 						isOwner={isOwner}
 						roomId={game.id}
+						playersDisplayMap={playersDisplayMap}
 					/>
 				))}
 			</div>

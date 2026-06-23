@@ -22,7 +22,7 @@ export function GamesPage() {
 		{
 			headers: { "ngrok-skip-browser-warning": "true" },
 		},
-		{ refetchInterval: 5000 },
+		{ refetchInterval: 30000 },
 	);
 	const { t } = useTranslation();
 	const { isAssistantDisabled } = useUserSettings();

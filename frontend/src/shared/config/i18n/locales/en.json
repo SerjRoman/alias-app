@@ -7,7 +7,9 @@
 		"submit": "Submit",
 		"yes": "Yes",
 		"no": "No",
-		"creating": "Creating..."
+		"creating": "Creating...",
+		"connectionLost": "Connection lost. Reconnecting...",
+		"connectionRestored": "Connection restored!"
 	},
 	"login": {
 		"access": "Access your Alias account",
