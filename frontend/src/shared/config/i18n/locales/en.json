@@ -9,7 +9,9 @@
 		"no": "No",
 		"creating": "Creating...",
 		"connectionLost": "Connection lost. Reconnecting...",
-		"connectionRestored": "Connection restored!"
+		"connectionRestored": "Connection restored!",
+		"returnToGame": "Return to game",
+		"leaveGame": "Leave game"
 	},
 	"login": {
 		"access": "Access your Alias account",

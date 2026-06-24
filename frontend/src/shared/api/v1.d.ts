@@ -562,7 +562,12 @@ export interface components {
              * @description The unique identifier of the game
              * @example 123e4567-e89b-12d3-a456-426614174000
              */
-            roomId: string;
+            roomId: string | null;
+            /**
+             * @description The passcode/code of the private game, if applicable
+             * @example 123456
+             */
+            code?: string | null;
         };
         ValidateCodeDto: {
             code: string;

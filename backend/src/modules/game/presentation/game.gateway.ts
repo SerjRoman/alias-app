@@ -456,7 +456,7 @@ export class GameGateway implements OnGatewayDisconnect {
 						`Error in offline grace period timeout for user ${userId}: ${err}`,
 					);
 				}
-			}, 5000); // 5 seconds grace period
+			}, 5000);
 
 			this.disconnectTimeouts.set(userId, timeout);
 		} catch (error) {

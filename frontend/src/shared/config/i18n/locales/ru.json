@@ -9,7 +9,9 @@
 		"no": "Нет",
 		"creating": "Создание...",
 		"connectionLost": "Соединение потеряно. Переподключение...",
-		"connectionRestored": "Соединение восстановлено!"
+		"connectionRestored": "Соединение восстановлено!",
+		"returnToGame": "Вернуться в игру",
+		"leaveGame": "Выйти из игры"
 	},
 	"login": {
 		"access": "Войдите в свой аккаунт Alias",

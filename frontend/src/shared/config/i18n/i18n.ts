@@ -9,6 +9,10 @@ import ru from "./locales/ru.json";
 i18n.use(LanguageDetector)
 	.use(initReactI18next)
 	.init({
+		detection: {
+			order: ["localStorage", "cookie"],
+			caches: ["localStorage", "cookie"],
+		},
 		resources: {
 			en: { translation: en },
 			ru: { translation: ru },
