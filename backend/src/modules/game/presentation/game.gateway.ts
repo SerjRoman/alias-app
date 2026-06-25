@@ -432,14 +432,29 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.logger.log(
 				`Received disconnect from client ${client.id} UserID ${client.data.user.name}`,
 			);
+			if (!client.data?.user?.id) return;
+
 			const { roomId } = await this.playerFacade.getGameIdByUserId(
 				client.data.user.id,
 			);
 			if (!roomId) return;
 
-			await this.removePlayerFromRoom(roomId, client.data.user.id);
-
 			const userId = client.data.user.id;
+
+			const sockets = await this.server.in(roomId).fetchSockets();
+			const hasOtherActiveSocket = sockets.some(
+				(socket) =>
+					(socket as unknown as AuthenticatedSocket).data.user?.id ===
+						userId && socket.id !== client.id,
+			);
+
+			if (hasOtherActiveSocket) {
+				this.logger.log(
+					`User ${client.data.user.name} has another active connection. Skipping offline timeout.`,
+				);
+				return;
+			}
+
 			if (this.disconnectTimeouts.has(userId)) {
 				clearTimeout(this.disconnectTimeouts.get(userId));
 			}
@@ -450,7 +465,10 @@ export class GameGateway implements OnGatewayDisconnect {
 					this.logger.log(
 						`Grace period expired for user ${client.data.user.name}. Marking offline.`,
 					);
-					await this.playerFacade.setPlayerOffline(roomId, client.data.user);
+					await this.playerFacade.setPlayerOffline(
+						roomId,
+						client.data.user,
+					);
 				} catch (err) {
 					this.logger.error(
 						`Error in offline grace period timeout for user ${userId}: ${err}`,
