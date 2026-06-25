@@ -5,6 +5,7 @@ import { TeamError } from "../../domain/errors/team.errors";
 @Catch(TeamError)
 export class TeamWsExceptionFilter implements WsExceptionFilter {
 	catch(exception: TeamError, host: ArgumentsHost) {
+		console.log(exception);
 		const client = host.switchToWs().getClient<Socket>();
 
 		const errorResponse = {

@@ -5,6 +5,7 @@ import { RoundError } from "../../domain/errors/round.errors";
 @Catch(RoundError)
 export class RoundWsExceptionFilter implements WsExceptionFilter {
 	catch(exception: RoundError, host: ArgumentsHost) {
+		console.log(exception);
 		const client = host.switchToWs().getClient<Socket>();
 
 		const errorResponse = {

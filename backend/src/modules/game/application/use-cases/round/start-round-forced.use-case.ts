@@ -37,7 +37,7 @@ export class StartRoundForcedUseCase {
 		const text = await this.gameSharedService.getWordForGameSession(room);
 
 		await this.gameSharedService.checkAndSetWordsForGame(room);
-		room.nextWord(actor.id, text, false);
+		room.nextWord(room.currentRound.guesserId, text, false);
 
 		await this.gameRepository.saveGame(room);
 

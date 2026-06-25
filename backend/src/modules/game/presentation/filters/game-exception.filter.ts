@@ -11,6 +11,7 @@ import { GameError } from "../../domain/errors/game.errors";
 @Catch(GameError)
 export class GameWsExceptionFilter implements WsExceptionFilter {
 	catch(exception: GameError, host: ArgumentsHost) {
+		console.log(exception);
 		const client = host.switchToWs().getClient<Socket>();
 
 		const errorResponse = {
