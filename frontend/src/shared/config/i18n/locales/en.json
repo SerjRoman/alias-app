@@ -157,7 +157,8 @@
 		"deleteTeamTooltip": "Delete team",
 		"deleteTeamTitle": "Delete Team",
 		"deleteTeamConfirm": "Are you sure you want to delete the team {{name}}?",
-		"ready": "Ready!"
+		"ready": "Ready!",
+		"generateRandomTeamName": "Generate random team name"
 	},
 	"activeGame": {
 		"score": "Score: {{score}}",
@@ -175,7 +176,14 @@
 		"title": "Game Finished",
 		"description": "Thanks for playing! The game has ended.",
 		"backToList": "Back to Game List",
-		"deleteGame": "Delete game"
+		"deleteGame": "Delete game",
+		"mvp": "MVP",
+		"points": "points",
+		"score": "Score",
+		"place": "Place",
+		"team": "Team",
+		"otherTeams": "Other Teams",
+		"noMvp": "No MVP"
 	},
 	"userProfile": {
 		"uploading": "Uploading...",
@@ -261,5 +269,13 @@
 	},
 	"assistant": {
 		"title": "Game Assistant"
+	},
+	"teamNames": {
+		"adjectives": [
+			"Crazy", "Space", "Sleepy", "Unlimited", "Bald", "Rocket", "Sly", "Chocolate", "Sour", "Laughing", "Drunk", "Sad", "Epic", "Dancing", "Secret", "Wild", "Wise", "Jelly", "Flying", "Square"
+		],
+		"nouns": [
+			"Kittens", "Tractors", "Dumplings", "Raccoons", "Cucumbers", "Penguins", "Zucchinis", "Hamsters", "Badgers", "Tomatoes", "Crackers", "Socks", "Bananas", "Beavers", "Dinosaurs", "Unicorns", "Pineapples", "Potatoes", "Monkeys", "Waffles"
+		]
 	}
 }

@@ -15,6 +15,8 @@ import { OnEvent } from "@nestjs/event-emitter";
 import {
 	GAME_UPDATED,
 	type GameUpdatedPayload,
+	GAME_SETTINGS_UPDATED,
+	type GameSettingsUpdatedPayload,
 	type PlayerKickedPayload,
 	PLAYER_KICKED,
 	GAME_STARTED,
@@ -31,10 +33,8 @@ import {
 import { plainToInstance } from "class-transformer";
 
 import type { GameServer, GameSocket } from "./game.socket-types";
-import { GameWsExceptionFilter } from "./filters/game-exception.filter";
-import { TeamWsExceptionFilter } from "./filters/team-exception.filter";
 import { AuthenticatedSocket } from "../../../common/types/socket";
-import { RoundWsExceptionFilter } from "./filters/round-exception.filter";
+import { WsExceptionsFilter } from "./filters/ws-exceptions.filter";
 import {
 	JoinGameDto,
 	KickPlayerDto,
@@ -58,10 +58,12 @@ import {
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
+	GameUpdateResponseDto,
 	WordResponseDto,
 	TeamResponseDto,
 	PlayerResponseDto,
 	RoundResponseDto,
+	GameSettingsDto,
 } from "../application/dto/response";
 import { ADMIN_EVENTS } from "./socket.events";
 import { SetGuesserDto } from "../application/dto/body/set-guesser.dto";
@@ -73,11 +75,7 @@ import { RoomNotFoundError } from "../domain/errors/game.errors";
 	},
 	namespace: "game-ws",
 })
-@UseFilters(
-	new GameWsExceptionFilter(),
-	new TeamWsExceptionFilter(),
-	new RoundWsExceptionFilter(),
-)
+@UseFilters(new WsExceptionsFilter())
 export class GameGateway implements OnGatewayDisconnect {
 	@WebSocketServer() server: GameServer;
 
@@ -372,65 +370,134 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@OnEvent(PLAYER_KICKED)
 	async handlePlayerKicked(payload: PlayerKickedPayload) {
-		this.server
-			.to(payload.roomId)
-			.emit("playerKicked", { kickedUserId: payload.kickedUserId });
-		await this.removePlayerFromRoom(payload.roomId, payload.kickedUserId);
+		try {
+			this.server
+				.to(payload.roomId)
+				.emit("playerKicked", { kickedUserId: payload.kickedUserId });
+			await this.removePlayerFromRoom(
+				payload.roomId,
+				payload.kickedUserId,
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handlePlayerKicked: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	@OnEvent(GAME_STARTED)
 	handleGameStarted(payload: GameStartedPayload) {
-		this.server.to(payload.room.id).emit(
-			"gameStarted",
-			plainToInstance(GameResponseDetailsDto, payload.room, {
-				excludeExtraneousValues: true,
-			}),
-		);
+		try {
+			this.server.to(payload.room.id).emit(
+				"gameStarted",
+				plainToInstance(GameResponseDetailsDto, payload.room, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleGameStarted: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	@OnEvent(TEAMS_UPDATED)
 	handleTeamUpdated(payload: TeamsUpdatedPayload) {
-		this.server.to(payload.roomId).emit(
-			"teamsUpdated",
-			plainToInstance(TeamResponseDto, payload.teams, {
-				excludeExtraneousValues: true,
-			}),
-		);
+		try {
+			this.server.to(payload.roomId).emit(
+				"teamsUpdated",
+				plainToInstance(TeamResponseDto, payload.teams, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleTeamUpdated: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 
 	@OnEvent(GAME_UPDATED)
 	handleGameUpdate(payload: GameUpdatedPayload) {
-		this.server.to(payload.room.id).emit(
-			"gameUpdated",
-			plainToInstance(GameResponseDetailsDto, payload.room, {
-				excludeExtraneousValues: true,
-			}),
-		);
+		try {
+			this.server.to(payload.room.id).emit(
+				"gameUpdated",
+				plainToInstance(GameUpdateResponseDto, payload.room, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleGameUpdate: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
+	}
+
+	@OnEvent(GAME_SETTINGS_UPDATED)
+	handleGameSettingsUpdate(payload: GameSettingsUpdatedPayload) {
+		try {
+			this.server.to(payload.roomId).emit(
+				"game-settings-updated",
+				plainToInstance(GameSettingsDto, payload.settings, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleGameSettingsUpdate: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	@OnEvent(PLAYERS_UPDATED)
 	handlePlayerReadyUpdate(payload: PlayersUpdatedPayload) {
-		this.server.to(payload.roomId).emit(
-			"playersUpdated",
-			plainToInstance(PlayerResponseDto, payload.players, {
-				excludeExtraneousValues: true,
-			}),
-		);
+		try {
+			this.server.to(payload.roomId).emit(
+				"playersUpdated",
+				plainToInstance(PlayerResponseDto, payload.players, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handlePlayerReadyUpdate: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	@OnEvent(ROUND_UPDATED)
 	handleRoundUpdated(payload: RoundUpdatedPayload) {
-		this.server.to(payload.roomId).emit(
-			"roundUpdated",
-			plainToInstance(RoundResponseDto, payload.round, {
-				excludeExtraneousValues: true,
-			}),
-		);
+		try {
+			this.server.to(payload.roomId).emit(
+				"roundUpdated",
+				plainToInstance(RoundResponseDto, payload.round, {
+					excludeExtraneousValues: true,
+				}),
+			);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleRoundUpdated: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	@OnEvent(GAME_FINISHED)
 	handleGameFinished(payload: GameFinishedPayload) {
-		this.server.to(payload.room.id).emit("gameFinished");
+		try {
+			this.server.to(payload.room.id).emit("gameFinished");
+		} catch (error) {
+			this.logger.error(
+				`Error in handleGameFinished: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 	async handleDisconnect(client: AuthenticatedSocket) {
 		try {
 			this.logger.log(
-				`Received disconnect from client ${client.id} UserID ${client.data.user.name}`,
+				`Received disconnect from client ${client.id} UserID ${client.data?.user?.name || "unknown"}`,
 			);
 			if (!client.data?.user?.id) return;
 
@@ -444,8 +511,8 @@ export class GameGateway implements OnGatewayDisconnect {
 			const sockets = await this.server.in(roomId).fetchSockets();
 			const hasOtherActiveSocket = sockets.some(
 				(socket) =>
-					(socket as unknown as AuthenticatedSocket).data.user?.id ===
-						userId && socket.id !== client.id,
+					(socket as unknown as AuthenticatedSocket).data?.user
+						?.id === userId && socket.id !== client.id,
 			);
 
 			if (hasOtherActiveSocket) {
@@ -463,7 +530,7 @@ export class GameGateway implements OnGatewayDisconnect {
 				this.disconnectTimeouts.delete(userId);
 				try {
 					this.logger.log(
-						`Grace period expired for user ${client.data.user.name}. Marking offline.`,
+						`Grace period expired for user ${client.data?.user?.name || "unknown"}. Marking offline.`,
 					);
 					await this.playerFacade.setPlayerOffline(
 						roomId,
@@ -485,14 +552,21 @@ export class GameGateway implements OnGatewayDisconnect {
 	}
 
 	private async removePlayerFromRoom(roomId: string, playerId: string) {
-		const sockets = await this.server.in(roomId).fetchSockets();
-		const targetSocket = sockets.find(
-			(socket) =>
-				(socket as unknown as AuthenticatedSocket).data.user.id ===
-				playerId,
-		);
-		if (targetSocket) {
-			targetSocket.leave(roomId);
+		try {
+			const sockets = await this.server.in(roomId).fetchSockets();
+			const targetSocket = sockets.find(
+				(socket) =>
+					(socket as unknown as AuthenticatedSocket).data?.user
+						?.id === playerId,
+			);
+			if (targetSocket) {
+				targetSocket.leave(roomId);
+			}
+		} catch (error) {
+			this.logger.error(
+				`Error in removePlayerFromRoom for player ${playerId} in room ${roomId}: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
 		}
 	}
 }

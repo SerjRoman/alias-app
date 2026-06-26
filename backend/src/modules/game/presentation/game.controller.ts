@@ -39,8 +39,8 @@ import {
 	ValidateCodeResponseDto,
 	GetVoiceTokenResponseDto,
 } from "../application/dto/response";
-import { GameHttpExceptionFilter } from "./filters/game-exception.filter";
 import { VoiceService } from "../application/voice.service";
+import { GameHttpExceptionFilter } from "./filters/game-exception.filter";
 
 @ApiTags("Games")
 @Controller("games")

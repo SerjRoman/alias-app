@@ -16,7 +16,7 @@
 	width: max-content;
 	white-space: normal;
 	word-wrap: break-word;
-	z-index: 1000;
+	z-index: var(--z-tooltip);
 	pointer-events: none;
 	opacity: 0;
 	animation: fadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1) forwards;

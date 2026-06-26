@@ -1,0 +1,13 @@
+.diceButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: var(--spacing-small);
+	min-width: 42px;
+	height: 42px;
+	transition: transform 0.2s ease-in-out;
+}
+
+.diceButton:hover {
+	transform: rotate(15deg) scale(1.05);
+}

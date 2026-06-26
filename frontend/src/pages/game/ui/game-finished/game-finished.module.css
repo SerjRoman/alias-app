@@ -1,0 +1,381 @@
+.container {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: calc(var(--spacing-large) * 1.5) var(--spacing-large);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: calc(var(--spacing-large) * 1.5);
+	width: 100%;
+}
+
+.header {
+	text-align: center;
+}
+
+.title {
+	font-size: 2.5rem;
+	font-weight: 800;
+	background: linear-gradient(135deg, var(--color-primary) 0%, #63b3ed 100%);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	margin-bottom: var(--spacing-small);
+	animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.description {
+	font-size: 1.1rem;
+	color: var(--color-text);
+	opacity: 0.8;
+	max-width: 600px;
+	animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.podiumContainer {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: var(--spacing-large);
+	width: 100%;
+	margin-top: var(--spacing-large);
+	animation: scaleUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.podiumCard {
+	flex: 1;
+	max-width: 260px;
+	border-radius: calc(var(--border-radius) * 2.5);
+	padding: var(--spacing-large);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	position: relative;
+	transition:
+		transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+		box-shadow 0.3s ease;
+}
+
+.podiumCard:hover {
+	transform: translateY(-8px);
+}
+
+.firstPlace {
+	min-height: 340px;
+	height: auto;
+	background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+	border: 2px solid #fbbf24;
+	box-shadow:
+		0 20px 25px -5px rgba(245, 158, 11, 0.15),
+		0 10px 10px -5px rgba(245, 158, 11, 0.1);
+	z-index: 2;
+	order: 2;
+}
+
+.secondPlace {
+	min-height: 290px;
+	height: auto;
+	background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+	border: 2px solid #9ca3af;
+	box-shadow: 0 15px 20px -5px rgba(156, 163, 175, 0.1);
+	z-index: 1;
+	order: 1;
+}
+
+.thirdPlace {
+	min-height: 260px;
+	height: auto;
+	background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+	border: 2px solid #ca8a04;
+	box-shadow: 0 12px 15px -5px rgba(217, 119, 6, 0.1);
+	z-index: 1;
+	order: 3;
+}
+
+.badgeContainer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	position: relative;
+	margin-bottom: var(--spacing-medium);
+}
+
+.placeIconWrapper {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-top: var(--spacing-small);
+}
+
+.firstIcon {
+	color: #d97706;
+	fill: #fef08a;
+}
+
+.secondIcon {
+	color: #4b5563;
+	fill: #e5e7eb;
+}
+
+.thirdIcon {
+	color: #b45309;
+	fill: #ffedd5;
+}
+
+.placeNumber {
+	position: absolute;
+	bottom: -4px;
+	right: -8px;
+	background: var(--color-surface, #fff);
+	color: var(--color-text, #333);
+	border: 2px solid currentColor;
+	border-radius: 50%;
+	width: 24px;
+	height: 24px;
+	font-size: 0.85rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.firstPlace .placeNumber {
+	color: #d97706;
+}
+
+.secondPlace .placeNumber {
+	color: #4b5563;
+}
+
+.thirdPlace .placeNumber {
+	color: #b45309;
+}
+
+.teamName {
+	font-size: 1.15rem;
+	font-weight: 700;
+	color: var(--color-text, #333);
+	margin-bottom: var(--spacing-small);
+	word-wrap: break-word;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	width: 100%;
+	line-height: 1.3;
+	min-height: 38px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.teamScore {
+	display: flex;
+	flex-direction: column;
+	margin-bottom: auto;
+	padding-bottom: var(--spacing-medium);
+}
+
+.scoreNumber {
+	font-size: 2.2rem;
+	font-weight: 800;
+	line-height: 1;
+	color: var(--color-text, #333);
+}
+
+.scoreLabel {
+	font-size: 0.85rem;
+	color: var(--color-text);
+	opacity: 0.7;
+	margin-top: 4px;
+}
+
+.mvpBox {
+	background: rgba(255, 255, 255, 0.8);
+	backdrop-filter: blur(4px);
+	border-radius: calc(var(--border-radius) * 1.5);
+	padding: var(--spacing-small);
+	width: 100%;
+	border: 1px solid var(--color-border);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.mvpBadge {
+	background: linear-gradient(135deg, var(--color-primary) 0%, #63b3ed 100%);
+	color: var(--color-text-light, #fff);
+	font-size: 0.7rem;
+	font-weight: 700;
+	padding: 2px var(--spacing-small);
+	border-radius: calc(var(--border-radius) * 1.2);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+.mvpName {
+	font-size: 0.9rem;
+	font-weight: 600;
+	color: var(--color-text, #333);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 100%;
+}
+
+.mvpPoints {
+	font-size: 0.8rem;
+	font-weight: 700;
+	color: var(--color-primary);
+}
+
+.noMvp {
+	font-size: 0.85rem;
+	color: var(--color-text);
+	opacity: 0.5;
+	font-style: italic;
+}
+
+.remainingContainer {
+	width: 100%;
+	max-width: 600px;
+	margin-top: var(--spacing-large);
+	animation: slideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.remainingTitle {
+	font-size: 1.3rem;
+	font-weight: 700;
+	color: var(--color-text, #333);
+	margin-bottom: var(--spacing-medium);
+	text-align: center;
+}
+
+.remainingList {
+	background: var(--color-surface, #fff);
+	border-radius: calc(var(--border-radius) * 2);
+	box-shadow: var(--box-shadow);
+	border: 1px solid var(--color-border);
+	overflow: hidden;
+}
+
+.remainingRow {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: var(--spacing-medium) var(--spacing-large);
+	transition: background-color 0.2s ease;
+}
+
+.remainingRow:not(:last-child) {
+	border-bottom: 1px solid var(--color-border);
+}
+
+.remainingRow:hover {
+	background-color: var(--color-hover);
+}
+
+.remainingLeft {
+	display: flex;
+	align-items: center;
+	gap: var(--spacing-medium);
+}
+
+.remainingPlace {
+	background: var(--color-hover);
+	color: var(--color-text);
+	opacity: 0.8;
+	width: 28px;
+	height: 28px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 0.85rem;
+}
+
+.remainingTeamName {
+	font-weight: 600;
+	color: var(--color-text, #333);
+}
+
+.remainingRight {
+	display: flex;
+	align-items: center;
+}
+
+.remainingScore {
+	font-weight: 700;
+	color: var(--color-primary);
+}
+
+.actions {
+	display: flex;
+	gap: var(--spacing-medium);
+	margin-top: var(--spacing-large);
+	animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.backButton,
+.deleteButton {
+	padding: var(--spacing-small) var(--spacing-large) !important;
+	font-size: 1rem !important;
+	font-weight: 600 !important;
+	border-radius: calc(var(--border-radius) * 1.5) !important;
+}
+
+@keyframes slideUp {
+	from {
+		opacity: 0;
+		transform: translateY(20px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes scaleUp {
+	from {
+		opacity: 0;
+		transform: scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+@media (max-width: 768px) {
+	.podiumContainer {
+		flex-direction: column;
+		align-items: center;
+		gap: var(--spacing-large);
+	}
+
+	.podiumCard {
+		width: 100%;
+		max-width: 320px;
+		height: auto !important;
+		padding: var(--spacing-large);
+		box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+	}
+
+	.firstPlace {
+		order: 1;
+	}
+
+	.secondPlace {
+		order: 2;
+	}
+
+	.thirdPlace {
+		order: 3;
+	}
+}

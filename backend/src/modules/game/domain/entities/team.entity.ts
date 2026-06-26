@@ -4,6 +4,7 @@ import {
 	TeamIsEmptyError,
 	TeamNameEmptyError,
 } from "../errors/team.errors";
+import { PlayerNotFoundError } from "../errors/game.errors";
 
 export interface TeamState {
 	id: string;
@@ -66,6 +67,14 @@ export class TeamEntity {
 		this.state.lastGuesserIndex = newGuesserIndex;
 		const playerIds = Array.from(this._playerIds);
 		return playerIds[newGuesserIndex];
+	}
+	setNextGuesserId(guesserId: string) {
+		const playerIds = Array.from(this._playerIds);
+		const guesserIndex = playerIds.indexOf(guesserId);
+		if (guesserIndex === -1) {
+			throw new PlayerNotFoundError(guesserId);
+		}
+		this.state.lastGuesserIndex = guesserIndex;
 	}
 
 	toPrimitives(): TeamState {

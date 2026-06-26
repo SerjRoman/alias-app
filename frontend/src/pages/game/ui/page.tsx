@@ -26,6 +26,7 @@ import { useGameAssistant } from "../api";
 import { AudioHandlingWrapper } from "./audio-handling-wrapper";
 import { FloatingVoiceControl } from "./floating-voice-control";
 import { useUserSettings } from "@entities/user-profile";
+import { useModal } from "@shared/lib/hooks";
 
 export function GamePage() {
 	const { t } = useTranslation();
@@ -33,7 +34,7 @@ export function GamePage() {
 	const roomId = searchParams.get("id");
 	const code = searchParams.get("code");
 	const { game, isLoading } = useGameSession(roomId, code);
-	const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false);
+	const [{ open, close, isOpen }, AdminPanelWrapper] = useModal();
 	const [isVoiceConnected, setIsVoiceConnected] = useState(true);
 
 	const playersDisplayMap = usePlayersDisplayMap(game?.players ?? []);
@@ -81,7 +82,7 @@ export function GamePage() {
 		};
 	}, [clearVoiceToken]);
 	useGameShortcuts({
-		onAdminMenuToggle: () => setIsAdminMenuOpen((prev) => !prev),
+		onAdminMenuToggle: () => (isOpen ? close() : open()),
 	});
 	const { isAssistantDisabled } = useUserSettings();
 	const assistantMessage = useGameAssistant(game, user?.id || "");
@@ -91,14 +92,18 @@ export function GamePage() {
 	const prevVoiceConnectedRef = useRef(false);
 	useEffect(() => {
 		const isCurrentlyConnected = hasVoice && isVoiceConnected;
-		if (isCurrentlyConnected && !prevVoiceConnectedRef.current && !isAssistantDisabled) {
+		if (
+			isCurrentlyConnected &&
+			!prevVoiceConnectedRef.current &&
+			!isAssistantDisabled
+		) {
 			assistantState.show(
 				{
 					text: t("voice.connectedTip"),
 					variant: "success",
 					priority: "high",
 				},
-				{ duration: 8000 }
+				{ duration: 8000 },
 			);
 		}
 		prevVoiceConnectedRef.current = isCurrentlyConnected;
@@ -140,7 +145,7 @@ export function GamePage() {
 		<div className={`${styles.page} ${hasVoice ? styles.hasVoice : ""}`}>
 			{isAdmin && (
 				<>
-					{!isAdminMenuOpen && (
+					{!isOpen && (
 						<Tooltip
 							text={t("tooltips.settingsToggle")}
 							position="left"
@@ -148,25 +153,23 @@ export function GamePage() {
 						>
 							<Button
 								className={`${styles.adminToggle}`}
-								onClick={() =>
-									setIsAdminMenuOpen(!isAdminMenuOpen)
-								}
+								onClick={() => (isOpen ? close() : open())}
 							>
 								<Settings />
 							</Button>
 						</Tooltip>
 					)}
 
-					{isAdminMenuOpen && (
+					<AdminPanelWrapper doCloseOnClickOutside={true}>
 						<div className={`${styles.sideMenu}`}>
 							<div className={styles.sideMenuContent}>
 								<AdminPanel
 									game={game}
-									onClose={() => setIsAdminMenuOpen(false)}
+									onClose={() => (isOpen ? close() : open())}
 								/>
 							</div>
 						</div>
-					)}
+					</AdminPanelWrapper>
 				</>
 			)}
 
@@ -205,5 +208,3 @@ export function GamePage() {
 
 	return mainContent;
 }
-
-

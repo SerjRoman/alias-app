@@ -49,6 +49,7 @@ import {
 } from "./application/dictionary.repository.interface";
 import { RedisDictionaryRepository } from "./infrastructure/redis-dictionary.repository";
 import { VoiceService } from "./application/voice.service";
+import { CleanupGameResourcesHandler } from "./application/handlers/cleanup-game-resources.handler";
 
 @Module({
 	providers: [
@@ -57,6 +58,7 @@ import { VoiceService } from "./application/voice.service";
 		RoundScheduler,
 		DictionaryService,
 		VoiceService,
+		CleanupGameResourcesHandler,
 		GameFacade,
 		PlayerFacade,
 		RoundFacade,

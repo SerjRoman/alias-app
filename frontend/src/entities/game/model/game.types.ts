@@ -70,6 +70,10 @@ export interface GameStateDetails extends GameState {
 	lastTeamIndex: number;
 }
 
+export interface GameStateUpdatePayload extends Omit<GameStateDetails, "settings"> {
+	settings?: GameSettings;
+}
+
 export interface ParticipantDisplayData {
 	isRegistered: boolean;
 	userId: string | null;

@@ -14,6 +14,11 @@ export class RedisGameRepository implements IGameRepository {
 		private readonly redis: RedisService,
 		private readonly eventEmitter: EventEmitter2,
 	) {}
+	removeUserRooms(userIds: string[]): Promise<number> {
+		return this.redis.del(
+			...userIds.map((userId) => `${this.USER_TO_ROOM_PREFIX}${userId}`),
+		);
+	}
 	async findGameById(gameId: string): Promise<GameEntity | null> {
 		const key = `${this.ROOM_PREFIX}${gameId}`;
 		return this.redis.get(key).then((data) => {

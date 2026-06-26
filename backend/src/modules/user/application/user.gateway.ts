@@ -25,23 +25,24 @@ export class UserGateway implements OnGatewayConnection {
 	) {}
 
 	async handleConnection(client: AuthenticatedSocket) {
-		this.logger.log(`Client ${client.id} connected`);
-		const token = this.extractTokenFromHandshake(client);
-		if (!token) {
-			this.logger.warn(
-				`Client ${client.id} disconnected: No token provided`,
-			);
-			client.disconnect();
-			return;
-		}
 		try {
+			this.logger.log(`Client ${client.id} connected`);
+			const token = this.extractTokenFromHandshake(client);
+			if (!token) {
+				this.logger.warn(
+					`Client ${client.id} disconnected: No token provided`,
+				);
+				client.disconnect();
+				return;
+			}
 			const payload: JwtPayload = await this.jwtService.verifyAsync(
 				token,
 				{
 					secret: this.configService.getOrThrow("JWT_SECRET_KEY"),
-                    ignoreExpiration: true
+					ignoreExpiration: true
 				},
 			);
+			client.data = client.data || {};
 			client.data.user = {
 				id: payload.sub,
 				name: payload.name,
@@ -49,7 +50,7 @@ export class UserGateway implements OnGatewayConnection {
 			};
 		} catch (error) {
 			this.logger.error(
-				`Client ${client.id} disconnected: Invalid token.`,
+				`Client ${client.id} disconnected: Error during handshake verification.`,
 			);
 			this.logger.error(error);
 			client.disconnect();

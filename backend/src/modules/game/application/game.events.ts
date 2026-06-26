@@ -6,6 +6,12 @@ import type { TeamState } from "../domain/entities/team.entity";
 export const GAME_UPDATED = "game.updated";
 export type GameUpdatedPayload = { room: GameState };
 
+export const GAME_SETTINGS_UPDATED = "game.settings.updated";
+export type GameSettingsUpdatedPayload = {
+	roomId: string;
+	settings: GameState["settings"];
+};
+
 export const GAME_FINISHED = "game.finished";
 export type GameFinishedPayload = { room: GameState };
 

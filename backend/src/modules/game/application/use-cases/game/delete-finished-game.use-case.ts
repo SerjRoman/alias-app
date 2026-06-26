@@ -23,7 +23,14 @@ export class DeleteFinishedGameUseCase {
 		room.assertRoomOwner(actor.id);
 		room.assertGameFinished();
 
+		room.delete();
+
 		await this.gameRepository.deleteGame(dto.roomId);
+
+		const events = room.pullDomainEvents();
+		for (const event of events) {
+			await this.eventEmitter.emitAsync(event.name, event);
+		}
 
 		const eventPayload: GameUpdatedPayload = {
 			room: room.toPrimitives(),

@@ -1,4 +1,9 @@
-import { Link, useNavigate, useLocation, useSearchParams } from "react-router-dom";
+import {
+	Link,
+	useNavigate,
+	useLocation,
+	useSearchParams,
+} from "react-router-dom";
 import styles from "./header.module.css";
 import { useAuth } from "@entities/auth";
 import { UserProfilePopup } from "@entities/user-profile";
@@ -23,7 +28,7 @@ export function Header() {
 		{
 			enabled: !!user,
 			refetchOnWindowFocus: true,
-		}
+		},
 	);
 
 	const activeRoomId = activeGameData?.roomId;
@@ -66,7 +71,7 @@ export function Header() {
 									size="small"
 									onClick={() =>
 										navigate(
-											`/game?id=${activeRoomId}${activeCode ? `&code=${activeCode}` : ""}`
+											`/game?id=${activeRoomId}${activeCode ? `&code=${activeCode}` : ""}`,
 										)
 									}
 								>

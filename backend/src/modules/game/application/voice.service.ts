@@ -1,18 +1,14 @@
-import { UserDto } from "@common/dto/user.dto";
 import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AccessToken, RoomServiceClient, TrackType } from "livekit-server-sdk";
+import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
 import {
 	GAME_REPOSITORY,
 	type IGameRepository,
 } from "./game.repository.interface";
-import { RoomNotFoundError, VoiceChatDisabledError } from "../domain/errors/game.errors";
-
-class ToggleMuteDto {
-	roomId: string;
-	userId: string;
-	value: boolean;
-}
+import {
+	RoomNotFoundError,
+	VoiceChatDisabledError,
+} from "../domain/errors/game.errors";
 
 @Injectable()
 export class VoiceService {
@@ -56,40 +52,15 @@ export class VoiceService {
 
 		return accessToken.toJwt();
 	}
-	public async toggleMute(
-		dto: ToggleMuteDto,
-		actor: UserDto,
-	): Promise<string> {
-		const roomName = `${this.ROOM_PREFIX}${dto.roomId}`;
-		const participantName = `${this.PARTICIPANT_PREFIX}${dto.userId}`;
-		const game = await this.gameRepository.findGameById(dto.roomId);
-		if (!game) {
-			throw new RoomNotFoundError(dto.roomId);
-		}
-		game.assertRoomOwner(actor.id);
+	public async deleteVoiceRoom(roomId: string): Promise<void> {
+		const roomName = `${this.ROOM_PREFIX}${roomId}`;
 		try {
-			const participant = await this.roomServiceClient.getParticipant(
-				roomName,
-				participantName,
-			);
-
-			const audioTrack = participant.tracks.find(
-				(track) => track.type === TrackType.AUDIO,
-			);
-
-			if (audioTrack) {
-				await this.roomServiceClient.mutePublishedTrack(
-					roomName,
-					participantName,
-					audioTrack.sid,
-					dto.value,
-				);
-				return "Success";
-			}
-			return "Audio track not found";
+			await this.roomServiceClient.deleteRoom(roomName);
 		} catch (error) {
-			console.error("Error toggling mute:", error);
-			return "Error";
+			console.warn(
+				`Warning/Error when deleting LiveKit room ${roomName}:`,
+				error,
+			);
 		}
 	}
 }

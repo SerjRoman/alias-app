@@ -19,7 +19,7 @@ export function UserProfilePopup() {
 	const navigate = useNavigate();
 	const { t } = useTranslation();
 	const { isAssistantDisabled, setAssistantDisabled } = useUserSettings();
-
+	const isRegisteredUser = user?.role === "registered";
 	if (!user) return null;
 
 	const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -86,20 +86,22 @@ export function UserProfilePopup() {
 					<Button
 						type="button"
 						variant="primary"
-						disabled={isUploading || user.role !== "registered"}
+						disabled={isUploading || !isRegisteredUser}
 						onClick={() => fileInputRef.current?.click()}
 					>
 						{isUploading
 							? t("userProfile.uploading", "Uploading...")
 							: t("userProfile.uploadAvatar", "Upload Avatar")}
 					</Button>
-					<Button
-						variant="secondary"
-						aria-label="Profile"
-						onClick={() => navigate(`/profile/${user.id}`)}
-					>
-						{t("userProfile.profile", "Profile")}
-					</Button>
+					{isRegisteredUser && (
+						<Button
+							variant="secondary"
+							aria-label="Profile"
+							onClick={() => navigate(`/profile/${user.id}`)}
+						>
+							{t("userProfile.profile", "Profile")}
+						</Button>
+					)}
 
 					<div className={styles.settingsRow}>
 						<label htmlFor="disable-assistant-checkbox">

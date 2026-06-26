@@ -9,8 +9,9 @@ import { useAuth } from "@entities/auth";
 import { useGameSlice, type PlayerDisplayInfo } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
-import { Button, Tooltip } from "@shared/ui";
+import { Button, Tooltip, RandomDice } from "@shared/ui";
 import { useTranslation } from "react-i18next";
+import { generateTeamName } from "../../lib";
 
 interface LobbyViewProps {
 	playersDisplayMap: Map<string, PlayerDisplayInfo>;
@@ -32,6 +33,9 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 		createTeam(game.id, newTeamName);
 		setNewTeamName("");
 	}
+	const handleRandomName = () => {
+		setNewTeamName(generateTeamName(t));
+	};
 
 	const isOwner = game.ownerId === user.id;
 	const mePlayer = game.players.find((p) => user.id === p.id);
@@ -65,6 +69,10 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 									e.key === "Enter" && handleCreateTeam()
 								}
 							/>
+							<RandomDice
+								onClick={handleRandomName}
+								title={t("lobby.generateRandomTeamName")}
+							/>
 							<Tooltip text={t("tooltips.addTeam")}>
 								<Button
 									onClick={handleCreateTeam}
@@ -80,7 +88,11 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 
 				<div className={styles.teamsGrid}>
 					{game.teams.map((team) => (
-						<LobbyTeamView key={team.id} team={team} playersDisplayMap={playersDisplayMap} />
+						<LobbyTeamView
+							key={team.id}
+							team={team}
+							playersDisplayMap={playersDisplayMap}
+						/>
 					))}
 				</div>
 

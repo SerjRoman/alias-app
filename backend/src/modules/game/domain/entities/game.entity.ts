@@ -43,7 +43,11 @@ import {
 	RoundPointingEndedEvent,
 	RoundStartedEvent,
 } from "../events/round.events";
-import { GameFinishedEvent, GameStartedEvent } from "../events/game.events";
+import {
+	GameFinishedEvent,
+	GameStartedEvent,
+	GameDeletedEvent,
+} from "../events/game.events";
 
 export enum GameStatus {
 	LOBBY = "LOBBY",
@@ -455,6 +459,9 @@ export class GameEntity extends BaseEntity {
 			throw new PlayerNotFoundError(guesserId);
 		}
 		currentRound.guesserId = guesserId;
+		this._teams
+			.at(this.state.lastTeamPlayedIndex)
+			?.setNextGuesserId(guesserId);
 	}
 	endGame(actorId: string) {
 		this.assertRoomOwner(actorId);
@@ -512,6 +519,15 @@ export class GameEntity extends BaseEntity {
 		);
 		return winner;
 	}
+	delete() {
+		this.addDomainEvent(
+			new GameDeletedEvent(
+				this.id,
+				this._players.map((p) => p.id),
+			),
+		);
+	}
+
 	toPrimitives(): GameState {
 		return {
 			...this.state,

@@ -11,5 +11,6 @@ export interface IGameRepository {
 	setUserRoom(userId: string, roomId: string): Promise<void>;
 	getUserRoom(userId: string): Promise<string | null>;
 	removeUserRoom(userId: string): Promise<void>;
+	removeUserRooms(userIds: string[]): Promise<number | void>;
 }
 export const GAME_REPOSITORY = "GameRepository";

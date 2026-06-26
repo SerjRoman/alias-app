@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { IDictionaryRepository } from "../application/dictionary.repository.interface";
-import { RedisService } from "../../../common/infrastructure/redis/redis.service";
+import { RedisService } from "@common/infrastructure/redis/redis.service";
 
 @Injectable()
 export class RedisDictionaryRepository implements IDictionaryRepository {

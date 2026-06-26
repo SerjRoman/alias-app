@@ -2,7 +2,7 @@
 	position: fixed;
 	left: 20px;
 	bottom: 20px;
-	z-index: 1000;
+	z-index: var(--z-floating-voice);
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -84,7 +84,7 @@
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 	max-height: 200px;
 	overflow-y: auto;
-	z-index: 1001;
+	z-index: var(--z-dropdown);
 }
 
 .deviceItem {

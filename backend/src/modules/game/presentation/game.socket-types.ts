@@ -10,15 +10,18 @@ import {
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
+	GameUpdateResponseDto,
 	TeamResponseDto,
 	PlayerResponseDto,
 	RoundResponseDto,
 	WordResponseDto,
+	GameSettingsDto,
 } from "../application/dto/response";
 import { AuthenticatedUser } from "@common/types/authenticated-user";
 
 interface ServerToClientEvents {
-	gameUpdated: (data: GameResponseDetailsDto) => void;
+	gameUpdated: (data: GameUpdateResponseDto) => void;
+	"game-settings-updated": (data: GameSettingsDto) => void;
 	teamsUpdated: (data: TeamResponseDto[]) => void;
 	playersUpdated: (data: PlayerResponseDto[]) => void;
 	gameReadyToggled: (data: GameResponseDetailsDto) => void;

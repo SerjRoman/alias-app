@@ -7,7 +7,7 @@ import {
 import { UpdateGameSettingsDto } from "../../dto/body";
 import { Injectable, Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { GAME_UPDATED, type GameUpdatedPayload } from "../../game.events";
+import { GAME_SETTINGS_UPDATED, type GameSettingsUpdatedPayload } from "../../game.events";
 
 @Injectable()
 export class UpdateGameSettingsUseCase {
@@ -26,10 +26,11 @@ export class UpdateGameSettingsUseCase {
 		await this.gameRepository.saveGame(room);
 
 		const roomPrimitives = room.toPrimitives();
-		const eventPayload: GameUpdatedPayload = {
-			room: roomPrimitives,
+		const eventPayload: GameSettingsUpdatedPayload = {
+			roomId: roomPrimitives.id,
+			settings: roomPrimitives.settings,
 		};
-		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
+		this.eventEmitter.emit(GAME_SETTINGS_UPDATED, eventPayload);
 
 		return roomPrimitives;
 	}

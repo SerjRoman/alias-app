@@ -72,7 +72,7 @@ export class GameSettingsDto implements GameSettings {
 	@Expose()
 	language: "ru" | "en";
 }
-export class GameResponseDto {
+export class BaseGameResponseDto {
 	@ApiProperty({
 		description: "The unique identifier of the game",
 		example: "123e4567-e89b-12d3-a456-426614174000",
@@ -91,13 +91,6 @@ export class GameResponseDto {
 	@Expose()
 	status: GameStatus;
 	@ApiProperty({
-		type: GameSettingsDto,
-		description: "Current game settings",
-	})
-	@Type(() => GameSettingsDto)
-	@Expose()
-	settings: GameSettingsDto;
-	@ApiProperty({
 		type: "number",
 	})
 	@Expose()
@@ -109,7 +102,17 @@ export class GameResponseDto {
 	createdAt: number;
 }
 
-export class GameResponseDetailsDto extends GameResponseDto {
+export class GameResponseDto extends BaseGameResponseDto {
+	@ApiProperty({
+		type: GameSettingsDto,
+		description: "Current game settings",
+	})
+	@Type(() => GameSettingsDto)
+	@Expose()
+	settings: GameSettingsDto;
+}
+
+export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
 	@ApiProperty({
 		type: [PlayerResponseDto],
 		description: "List of all players",
@@ -148,3 +151,15 @@ export class GameResponseDetailsDto extends GameResponseDto {
 	@Expose()
 	lastTeamPlayedIndex: number;
 }
+
+export class GameResponseDetailsDto extends BaseGameResponseDetailsDto {
+	@ApiProperty({
+		type: GameSettingsDto,
+		description: "Current game settings",
+	})
+	@Type(() => GameSettingsDto)
+	@Expose()
+	settings: GameSettingsDto;
+}
+
+export class GameUpdateResponseDto extends BaseGameResponseDetailsDto {}

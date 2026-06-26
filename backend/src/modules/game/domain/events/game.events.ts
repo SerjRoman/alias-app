@@ -20,3 +20,13 @@ export class GameFinishedEvent extends DomainEvent {
 		super(GameFinishedEvent.eventName);
 	}
 }
+
+export class GameDeletedEvent extends DomainEvent {
+	static readonly eventName = "GameDeletedEvent";
+	constructor(
+		public readonly roomId: string,
+		public readonly playerIds: string[],
+	) {
+		super(GameDeletedEvent.eventName);
+	}
+}

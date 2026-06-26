@@ -5,6 +5,7 @@ import {
 	GAME_REPOSITORY,
 } from "../../game.repository.interface";
 import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
 export class DeleteGameUseCase {
@@ -12,10 +13,19 @@ export class DeleteGameUseCase {
 		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly gameSharedService: GameSharedService,
+		private readonly eventEmitter: EventEmitter2,
 	) {}
 	async execute(gameId: string, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(gameId);
 		room.assertRoomOwner(actor.id);
-		return this.gameRepository.deleteGame(gameId);
+
+		room.delete();
+
+		await this.gameRepository.deleteGame(gameId);
+
+		const events = room.pullDomainEvents();
+		for (const event of events) {
+			await this.eventEmitter.emitAsync(event.name, event);
+		}
 	}
 }
