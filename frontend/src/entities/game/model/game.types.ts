@@ -34,6 +34,7 @@ export interface PlayerState {
 	score: number;
 	isOnline: boolean;
 	role: "registered" | "anonymous";
+	submittedWordsCount?: number;
 }
 
 export interface RoundState {
@@ -50,7 +51,9 @@ export interface GameSettings {
 	roundTimeSeconds: number;
 	pointsToWin: number;
 	isPrivate: boolean;
-	level: GameWordsLevel;
+	level?: GameWordsLevel;
+	wordsPerPlayer?: number;
+	wordPackSelections?: { packId: string; count: number }[];
 	language?: "ru" | "en";
 	isVoiceChatEnabled?: boolean;
 }

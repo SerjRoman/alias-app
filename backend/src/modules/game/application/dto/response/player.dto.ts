@@ -31,4 +31,12 @@ export class PlayerResponseDto {
 	})
 	@Expose()
 	isOnline: boolean;
+
+	@ApiProperty({
+		example: 0,
+		description:
+			"Number of custom words submitted by the player (in custom mode)",
+	})
+	@Expose()
+	submittedWordsCount: number;
 }

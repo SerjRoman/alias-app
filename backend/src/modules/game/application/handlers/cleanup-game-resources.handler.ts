@@ -1,7 +1,10 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
 import { GameDeletedEvent } from "../../domain/events/game.events";
-import { GAME_REPOSITORY, type IGameRepository } from "../game.repository.interface";
+import {
+	GAME_REPOSITORY,
+	type IGameRepository,
+} from "../game.repository.interface";
 import { VoiceService } from "../voice.service";
 
 @Injectable()
@@ -23,17 +26,25 @@ export class CleanupGameResourcesHandler {
 		if (event.playerIds.length > 0) {
 			try {
 				await this.gameRepository.removeUserRooms(event.playerIds);
-				this.logger.log(`Successfully removed user rooms for players: ${event.playerIds.join(", ")}`);
+				this.logger.log(
+					`Successfully removed user rooms for players: ${event.playerIds.join(", ")}`,
+				);
 			} catch (error) {
-				this.logger.error(`Failed to remove user rooms for game ${event.roomId}: ${error}`);
+				this.logger.error(
+					`Failed to remove user rooms for game ${event.roomId}: ${error}`,
+				);
 			}
 		}
 
 		try {
 			await this.voiceService.deleteVoiceRoom(event.roomId);
-			this.logger.log(`Successfully deleted voice room for game ${event.roomId}`);
+			this.logger.log(
+				`Successfully deleted voice room for game ${event.roomId}`,
+			);
 		} catch (error) {
-			this.logger.error(`Failed to delete voice room for game ${event.roomId}: ${error}`);
+			this.logger.error(
+				`Failed to delete voice room for game ${event.roomId}: ${error}`,
+			);
 		}
 	}
 }

@@ -11,7 +11,9 @@
 		"connectionLost": "Connection lost. Reconnecting...",
 		"connectionRestored": "Connection restored!",
 		"returnToGame": "Return to game",
-		"leaveGame": "Leave game"
+		"leaveGame": "Leave game",
+		"delete": "Delete",
+		"add": "Add"
 	},
 	"login": {
 		"access": "Access your Alias account",
@@ -79,7 +81,22 @@
 			"createFormFocus": "To create a new game, configure the parameters: enter a lobby name, specify round duration, points to win, privacy, difficulty, and words language."
 		},
 		"languageEn": "English",
-		"languageRu": "Russian"
+		"languageRu": "Russian",
+		"wordPacks": "Word Packs",
+		"selectedPacks": "Selected Packs",
+		"noPacksSelected": "No packs selected",
+		"takeWords": "Take words",
+		"availablePacks": "Available Packs",
+		"noAvailablePacks": "No available packs",
+		"errorLoadingPacks": "Error loading word packs",
+		"totalWords": "Total words",
+		"totalWordsInGame": "Total words in game",
+		"wordSourceMode": "Word source",
+		"modePacks": "Predefined packs",
+		"modeCustom": "Custom words (Hat)",
+		"wordsPerPlayer": "Words per player",
+		"selectedPacksCount": "Selected packs",
+		"totalWordsCount": "words"
 	},
 	"api": {
 		"errors": {

@@ -11,7 +11,9 @@
 		"connectionLost": "Соединение потеряно. Переподключение...",
 		"connectionRestored": "Соединение восстановлено!",
 		"returnToGame": "Вернуться в игру",
-		"leaveGame": "Выйти из игры"
+		"leaveGame": "Выйти из игры",
+		"delete": "Удалить",
+		"add": "Добавить"
 	},
 	"login": {
 		"access": "Войдите в свой аккаунт Alias",
@@ -79,7 +81,22 @@
 			"createFormFocus": "Для создания новой игры настройте параметры: введите название лобби, укажите время одного раунда, количество очков для победы, приватность, сложность и язык слов."
 		},
         "languageEn": "Английский",
-        "languageRu": "Русский"
+        "languageRu": "Русский",
+        "wordPacks": "Паки слов",
+        "selectedPacks": "Выбранные паки",
+        "noPacksSelected": "Паки не выбраны",
+        "takeWords": "Взять слов",
+        "availablePacks": "Доступные паки",
+        "noAvailablePacks": "Нет доступных паков",
+        "errorLoadingPacks": "Ошибка при загрузке паков слов",
+        "totalWords": "Всего слов",
+        "totalWordsInGame": "Всего слов в игре",
+        "wordSourceMode": "Режим слов",
+        "modePacks": "Готовые паки",
+        "modeCustom": "Свои слова (Шляпа)",
+        "wordsPerPlayer": "Слов от каждого игрока",
+        "selectedPacksCount": "Выбрано паков",
+        "totalWordsCount": "слов"
 	},
 	"api": {
 		"errors": {

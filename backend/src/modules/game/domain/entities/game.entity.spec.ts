@@ -16,7 +16,7 @@ describe("GameEntity Domain", () => {
 			pointsToWin: 50,
 			code: "ABCD",
 			isPrivate: false,
-			level: "medium",
+			wordPackSelections: [{ packId: "pack-1", count: 100 }],
 			language: "ru",
 			isOnlyOwnerCanNextRound: false,
 			isOnlyOwnerCanChangeScore: false,

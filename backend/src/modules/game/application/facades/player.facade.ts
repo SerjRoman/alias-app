@@ -4,8 +4,9 @@ import { GetUserRoomUseCase } from "../use-cases/player/get-user-room.use-case";
 import { KickPlayerUseCase } from "../use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "../use-cases/player/set-player-offline.use-case";
 import { BanPlayerUseCase } from "../use-cases/player/ban-player.use-case";
+import { SubmitCustomWordsUseCase } from "../use-cases/player/submit-custom-words.use-case";
 import { UserDto } from "@common/dto/user.dto";
-import { KickPlayerDto, BanPlayerDto } from "../dto/body";
+import { KickPlayerDto, BanPlayerDto, SubmitCustomWordsDto } from "../dto/body";
 
 @Injectable()
 export class PlayerFacade {
@@ -15,6 +16,7 @@ export class PlayerFacade {
 		private readonly kickPlayerUseCase: KickPlayerUseCase,
 		private readonly setPlayerOfflineUseCase: SetPlayerOfflineUseCase,
 		private readonly banPlayerUseCase: BanPlayerUseCase,
+		private readonly submitCustomWordsUseCase: SubmitCustomWordsUseCase,
 	) {}
 
 	async getUserRoom(userId: string) {
@@ -35,5 +37,9 @@ export class PlayerFacade {
 
 	async setPlayerOffline(roomId: string, actor: UserDto) {
 		return this.setPlayerOfflineUseCase.execute(roomId, actor);
+	}
+
+	async submitCustomWords(dto: SubmitCustomWordsDto, actor: UserDto) {
+		return this.submitCustomWordsUseCase.execute(dto, actor);
 	}
 }

@@ -26,7 +26,6 @@ export class StartPointingUseCase {
 			throw new RoundNotActiveError();
 		}
 
-		await this.gameSharedService.checkAndSetWordsForGame(room);
 		room.startPointing(actor.id);
 		this.roundScheduler.clearRoundTimeout(dto.roomId);
 		await this.gameRepository.saveGame(room);

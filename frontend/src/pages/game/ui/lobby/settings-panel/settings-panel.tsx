@@ -2,11 +2,17 @@ import { Check, Copy, Settings } from "lucide-react";
 import styles from "./settings-panel.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { type GameStateDetails, type GameWordsLevel } from "@entities/game";
+import { type GameStateDetails, type GameWordsLevel, WordPacksModal } from "@entities/game";
 import { socketClient } from "@shared/api";
 import { Button, Tooltip } from "@shared/ui";
 import { Select } from "@shared/ui/select";
 import { useTranslation } from "react-i18next";
+import { useModal } from "@shared/lib/hooks";
+
+interface WordPacksModalProps {
+	selectedPacks: { packId: string; count: number }[];
+	onSave: (selections: { packId: string; count: number }[]) => void;
+}
 
 const LEVELS = ["easy", "medium", "hard"] as const;
 
@@ -23,8 +29,11 @@ export function SettingsPanel({
 	const levelSelectRef = useRef<HTMLSelectElement | null>(null);
 	const voiceChatCheckboxRef = useRef<HTMLInputElement | null>(null);
 	const languageSelectRef = useRef<HTMLSelectElement | null>(null);
+	const wordsPerPlayerInputRef = useRef<HTMLInputElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
+	const [wordPackSelections, setWordPackSelections] = useState<{ packId: string; count: number }[]>([]);
+	const [{ open }, WordPackModal] = useModal<WordPacksModalProps>();
 	const code = searchParams.get("code");
 
 	useEffect(() => {
@@ -35,7 +44,7 @@ export function SettingsPanel({
 			timeInputRef.current.value = String(game.settings.roundTimeSeconds);
 		}
 		if (levelSelectRef.current) {
-			levelSelectRef.current.value = game.settings.level;
+			levelSelectRef.current.value = game.settings.level ?? "easy";
 		}
 		if (voiceChatCheckboxRef.current) {
 			voiceChatCheckboxRef.current.checked =
@@ -44,6 +53,10 @@ export function SettingsPanel({
 		if (languageSelectRef.current) {
 			languageSelectRef.current.value = game.settings.language ?? "ru";
 		}
+		if (wordsPerPlayerInputRef.current) {
+			wordsPerPlayerInputRef.current.value = String(game.settings.wordsPerPlayer ?? 0);
+		}
+		setWordPackSelections(game.settings.wordPackSelections ?? []);
 	}, [game.settings]);
 
 	useEffect(() => {
@@ -58,6 +71,7 @@ export function SettingsPanel({
 		overrideLevel?: GameWordsLevel,
 		overrideVoiceChat?: boolean,
 		overrideLanguage?: "ru" | "en",
+		overrideWordPackSelections?: { packId: string; count: number }[],
 	) => {
 		const points = Number(
 			pointsInputRef.current?.value ?? game.settings.pointsToWin,
@@ -68,7 +82,8 @@ export function SettingsPanel({
 		const level =
 			overrideLevel ??
 			(levelSelectRef.current?.value as GameWordsLevel) ??
-			game.settings.level;
+			game.settings.level ??
+			"easy";
 		const isVoiceChatEnabled =
 			overrideVoiceChat ??
 			voiceChatCheckboxRef.current?.checked ??
@@ -79,6 +94,10 @@ export function SettingsPanel({
 			(languageSelectRef.current?.value as "ru" | "en") ??
 			game.settings.language ??
 			"ru";
+		const selections = overrideWordPackSelections ?? wordPackSelections;
+		const perPlayer = Number(
+			wordsPerPlayerInputRef.current?.value ?? game.settings.wordsPerPlayer ?? 0,
+		);
 
 		socketClient.emit("updateGameSettings", {
 			roomId: game.id,
@@ -87,10 +106,17 @@ export function SettingsPanel({
 			level,
 			isVoiceChatEnabled,
 			language,
+			wordPackSelections: selections,
+			wordsPerPlayer: perPlayer,
 		});
 	};
 
 	const handleSaveBlur = () => emitCurrentSettings();
+
+	const handleSavePacks = (selections: { packId: string; count: number }[]) => {
+		setWordPackSelections(selections);
+		emitCurrentSettings(undefined, undefined, undefined, selections);
+	};
 
 	const handleCopyLink = async () => {
 		let inviteLink = `${globalThis.location.origin}/game?id=${game.id}`;
@@ -195,6 +221,53 @@ export function SettingsPanel({
 					</Select>
 				</label>
 
+				<label className={styles.label}>
+					<span>{t("games.wordsPerPlayer")}</span>
+					<input
+						ref={wordsPerPlayerInputRef}
+						className={styles.inputField}
+						type="number"
+						defaultValue={game.settings.wordsPerPlayer ?? 0}
+						onBlur={handleSaveBlur}
+						disabled={!isOwner}
+					/>
+				</label>
+
+				<div className={styles.packsSection}>
+					{isOwner ? (
+						<Button
+							type="button"
+							size="small"
+							onClick={() =>
+								open({
+									selectedPacks: wordPackSelections,
+									onSave: handleSavePacks,
+								})
+							}
+						>
+							{t("games.wordPacks")}
+						</Button>
+					) : (
+						<span className={styles.packsLabelReadOnly}>
+							{t("games.wordPacks")}:
+						</span>
+					)}
+
+					{wordPackSelections.length > 0 ? (
+						<span className={styles.packsSummaryText}>
+							{t("games.selectedPacksCount")}:{" "}
+							{wordPackSelections.length} (
+							{t("games.totalWordsCount")}:{" "}
+							{wordPackSelections.reduce((sum, item) => sum + item.count, 0)}
+							)
+						</span>
+					) : (
+						<span className={styles.noPacksWarning}>
+							{t("games.noPacksSelected")}
+						</span>
+					)}
+				</div>
+
 				<label className={styles.labelCheckbox}>
 					<input
 						ref={voiceChatCheckboxRef}
@@ -211,6 +284,7 @@ export function SettingsPanel({
 					<span>{t("gameSettings.voiceChat")}</span>
 				</label>
 			</div>
+			<WordPackModal ModalComponent={WordPacksModal} />
 		</div>
 	);
 }

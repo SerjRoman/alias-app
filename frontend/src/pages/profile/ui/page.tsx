@@ -1,10 +1,10 @@
 import { useQuery } from "@shared/api";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import type { GameWordsLevel } from "@entities/game";
 import { useAuth } from "@entities/auth";
 import { ProfileInfo } from "./profile-info/profile-info";
 import { GamesList } from "./games-list/games-list";
+import type { GameSummaryResponse } from "@entities/game";
 import styles from "./page.module.css";
 
 export const ProfilePage = () => {
@@ -38,10 +38,6 @@ export const ProfilePage = () => {
 			select: (data) => ({
 				items: data.items.map((game) => ({
 					...game,
-					settings: {
-						...game.settings,
-						level: game.settings.level as GameWordsLevel,
-					},
 					participants: game.participants.map((p) => ({
 						...p,
 						displayData: {
@@ -76,7 +72,7 @@ export const ProfilePage = () => {
 				{isGamesLoading ? (
 					<p>{t("profile.loadingGames")}</p>
 				) : gamesData?.items && gamesData.items.length > 0 ? (
-					<GamesList games={gamesData.items} />
+					<GamesList games={gamesData.items as any as GameSummaryResponse[]} />
 				) : (
 					<p>{t("profile.noGames")}</p>
 				)}

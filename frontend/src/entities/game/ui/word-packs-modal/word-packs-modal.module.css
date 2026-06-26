@@ -1,0 +1,243 @@
+.modalContent {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-large);
+	width: 90%;
+	max-width: 650px;
+	max-height: 85vh;
+	display: flex;
+	flex-direction: column;
+	color: var(--color-text);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+	animation: slideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+	gap: var(--spacing-medium);
+}
+
+@keyframes slideUp {
+	from {
+		transform: scale(0.96);
+		opacity: 0;
+	}
+	to {
+		transform: scale(1);
+		opacity: 1;
+	}
+}
+
+.header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	border-bottom: 1px solid var(--color-border);
+	padding-bottom: var(--spacing-small);
+}
+
+.title {
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: var(--color-text);
+}
+
+.closeButton {
+	background: transparent;
+	border: none;
+	color: var(--color-text);
+	opacity: 0.6;
+	font-size: 1.5rem;
+	cursor: pointer;
+	transition:
+		opacity 0.2s,
+		background-color 0.2s;
+	padding: 4px 8px;
+	border-radius: 50%;
+	line-height: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.closeButton:hover {
+	opacity: 1;
+	background-color: var(--color-hover);
+}
+
+.body {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+	gap: var(--spacing-medium);
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+	overflow: hidden;
+}
+
+.sectionTitle {
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: var(--color-primary);
+}
+
+.packsList {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+	overflow-y: auto;
+	max-height: 220px;
+	padding: var(--spacing-small);
+}
+
+.packsList::-webkit-scrollbar {
+	width: 6px;
+}
+.packsList::-webkit-scrollbar-track {
+	background: transparent;
+}
+.packsList::-webkit-scrollbar-thumb {
+	background: var(--color-border);
+	border-radius: 3px;
+}
+
+.packCard {
+	background: var(--color-background);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-medium);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition:
+		border-color 0.2s,
+		transform 0.2s,
+		box-shadow 0.2s;
+	gap: var(--spacing-medium);
+}
+
+.packCard:hover {
+	border-color: var(--color-primary);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.packInfo {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
+.packName {
+	font-weight: 600;
+	font-size: 0.95rem;
+	color: var(--color-text);
+}
+
+.packMeta {
+	font-size: 0.8rem;
+	color: var(--color-text);
+	opacity: 0.7;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+}
+
+.packDescription {
+	font-size: 0.8rem;
+	color: var(--color-text);
+	opacity: 0.6;
+}
+
+.tag {
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	color: var(--color-text);
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+}
+
+.selectedPackCard {
+	border-color: var(--color-primary);
+	background: var(--color-active);
+}
+
+.wordCountControl {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.wordCountLabel {
+	font-size: 0.85rem;
+	color: var(--color-text);
+	opacity: 0.8;
+}
+
+.wordCountInput {
+	width: 80px;
+	background: var(--color-surface);
+	border: 1px solid var(--color-border);
+	border-radius: var(--border-radius);
+	color: var(--color-text);
+	padding: 6px 8px;
+	font-size: 0.9rem;
+	text-align: center;
+	transition: border-color 0.2s;
+}
+
+.wordCountInput:focus {
+	border-color: var(--color-primary);
+	outline: none;
+}
+
+.emptyState {
+	font-size: 0.9rem;
+	color: var(--color-text);
+	opacity: 0.6;
+	text-align: center;
+	padding: var(--spacing-large);
+	border: 1px dashed var(--color-border);
+	border-radius: var(--border-radius);
+}
+
+.footer {
+	border-top: 1px solid var(--color-border);
+	padding-top: var(--spacing-medium);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.summary {
+	font-size: 1rem;
+	font-weight: 500;
+	color: var(--color-text);
+}
+
+.summaryHighlight {
+	color: var(--color-primary);
+	font-weight: 600;
+	font-size: 1.1rem;
+}
+
+.actions {
+	display: flex;
+	gap: 12px;
+}
+
+.loader,
+.error {
+	text-align: center;
+	padding: var(--spacing-large) 0;
+	color: var(--color-text);
+	font-size: 1rem;
+}
+
+.error {
+	color: var(--color-error);
+}

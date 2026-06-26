@@ -96,7 +96,7 @@ export function GamesPage() {
 				) : (
 					games && (
 						<GameList
-							games={sortedGames as GameState[]}
+							games={sortedGames as any as GameState[]}
 							onJoin={handleJoin}
 							showAssistant={assistantState.show}
 						/>

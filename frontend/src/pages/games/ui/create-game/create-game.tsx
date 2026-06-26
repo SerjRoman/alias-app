@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { useModal } from "@shared/lib/hooks";
+import { WordPacksModal } from "@entities/game";
 
 const createGameSchema = z.object({
 	name: z
@@ -25,16 +27,33 @@ const createGameSchema = z.object({
 		.min(5, "Points to win must be at least 5")
 		.max(1000, "Points to win must be at most 1000"),
 	isPrivate: z.enum(["true", "false"]),
-	level: z.enum(["easy", "medium", "hard"]),
+	wordsPerPlayer: z
+		.number()
+		.int()
+		.min(0, "Custom words count cannot be negative")
+		.max(50, "Players cannot submit more than 50 words each"),
+	wordPackSelections: z
+		.array(
+			z.object({
+				packId: z.uuid(),
+				count: z.number().int().positive(),
+			}),
+		)
+		.optional(),
 	language: z.enum(["ru", "en"]),
 });
 
 type CreateGameValues = z.infer<typeof createGameSchema>;
 
+interface WordPacksModalProps {
+	selectedPacks: { packId: string; count: number }[];
+	onSave: (selections: { packId: string; count: number }[]) => void;
+}
+
 export function CreateGameForm({
 	showAssistant,
 }: Readonly<{
-	showAssistant?: (msg: any) => void;
+	showAssistant?: (msg: string | null) => void;
 }>) {
 	const {
 		mutate: createGame,
@@ -45,11 +64,14 @@ export function CreateGameForm({
 	const { token } = useAuth();
 	const navigate = useNavigate();
 	const { t } = useTranslation();
+	const [{ open }, WordPackModal] = useModal<WordPacksModalProps>();
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
+		setValue,
+		watch,
 	} = useForm<CreateGameValues>({
 		resolver: zodResolver(createGameSchema),
 		defaultValues: {
@@ -57,10 +79,13 @@ export function CreateGameForm({
 			roundTimeSeconds: 60,
 			pointsToWin: 30,
 			isPrivate: "false",
-			level: "easy",
+			wordsPerPlayer: 0,
+			wordPackSelections: [],
 			language: "ru",
 		},
 	});
+
+	const wordPackSelections = watch("wordPackSelections") || [];
 
 	const onSubmit = (data: CreateGameValues) => {
 		createGame(
@@ -70,8 +95,9 @@ export function CreateGameForm({
 					roundTimeSeconds: data.roundTimeSeconds,
 					isPrivate: data.isPrivate === "true",
 					pointsToWin: data.pointsToWin,
-					level: data.level,
 					language: data.language,
+					wordsPerPlayer: data.wordsPerPlayer || 0,
+					wordPackSelections: data.wordPackSelections || [],
 					isOnlyOwnerCanNextRound: true,
 					isOnlyOwnerCanChangeScore: true,
 				},
@@ -89,6 +115,11 @@ export function CreateGameForm({
 		);
 	};
 
+	const totalWordsInPacks = wordPackSelections.reduce(
+		(sum, item) => sum + item.count,
+		0,
+	);
+
 	return (
 		<form className={styles.formCard} onSubmit={handleSubmit(onSubmit)}>
 			<h3 className={styles.title}>{t("games.create")}</h3>
@@ -101,7 +132,9 @@ export function CreateGameForm({
 					{...register("name", {
 						onBlur: () => showAssistant?.(null),
 					})}
-					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
+					onFocus={() =>
+						showAssistant?.(t("games.assistant.createFormFocus"))
+					}
 				/>
 
 				<Input
@@ -113,7 +146,9 @@ export function CreateGameForm({
 						valueAsNumber: true,
 						onBlur: () => showAssistant?.(null),
 					})}
-					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
+					onFocus={() =>
+						showAssistant?.(t("games.assistant.createFormFocus"))
+					}
 				/>
 
 				<Input
@@ -125,7 +160,9 @@ export function CreateGameForm({
 						valueAsNumber: true,
 						onBlur: () => showAssistant?.(null),
 					})}
-					onFocus={() => showAssistant?.(t("games.assistant.createFormFocus"))}
+					onFocus={() =>
+						showAssistant?.(t("games.assistant.createFormFocus"))
+					}
 				/>
 
 				<div className={styles.privateBlock}>
@@ -154,22 +191,69 @@ export function CreateGameForm({
 					</label>
 				</div>
 
-				<label className={styles.selectLevelLabel}>
-					{t("games.level")}:{" "}
-					<Select
-						className={styles.selectLevel}
-						{...register("level")}
+				<Input
+					type="number"
+					label={`${t("games.wordsPerPlayer")}:`}
+					error={errors.wordsPerPlayer?.message}
+					{...register("wordsPerPlayer", {
+						valueAsNumber: true,
+						onBlur: () => showAssistant?.(null),
+					})}
+					onFocus={() =>
+						showAssistant?.(t("games.assistant.createFormFocus"))
+					}
+				/>
+
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: "6px",
+					}}
+				>
+					<Button
+						type="button"
+						onClick={() =>
+							open({
+								selectedPacks: wordPackSelections,
+								onSave: (selections) =>
+									setValue(
+										"wordPackSelections",
+										selections,
+									),
+							})
+						}
 					>
-						{["easy", "medium", "hard"].map((lvl) => (
-							<option key={lvl} value={lvl}>
-								{lvl.charAt(0).toUpperCase() + lvl.slice(1)}
-							</option>
-						))}
-					</Select>
-				</label>
+						{t("games.wordPacks")}
+					</Button>
+					{wordPackSelections.length > 0 ? (
+						<span
+							style={{
+								fontSize: "0.85rem",
+								color: "#a0a0b0",
+								textAlign: "center",
+							}}
+						>
+							{t("games.selectedPacksCount")}:{" "}
+							{wordPackSelections.length} (
+							{t("games.totalWordsCount")}:{" "}
+							{totalWordsInPacks})
+						</span>
+					) : (
+						<span
+							style={{
+								fontSize: "0.85rem",
+								color: "#ef4444",
+								textAlign: "center",
+							}}
+						>
+							{t("games.noPacksSelected")}
+						</span>
+					)}
+				</div>
 
 				<label className={styles.selectLevelLabel}>
-					{t("games.language")}:{" "}
+					{t("games.language") || "Язык слов"}:{" "}
 					<Select
 						className={styles.selectLevel}
 						{...register("language")}
@@ -183,16 +267,19 @@ export function CreateGameForm({
 			<Button
 				className={styles.button}
 				type="submit"
-				disabled={isPending}
+				disabled={
+					isPending ||
+					(wordPackSelections.length === 0 && (watch("wordsPerPlayer") || 0) === 0)
+				}
 			>
 				{isPending ? t("common.creating") : t("games.createGame")}
 			</Button>
-
 			{isError && (
 				<div className={styles.serverError}>
 					{translateApiError(t, error)}
 				</div>
 			)}
+			<WordPackModal ModalComponent={WordPacksModal}></WordPackModal>
 		</form>
 	);
 }

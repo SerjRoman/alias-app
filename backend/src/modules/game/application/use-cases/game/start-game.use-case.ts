@@ -20,12 +20,19 @@ export class StartGameUseCase {
 	) {}
 	async execute(roomId: string, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(roomId);
-		await this.dictionaryService.setWordsForGame(
-			roomId,
-			100,
-			room.settings.level,
-			room.settings.language,
-		);
+		if (room.settings.wordsPerPlayer > 0) {
+			const playerIds = room.players.map((p) => p.id);
+			await this.dictionaryService.loadShuffledCustomWords(
+				roomId,
+				playerIds,
+				room.settings.wordPackSelections || [],
+			);
+		} else {
+			await this.dictionaryService.loadGameWords(
+				roomId,
+				room.settings.wordPackSelections || [],
+			);
+		}
 		room.startGame(actor.id);
 		room.createRound();
 		await this.gameRepository.saveGame(room);

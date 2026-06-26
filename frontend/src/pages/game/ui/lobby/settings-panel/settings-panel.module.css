@@ -143,3 +143,28 @@ select.inputField:disabled {
 	gap: 6px;
 }
 
+.packsSection {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 150px;
+	justify-content: flex-end;
+	padding-bottom: 6px;
+}
+
+.packsLabelReadOnly {
+	font-size: 0.9rem;
+	color: var(--color-text);
+	font-weight: 500;
+}
+
+.packsSummaryText {
+	font-size: 0.85rem;
+	color: #6b7280;
+}
+
+.noPacksWarning {
+	font-size: 0.85rem;
+	color: var(--color-error);
+}
+

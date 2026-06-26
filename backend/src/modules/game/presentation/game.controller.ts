@@ -30,6 +30,7 @@ import {
 	JoinGameDto,
 	GetRoomCodeDto,
 	ValidateCodeDto,
+	SubmitCustomWordsDto,
 } from "../application/dto/body";
 import {
 	GameResponseDto,
@@ -135,6 +136,31 @@ export class GameController {
 			`Received delete request with id=${id} userId=${user.id}`,
 		);
 		return this.gameFacade.delete(id, user);
+	}
+
+	@Post("submit-words")
+	@UseGuards(JwtAuthGuard)
+	@HttpCode(HttpStatus.OK)
+	@ApiBearerAuth()
+	@ApiOperation({
+		summary: "Submit custom words for the game (custom mode only)",
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "Successfully submitted custom words.",
+		type: GameResponseDto,
+	})
+	async submitCustomWords(
+		@Body() dto: SubmitCustomWordsDto,
+		@GetAuthenticatedUser() user: UserDto,
+	) {
+		this.logger.log(
+			`Received submitCustomWords request with body=${JSON.stringify(dto)} userId=${user.id}`,
+		);
+		const room = await this.playerFacade.submitCustomWords(dto, user);
+		return plainToInstance(GameResponseDto, room, {
+			excludeExtraneousValues: true,
+		});
 	}
 
 	@Post("join")

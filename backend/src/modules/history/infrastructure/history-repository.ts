@@ -85,7 +85,9 @@ export class HistoryRepository implements IHistoryRepository {
 			.addOrderBy("rounds.roundNumber", "ASC")
 			.getMany();
 
-		const entitiesById = new Map(ormEntities.map((entity) => [entity.id, entity]));
+		const entitiesById = new Map(
+			ormEntities.map((entity) => [entity.id, entity]),
+		);
 		const orderedEntities = gameIds
 			.map((id) => entitiesById.get(id))
 			.filter((entity): entity is HistoryGameOrmEntity => !!entity);

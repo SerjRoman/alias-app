@@ -1,6 +1,7 @@
 // TECH_DEBT: Вынести обработку таймаута раунда в отдельный метод, который будет вызываться как из планировщика, так и при форсированном старте раунда. Это позволит избежать дублирования кода и обеспечит более чистую архитектуру.
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { RoundNotActiveError } from "../../../domain/errors/round.errors";
+import { GameError } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
 import { type RoundUpdatedPayload, ROUND_UPDATED } from "../../game.events";
 import {
@@ -10,8 +11,10 @@ import {
 import { RoundScheduler } from "../../round-scheduler.service";
 import { StartRoundDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
-import { Inject } from "@nestjs/common";
+import { DictionaryService } from "../../dictionary.service";
+import { Inject, Injectable } from "@nestjs/common";
 
+@Injectable()
 export class StartRoundForcedUseCase {
 	constructor(
 		private readonly gameSharedService: GameSharedService,
@@ -19,6 +22,7 @@ export class StartRoundForcedUseCase {
 		private readonly gameRepository: IGameRepository,
 		private readonly eventEmitter: EventEmitter2,
 		private readonly roundScheduler: RoundScheduler,
+		private readonly dictionaryService: DictionaryService,
 	) {}
 	async execute(dto: StartRoundDto, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
@@ -34,9 +38,13 @@ export class StartRoundForcedUseCase {
 				void this.handleRoundTimeout(room.id);
 			},
 		);
-		const text = await this.gameSharedService.getWordForGameSession(room);
+		const text = await this.dictionaryService.popWordForGame(room.id);
+		if (!text) {
+			throw new GameError(
+				"Unexpected error: no words available for the game",
+			);
+		}
 
-		await this.gameSharedService.checkAndSetWordsForGame(room);
 		room.nextWord(room.currentRound.guesserId, text, false);
 
 		await this.gameRepository.saveGame(room);
@@ -55,7 +63,6 @@ export class StartRoundForcedUseCase {
 			throw new RoundNotActiveError();
 		}
 
-		await this.gameSharedService.checkAndSetWordsForGame(room);
 		room.startPointing();
 		await this.gameRepository.saveGame(room);
 

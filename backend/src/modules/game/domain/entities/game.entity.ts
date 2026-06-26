@@ -1,17 +1,3 @@
-/*
-Game 
-Начинается при готовности всех игроков в игре
-Начать игру
-Закончить игру
-Удалить игрока игры
-Добавить игрока в игру
-Изменение текущего состояние игры
-Время на раунд/Изменение времени на раунд
-Название комнаты/изменение названия комнаты
-Количество очков для победы
-Если очков достаточно для победы, тогда игра заканчивается и есть победитель
-*/
-
 import { TeamEntity } from "./team.entity";
 import { TeamError, TeamNotFoundError } from "../errors/team.errors";
 import {
@@ -54,7 +40,10 @@ export enum GameStatus {
 	IN_PROGRESS = "IN_PROGRESS",
 	FINISHED = "FINISHED",
 }
-export type GameWordsLevel = "easy" | "medium" | "hard";
+export interface WordPackSelection {
+	packId: string;
+	count: number;
+}
 
 export interface GameSettings {
 	name: string;
@@ -62,7 +51,8 @@ export interface GameSettings {
 	pointsToWin: number;
 	code: string | null;
 	isPrivate: boolean;
-	level: GameWordsLevel;
+	wordPackSelections: WordPackSelection[];
+	wordsPerPlayer: number;
 	language: "ru" | "en";
 	isOnlyOwnerCanNextRound: boolean;
 	isOnlyOwnerCanChangeScore: boolean;

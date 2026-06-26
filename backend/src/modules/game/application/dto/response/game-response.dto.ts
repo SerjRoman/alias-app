@@ -3,7 +3,7 @@ import { Expose, Type } from "class-transformer";
 import {
 	type GameSettings as DetailsGameSettings,
 	GameStatus,
-	type GameWordsLevel,
+	type WordPackSelection,
 } from "../../../domain/entities/game.entity";
 import { PlayerResponseDto } from "./player.dto";
 import { RoundResponseDto } from "./round-response.dto";
@@ -11,8 +11,30 @@ import { TeamResponseDto } from "./team-response.dto";
 
 type GameSettings = Pick<
 	DetailsGameSettings,
-	"name" | "roundTimeSeconds" | "pointsToWin" | "isPrivate" | "isVoiceChatEnabled"
+	| "name"
+	| "roundTimeSeconds"
+	| "pointsToWin"
+	| "isPrivate"
+	| "isVoiceChatEnabled"
+	| "wordPackSelections"
+	| "wordsPerPlayer"
 >;
+
+export class WordPackSelectionDto implements WordPackSelection {
+	@ApiProperty({
+		description: "The unique identifier of the word pack",
+		example: "123e4567-e89b-12d3-a456-426614174000",
+	})
+	@Expose()
+	packId: string;
+
+	@ApiProperty({
+		description: "The number of words to select from the word pack",
+		example: 1000,
+	})
+	@Expose()
+	count: number;
+}
 export class GameSettingsDto implements GameSettings {
 	@ApiProperty({
 		description: "The name of the game room",
@@ -39,11 +61,12 @@ export class GameSettingsDto implements GameSettings {
 	@Expose()
 	isPrivate: boolean;
 	@ApiProperty({
-		description: "The difficulty level of the words used in the game",
-		example: "medium",
+		type: [WordPackSelectionDto],
+		description: "List of word pack selections",
 	})
 	@Expose()
-	level: GameWordsLevel;
+	@Type(() => WordPackSelectionDto)
+	wordPackSelections: WordPackSelection[];
 	@ApiProperty({
 		description: "Whether only owner can start next round",
 		example: true,
@@ -63,6 +86,15 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	isVoiceChatEnabled: boolean;
+
+
+
+	@ApiProperty({
+		description: "Number of custom words each player must submit",
+		example: 5,
+	})
+	@Expose()
+	wordsPerPlayer: number;
 
 	@ApiProperty({
 		description: "The language of the words used in the game",

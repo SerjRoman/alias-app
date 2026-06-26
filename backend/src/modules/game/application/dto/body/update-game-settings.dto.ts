@@ -1,16 +1,20 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
-	IsString,
-	MinLength,
-	MaxLength,
-	IsOptional,
+	IsArray,
 	IsBoolean,
-	IsNumber,
-	IsPositive,
-	IsUUID,
 	IsIn,
+	IsNumber,
+	IsOptional,
+	IsPositive,
+	IsString,
+	IsUUID,
+	MaxLength,
+	MinLength,
+	ValidateNested,
+	Min,
 } from "class-validator";
-import type { GameWordsLevel } from "../../../domain/entities/game.entity";
+import { Type } from "class-transformer";
+import { WordPackSelectionDto } from "./create-game.dto";
 
 export class UpdateGameSettingsDto {
 	@ApiProperty({
@@ -40,7 +44,6 @@ export class UpdateGameSettingsDto {
 	@IsBoolean()
 	isPrivate?: boolean;
 
-
 	@ApiProperty({
 		description: "The round time in seconds",
 		example: 60,
@@ -60,14 +63,17 @@ export class UpdateGameSettingsDto {
 	pointsToWin?: number;
 
 	@ApiProperty({
-		description: "The difficulty level of the words used in the game",
-		example: "medium",
-		enum: ["easy", "medium", "hard"],
+		description: "Word pack selections for the game",
+		example: [
+			{ packId: "123e4567-e89b-12d3-a456-426614174000", count: 1000 },
+		],
+		type: [WordPackSelectionDto],
 	})
-	@IsString()
+	@IsArray()
+	@ValidateNested({ each: true })
+	@Type(() => WordPackSelectionDto)
 	@IsOptional()
-	@IsIn(["easy", "medium", "hard"])
-	level?: GameWordsLevel;
+	wordPackSelections?: WordPackSelectionDto[];
 
 	@ApiProperty({
 		description: "Whether voice chat is enabled for the game",
@@ -77,6 +83,16 @@ export class UpdateGameSettingsDto {
 	@IsOptional()
 	@IsBoolean()
 	isVoiceChatEnabled?: boolean;
+
+	@ApiProperty({
+		description:
+			"Number of custom words each player must submit",
+		example: 5,
+	})
+	@IsNumber()
+	@Min(0)
+	@IsOptional()
+	wordsPerPlayer?: number;
 
 	@ApiProperty({
 		description: "The language of the words used in the game",

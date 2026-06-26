@@ -31,6 +31,7 @@ import { GetUserRoomUseCase } from "./application/use-cases/player/get-user-room
 import { KickPlayerUseCase } from "./application/use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "./application/use-cases/player/set-player-offline.use-case";
 import { BanPlayerUseCase } from "./application/use-cases/player/ban-player.use-case";
+import { SubmitCustomWordsUseCase } from "./application/use-cases/player/submit-custom-words.use-case";
 import { StartRoundUseCase } from "./application/use-cases/round/start-round.use-case";
 import { ToggleRoundReadyUseCase } from "./application/use-cases/round/toggle-round-ready.use-case";
 import { CreateTeamUseCase } from "./application/use-cases/team/create-team.use-case";
@@ -44,14 +45,16 @@ import { ShufflePlayersUseCase } from "./application/use-cases/game/shuffle-play
 import { ChangeRoundTimeUseCase } from "./application/use-cases/round/change-round-time.use-case";
 import { StartPointingUseCase } from "./application/use-cases/round/start-pointing.use-case";
 import { StartRoundForcedUseCase } from "./application/use-cases/round/start-round-forced.use-case";
-import {
-	DICTIONARY_REPOSITORY,
-} from "./application/dictionary.repository.interface";
+import { DICTIONARY_REPOSITORY } from "./application/dictionary.repository.interface";
 import { RedisDictionaryRepository } from "./infrastructure/redis-dictionary.repository";
 import { VoiceService } from "./application/voice.service";
 import { CleanupGameResourcesHandler } from "./application/handlers/cleanup-game-resources.handler";
+import { WordPackModule } from "../word-pack/word-pack.module";
+import { WORD_PACK_CLIENT } from "./application/word-pack-client.interface";
+import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
 
 @Module({
+	imports: [WordPackModule],
 	providers: [
 		GameGateway,
 		GameSharedService,
@@ -70,6 +73,10 @@ import { CleanupGameResourcesHandler } from "./application/handlers/cleanup-game
 		{
 			provide: DICTIONARY_REPOSITORY,
 			useClass: RedisDictionaryRepository,
+		},
+		{
+			provide: WORD_PACK_CLIENT,
+			useClass: LocalWordPackClient,
 		},
 		// Use cases:
 		ChangeWordScoreUseCase,
@@ -93,6 +100,7 @@ import { CleanupGameResourcesHandler } from "./application/handlers/cleanup-game
 		KickPlayerUseCase,
 		SetPlayerOfflineUseCase,
 		BanPlayerUseCase,
+		SubmitCustomWordsUseCase,
 		StartRoundUseCase,
 		ToggleRoundReadyUseCase,
 		CreateTeamUseCase,

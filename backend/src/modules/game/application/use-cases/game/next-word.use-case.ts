@@ -30,13 +30,8 @@ export class NextWordUseCase {
 		room.assertRoundInProgress();
 		room.assertIsGuesser(actor.id);
 
-		if (room.currentRound.currentWord !== null) {
-			await this.dictionaryService.popWordForGame(room.id);
-		}
-
-		const text = await this.gameSharedService.getWordForGameSession(room);
+		const text = await this.dictionaryService.popWordForGame(room.id);
 		const newWord = room.nextWord(actor.id, text, dto.wasSkipped);
-		await this.gameSharedService.checkAndSetWordsForGame(room);
 		await this.gameRepository.saveGame(room);
 
 		const eventPayload: RoundUpdatedPayload = {

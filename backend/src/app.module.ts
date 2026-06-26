@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { RedisModule } from "./common/infrastructure/redis/redis.module";
 import { GameModule } from "./modules/game/game.module";
 import { UserModule } from "./modules/user/user.module";
+import { WordPackModule } from "./modules/word-pack/word-pack.module";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { JwtStrategy } from "./common/strategies/jwt.strategy";
@@ -68,6 +69,7 @@ import { LoggerModule } from "nestjs-pino";
 		UserModule,
 		GameModule,
 		HistoryModule,
+		WordPackModule,
 		LoggerModule.forRoot({
 			pinoHttp: {
 				transport: {

@@ -20,36 +20,13 @@ export class GameSharedService {
 	}
 
 	public async getWordForGameSession(room: GameEntity) {
-		let text: string | null = await this.dictionaryService.getLastWordForGame(
-			room.id,
-		);
-		if (!text) {
-			await this.dictionaryService.setWordsForGame(
-				room.id,
-				100,
-				room.settings.level,
-				room.settings.language,
-			);
-		}
-		text = await this.dictionaryService.getLastWordForGame(room.id);
+		const text = await this.dictionaryService.getLastWordForGame(room.id);
 		if (!text) {
 			throw new GameError(
 				"Unexpected error: no words available for the game",
 			);
 		}
 		return text;
-	}
-
-	public async checkAndSetWordsForGame(room: GameEntity) {
-		const words = await this.dictionaryService.getWordsForGame(room.id);
-		if (words.length < 10) {
-			await this.dictionaryService.setWordsForGame(
-				room.id,
-				100,
-				room.settings.level,
-				room.settings.language,
-			);
-		}
 	}
 
 	public generateRoomCode(length: number): string {

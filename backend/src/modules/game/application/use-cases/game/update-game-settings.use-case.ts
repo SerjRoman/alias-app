@@ -7,7 +7,10 @@ import {
 import { UpdateGameSettingsDto } from "../../dto/body";
 import { Injectable, Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { GAME_SETTINGS_UPDATED, type GameSettingsUpdatedPayload } from "../../game.events";
+import {
+	GAME_SETTINGS_UPDATED,
+	type GameSettingsUpdatedPayload,
+} from "../../game.events";
 
 @Injectable()
 export class UpdateGameSettingsUseCase {
@@ -18,7 +21,7 @@ export class UpdateGameSettingsUseCase {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 	async execute(settingsDto: UpdateGameSettingsDto, actor: UserDto) {
-		const {roomId, ...settingsToUpdate} = { ...settingsDto };
+		const { roomId, ...settingsToUpdate } = { ...settingsDto };
 		const room = await this.gameSharedService.loadGame(roomId);
 		room.assertRoomOwner(actor.id);
 

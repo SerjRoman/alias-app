@@ -1,7 +1,12 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InvalidGameCode } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
-import { type GameUpdatedPayload, GAME_UPDATED } from "../../game.events";
+import {
+	type GameUpdatedPayload,
+	GAME_UPDATED,
+	PLAYERS_UPDATED,
+	TEAMS_UPDATED,
+} from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
@@ -19,6 +24,29 @@ export class JoinGameUseCase {
 		private readonly eventEmitter: EventEmitter2,
 	) {}
 	async execute(dto: JoinGameDto, actor: UserDto) {
+		const currentRoomId = await this.repository.getUserRoom(actor.id);
+		if (currentRoomId && currentRoomId !== dto.roomId) {
+			try {
+				const oldRoom =
+					await this.gameSharedService.loadGame(currentRoomId);
+				oldRoom.leaveGame(actor.id);
+				await this.repository.saveGame(oldRoom);
+				await this.repository.removeUserRoom(actor.id);
+
+				const oldRoomPrimitives = oldRoom.toPrimitives();
+				this.eventEmitter.emit(TEAMS_UPDATED, {
+					roomId: oldRoom.id,
+					teams: oldRoomPrimitives.teams,
+				});
+				this.eventEmitter.emit(PLAYERS_UPDATED, {
+					roomId: oldRoom.id,
+					players: oldRoomPrimitives.players,
+				});
+			} catch (e) {
+				await this.repository.removeUserRoom(actor.id);
+			}
+		}
+
 		const room = await this.gameSharedService.loadGame(dto.roomId);
 		if (room.settings.isPrivate && room.settings.code) {
 			if (!dto.code) {

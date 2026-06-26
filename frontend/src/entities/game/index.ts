@@ -19,6 +19,7 @@ export {
 	usePlayersDisplayMap,
 	GameVoiceRenderer,
 	type PlayerDisplayInfo,
+	WordPacksModal,
 } from "./ui";
 export { getVoiceParticipantUserId } from "./lib/voice";
 export {

@@ -3,6 +3,7 @@ import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
 import { Logger } from "nestjs-pino";
+import { json, urlencoded } from "express";
 
 async function bootstrap() {
 	const isProd = process.env.NODE_ENV === "production";
@@ -15,7 +16,10 @@ async function bootstrap() {
 				: "*",
 			credentials: true,
 		},
+		bodyParser: false,
 	});
+	app.use(json({ limit: "10mb" }));
+	app.use(urlencoded({ extended: true, limit: "10mb" }));
 	app.useGlobalPipes(
 		new ValidationPipe({
 			transform: true,

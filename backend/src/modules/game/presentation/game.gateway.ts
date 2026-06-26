@@ -55,6 +55,7 @@ import {
 	ShufflePlayersDto,
 	ChangeRoundTimeDto,
 	StartPointingDto,
+	SubmitCustomWordsDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
@@ -125,6 +126,18 @@ export class GameGateway implements OnGatewayDisconnect {
 			clearTimeout(this.disconnectTimeouts.get(userId));
 			this.disconnectTimeouts.delete(userId);
 		}
+
+		// Если игрок уже в другой комнате — выходим из неё
+		const { roomId: currentRoomId } =
+			await this.playerFacade.getGameIdByUserId(userId);
+		if (currentRoomId && currentRoomId !== dto.roomId) {
+			this.logger.log(
+				`User ${client.data.user.name} is in room ${currentRoomId}, leaving before joining ${dto.roomId}`,
+			);
+			await this.gameFacade.leaveGame(currentRoomId, client.data.user);
+			client.leave(currentRoomId);
+		}
+
 		const room = await this.gameFacade.joinGame(dto, client.data.user);
 		await client.join(dto.roomId);
 		const publicState = plainToInstance(GameResponseDetailsDto, room, {
@@ -145,6 +158,24 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.gameFacade.startGame(dto.roomId, client.data.user);
 	}
+
+	@SubscribeMessage("submitCustomWords")
+	async submitCustomWords(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: SubmitCustomWordsDto,
+	) {
+		this.logger.log(
+			`Received submitCustomWords from client ${client.id} UserID ${client.data.user.name}`,
+		);
+		const room = await this.playerFacade.submitCustomWords(
+			dto,
+			client.data.user,
+		);
+		return plainToInstance(GameResponseDetailsDto, room, {
+			excludeExtraneousValues: true,
+		});
+	}
+
 	@SubscribeMessage("updateGameSettings")
 	async updateGameSettings(
 		@ConnectedSocket() client: GameSocket,

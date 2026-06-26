@@ -175,6 +175,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/games/submit-words": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit custom words for the game (custom mode only) */
+        post: operations["GameController_submitCustomWords"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/games/join": {
         parameters: {
             query?: never;
@@ -252,6 +269,40 @@ export interface paths {
         };
         /** Get a token to join the voice channel for a game room */
         get: operations["GameController_getVoiceRoomToken"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/word-packs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all available word packs */
+        get: operations["WordPackController_getPacks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/word-packs/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a specific word pack by ID */
+        get: operations["WordPackController_getPackById"];
         put?: never;
         post?: never;
         delete?: never;
@@ -436,6 +487,18 @@ export interface components {
             /** @description New avatar URL */
             newAvatar: string;
         };
+        WordPackSelectionDto: {
+            /**
+             * @description The unique identifier of the word pack
+             * @example 123e4567-e89b-12d3-a456-426614174000
+             */
+            packId: string;
+            /**
+             * @description The number of words to select from the word pack
+             * @example 1000
+             */
+            count: number;
+        };
         GameSettingsDto: {
             /**
              * @description The name of the game room
@@ -457,11 +520,8 @@ export interface components {
              * @example false
              */
             isPrivate: boolean;
-            /**
-             * @description The difficulty level of the words used in the game
-             * @example medium
-             */
-            level: string;
+            /** @description List of word pack selections */
+            wordPackSelections: components["schemas"]["WordPackSelectionDto"][];
             /**
              * @description Whether only owner can start next round
              * @example true
@@ -472,7 +532,24 @@ export interface components {
              * @example true
              */
             isOnlyOwnerCanChangeScore: boolean;
-            language?: "ru" | "en";
+            /**
+             * @description Whether voice chat is enabled for this game room
+             * @default true
+             * @example true
+             */
+            isVoiceChatEnabled: boolean;
+
+            /**
+             * @description Number of custom words each player must submit
+             * @example 5
+             */
+            wordsPerPlayer: number;
+            /**
+             * @description The language of the words used in the game
+             * @example ru
+             * @enum {string}
+             */
+            language: "ru" | "en";
         };
         GameResponseDto: {
             /**
@@ -484,10 +561,10 @@ export interface components {
             ownerId: string;
             /** @enum {string} */
             status: "LOBBY" | "IN_PROGRESS" | "FINISHED";
-            /** @description Current game settings */
-            settings: components["schemas"]["GameSettingsDto"];
             playersCount: number;
             createdAt: number;
+            /** @description Current game settings */
+            settings: components["schemas"]["GameSettingsDto"];
         };
         CreateGameDto: {
             /**
@@ -512,16 +589,33 @@ export interface components {
              */
             pointsToWin: number;
             /**
-             * @description The difficulty level of the words used in the game
-             * @example medium
-             * @enum {string}
+             * @description Word pack selections for the game
+             * @example [
+             *       {
+             *         "packId": "123e4567-e89b-12d3-a456-426614174000",
+             *         "count": 1000
+             *       }
+             *     ]
              */
-            level: "easy" | "medium" | "hard";
+            wordPackSelections?: components["schemas"]["WordPackSelectionDto"][];
+
+            /**
+             * @description Number of custom words each player must submit (only in custom mode)
+             * @default 5
+             * @example 5
+             */
+            wordsPerPlayer: number;
             /** @default true */
             isOnlyOwnerCanNextRound: boolean;
             /** @default true */
             isOnlyOwnerCanChangeScore: boolean;
-            language?: "ru" | "en";
+            /**
+             * @description The language of the words used in the game
+             * @default ru
+             * @example ru
+             * @enum {string}
+             */
+            language: "ru" | "en";
         };
         CreateGameResponseDto: {
             /**
@@ -533,11 +627,27 @@ export interface components {
             ownerId: string;
             /** @enum {string} */
             status: "LOBBY" | "IN_PROGRESS" | "FINISHED";
-            /** @description Current game settings */
-            settings: components["schemas"]["GameSettingsDto"];
             playersCount: number;
             createdAt: number;
+            /** @description Current game settings */
+            settings: components["schemas"]["GameSettingsDto"];
             code: string;
+        };
+        SubmitCustomWordsDto: {
+            /**
+             * @description The unique identifier of the game room
+             * @example 123e4567-e89b-12d3-a456-426614174000
+             */
+            roomId: string;
+            /**
+             * @description Array of words written by the user
+             * @example [
+             *       "apple",
+             *       "banana",
+             *       "cherry"
+             *     ]
+             */
+            words: string[];
         };
         JoinGameDto: {
             /**
@@ -562,12 +672,12 @@ export interface components {
              * @description The unique identifier of the game
              * @example 123e4567-e89b-12d3-a456-426614174000
              */
-            roomId: string | null;
+            roomId: Record<string, never> | null;
             /**
              * @description The passcode/code of the private game, if applicable
              * @example 123456
              */
-            code?: string | null;
+            code: Record<string, never> | null;
         };
         ValidateCodeDto: {
             code: string;
@@ -586,6 +696,22 @@ export interface components {
              * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
              */
             token: string;
+        };
+        WordPackResponseDto: {
+            /** @example a1b2c3d4-e5f6-7890-1234-567890abcdef */
+            id: string;
+            /** @example Classic Pack */
+            name: string;
+            /** @example Contains standard vocabulary words. */
+            description: string | null;
+            /** @example en */
+            language: string;
+            /** @example standard */
+            type: string;
+            /** @example 1250 */
+            wordCount: number;
+            /** @example user-123 */
+            createdBy: Record<string, never> | null;
         };
         ParticipantDisplayDataDto: {
             isRegistered: boolean;
@@ -996,6 +1122,30 @@ export interface operations {
             };
         };
     };
+    GameController_submitCustomWords: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitCustomWordsDto"];
+            };
+        };
+        responses: {
+            /** @description Successfully submitted custom words. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GameResponseDto"];
+                };
+            };
+        };
+    };
     GameController_join: {
         parameters: {
             query?: never;
@@ -1148,6 +1298,56 @@ export interface operations {
                 };
             };
             /** @description The game room with the specified ID was not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    WordPackController_getPacks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns a list of word packs. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WordPackResponseDto"][];
+                };
+            };
+        };
+    };
+    WordPackController_getPackById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the word pack. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns the word pack details. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WordPackResponseDto"];
+                };
+            };
+            /** @description The word pack with the specified ID was not found. */
             404: {
                 headers: {
                     [name: string]: unknown;

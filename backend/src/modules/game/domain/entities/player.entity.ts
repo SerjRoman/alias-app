@@ -6,6 +6,7 @@ export interface PlayerState {
 	score: number;
 	isOnline: boolean;
 	role: "anonymous" | "registered";
+	submittedWordsCount: number;
 }
 
 export class PlayerEntity {
@@ -37,6 +38,13 @@ export class PlayerEntity {
 	get name() {
 		return this.state.name;
 	}
+	get submittedWordsCount() {
+		return this.state.submittedWordsCount;
+	}
+
+	setSubmittedWordsCount(count: number) {
+		this.state.submittedWordsCount = count;
+	}
 
 	toggleReady() {
 		this.state.isReady = !this.state.isReady;
@@ -60,6 +68,7 @@ export class PlayerEntity {
 		this.state.isReady = false;
 		this.state.isRoundReady = false;
 		this.state.score = 0;
+		this.state.submittedWordsCount = 0;
 	}
 	toPrimitives() {
 		return {
@@ -82,6 +91,7 @@ export class PlayerEntity {
 			score: 0,
 			isOnline: true,
 			role,
+			submittedWordsCount: 0,
 		});
 	}
 }
