@@ -13,7 +13,8 @@
 		"returnToGame": "Return to game",
 		"leaveGame": "Leave game",
 		"delete": "Delete",
-		"add": "Add"
+		"add": "Add",
+		"edit": "Edit"
 	},
 	"login": {
 		"access": "Access your Alias account",
@@ -96,7 +97,14 @@
 		"modeCustom": "Custom words (Hat)",
 		"wordsPerPlayer": "Words per player",
 		"selectedPacksCount": "Selected packs",
-		"totalWordsCount": "words"
+		"totalWordsCount": "words",
+		"enableHatMode": "Enable",
+		"errorFillAllWords": "Please enter all {{count}} words",
+		"wordsSubmittedSuccess": "Your words have been submitted!",
+		"submitCustomWordsTitle": "Words for the Hat",
+		"submitCustomWordsSubtitle": "Enter exactly {{count}} words for the game:",
+		"word": "Word",
+		"submittedWordsCount": "Words submitted"
 	},
 	"api": {
 		"errors": {
@@ -105,6 +113,10 @@
 			"validation": "Please check the entered data.",
 			"fallback": "An unexpected error occurred"
 		}
+	},
+	"validation": {
+		"required": "Required field",
+		"emptySpaces": "Word cannot be empty or just spaces"
 	},
 	"profile": {
 		"title": "User Profile",

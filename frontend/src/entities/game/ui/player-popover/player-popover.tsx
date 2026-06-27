@@ -19,6 +19,9 @@ interface PlayerPopoverProps {
 	playerAvatar?: string;
 	playerUsername?: string;
 	triggerClassName?: string;
+	submittedWordsCount?: number;
+	wordsPerPlayer?: number;
+	isHatMode?: boolean;
 }
 
 export function PlayerPopover({
@@ -34,11 +37,18 @@ export function PlayerPopover({
 	playerAvatar,
 	playerUsername,
 	triggerClassName,
+	submittedWordsCount,
+	wordsPerPlayer,
+	isHatMode,
 }: Readonly<PlayerPopoverProps>) {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const displayName = playerName || t("playerPopover.unknownPlayer");
 	const displayAvatar = playerAvatar || USER_DEFAULT_AVATAR_URL;
+	const hasSubmittedAll = isHatMode && wordsPerPlayer && submittedWordsCount === wordsPerPlayer;
+	const displayNameText = isHatMode && wordsPerPlayer && wordsPerPlayer > 0
+		? `${displayName} (${submittedWordsCount ?? 0}/${wordsPerPlayer})${hasSubmittedAll ? " ✓" : ""}`
+		: displayName;
 	const triggerClassNames = [styles.triggerButton, triggerClassName]
 		.filter(Boolean)
 		.join(" ");
@@ -62,7 +72,7 @@ export function PlayerPopover({
 							alt={displayName}
 							className={styles.triggerAvatar}
 						/>
-						<span className={styles.triggerName}>{displayName}</span>
+						<span className={styles.triggerName}>{displayNameText}</span>
 						{shouldShowMeta && (
 							<div className={styles.triggerMeta}>
 								{playerIsSpeaking && (
@@ -127,6 +137,11 @@ export function PlayerPopover({
 										{playerIsOnline
 											? t("playerPopover.online")
 											: t("playerPopover.offline")}
+									</p>
+								)}
+								{isHatMode && wordsPerPlayer !== undefined && wordsPerPlayer > 0 && (
+									<p className={styles.popoverText}>
+										{t("games.submittedWordsCount") || "Слов отправлено"}: <strong>{submittedWordsCount ?? 0}/{wordsPerPlayer}</strong>
 									</p>
 								)}
 							</div>

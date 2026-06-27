@@ -549,7 +549,7 @@ export interface components {
              * @example ru
              * @enum {string}
              */
-            language: "ru" | "en";
+            isHatMode: boolean;
         };
         GameResponseDto: {
             /**
@@ -609,13 +609,7 @@ export interface components {
             isOnlyOwnerCanNextRound: boolean;
             /** @default true */
             isOnlyOwnerCanChangeScore: boolean;
-            /**
-             * @description The language of the words used in the game
-             * @default ru
-             * @example ru
-             * @enum {string}
-             */
-            language: "ru" | "en";
+            isHatMode?: boolean;
         };
         CreateGameResponseDto: {
             /**

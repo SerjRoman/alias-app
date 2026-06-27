@@ -95,12 +95,11 @@ export class UpdateGameSettingsDto {
 	wordsPerPlayer?: number;
 
 	@ApiProperty({
-		description: "The language of the words used in the game",
-		example: "ru",
-		enum: ["ru", "en"],
+		description: "Whether hat mode is enabled",
+		example: false,
 	})
-	@IsString()
+	@IsBoolean()
 	@IsOptional()
-	@IsIn(["ru", "en"])
-	language?: "ru" | "en";
+	isHatMode?: boolean;
+
 }

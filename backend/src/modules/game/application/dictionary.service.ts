@@ -146,17 +146,44 @@ export class DictionaryService {
 		}
 	}
 
-	public clearGameCache(roomId: string): void {
+	public async clearGameResources(
+		roomId: string,
+		playerIds: string[],
+	): Promise<void> {
 		this.gameWordsCache.delete(roomId);
 		this.logger.log(`Cleared word cache for room ${roomId}`);
-		void this.dictionaryRepository
-			.clearCustomWords(roomId)
-			.catch((err) =>
+
+		await Promise.all([
+			this.dictionaryRepository.clearCustomWords(roomId).catch((err) =>
 				this.logger.error(
 					`Failed to clear custom words for room ${roomId}`,
 					err,
 				),
-			);
+			),
+			this.dictionaryRepository.setWords(roomId, []).catch((err) =>
+				this.logger.error(
+					`Failed to clear standard words for room ${roomId}`,
+					err,
+				),
+			),
+			...playerIds.map((playerId) =>
+				this.dictionaryRepository
+					.clearCustomWordsForPlayer(roomId, playerId)
+					.catch((err) =>
+						this.logger.error(
+							`Failed to clear custom words for room ${roomId} player ${playerId}`,
+							err,
+						),
+					),
+			),
+		]);
+	}
+
+	public async clearCustomWordsForPlayer(
+		roomId: string,
+		playerId: string,
+	): Promise<void> {
+		await this.dictionaryRepository.clearCustomWordsForPlayer(roomId, playerId);
 	}
 
 	private async refillCache(roomId: string): Promise<void> {

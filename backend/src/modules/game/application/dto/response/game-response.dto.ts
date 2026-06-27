@@ -18,6 +18,7 @@ type GameSettings = Pick<
 	| "isVoiceChatEnabled"
 	| "wordPackSelections"
 	| "wordsPerPlayer"
+	| "isHatMode"
 >;
 
 export class WordPackSelectionDto implements WordPackSelection {
@@ -97,12 +98,12 @@ export class GameSettingsDto implements GameSettings {
 	wordsPerPlayer: number;
 
 	@ApiProperty({
-		description: "The language of the words used in the game",
-		example: "ru",
-		enum: ["ru", "en"],
+		description: "Whether hat mode is enabled",
+		example: false,
 	})
 	@Expose()
-	language: "ru" | "en";
+	isHatMode: boolean;
+
 }
 export class BaseGameResponseDto {
 	@ApiProperty({

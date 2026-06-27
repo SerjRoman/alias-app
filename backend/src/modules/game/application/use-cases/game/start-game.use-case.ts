@@ -20,7 +20,7 @@ export class StartGameUseCase {
 	) {}
 	async execute(roomId: string, actor: UserDto) {
 		const room = await this.gameSharedService.loadGame(roomId);
-		if (room.settings.wordsPerPlayer > 0) {
+		if (room.settings.isHatMode) {
 			const playerIds = room.players.map((p) => p.id);
 			await this.dictionaryService.loadShuffledCustomWords(
 				roomId,

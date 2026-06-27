@@ -9,6 +9,7 @@ import { useAuth } from "@entities/auth";
 import { useGameSlice, type PlayerDisplayInfo } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
+import { CustomWordsForm } from "./custom-words-form/custom-words-form";
 import { Button, Tooltip, RandomDice } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 import { generateTeamName } from "../../lib";
@@ -100,6 +101,21 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 					<p className={styles.emptyMessage}>{t("lobby.noTeams")}</p>
 				)}
 			</div>
+			{game.settings.isHatMode && allAssignedIds.has(user.id) && (
+				<div
+					style={{
+						maxWidth: "450px",
+						width: "100%",
+						margin: "0 auto var(--spacing-medium) auto",
+					}}
+				>
+					<CustomWordsForm
+						roomId={game.id}
+						wordsCount={game.settings.wordsPerPlayer || 0}
+						submittedWordsCount={mePlayer?.submittedWordsCount || 0}
+					/>
+				</div>
+			)}
 			{allAssignedIds.has(user.id) && (
 				<div className={styles.toggleReadyContainer}>
 					<ToggleGameReadyButton

@@ -11,7 +11,8 @@
 		"connectionLost": "З'єднання втрачено. Перепідключення...",
 		"connectionRestored": "З'єднання відновлено!",
 		"returnToGame": "Повернутися в гру",
-		"leaveGame": "Вийти з гри"
+		"leaveGame": "Вийти з гри",
+		"edit": "Змінити"
 	},
 	"login": {
 		"access": "Увійдіть у свій акаунт Alias",
@@ -79,7 +80,16 @@
 			"createFormFocus": "Для створення нової гри налаштуйте параметри: введіть назву лобі, вкажіть тривалість раунду, кількість очок для перемоги, приватність, складність та мову слів."
 		},
 		"languageEn": "Англійська",
-		"languageRu": "Російська"
+		"languageRu": "Російська",
+		"modeCustom": "Свої слова (Капелюх)",
+		"wordsPerPlayer": "Слів від кожного гравця",
+		"enableHatMode": "Увімкнути",
+		"errorFillAllWords": "Будь ласка, введіть усі {{count}} слів",
+		"wordsSubmittedSuccess": "Ваші слова відправлено!",
+		"submitCustomWordsTitle": "Слова для Капелюха",
+		"submitCustomWordsSubtitle": "Введіть рівно {{count}} слів для гри:",
+		"word": "Слово",
+		"submittedWordsCount": "Слів відправлено"
 	},
 	"api": {
 		"errors": {
@@ -88,6 +98,10 @@
 			"validation": "Будь ласка, перевірте введені дані.",
 			"fallback": "Сталася непередбачена помилка"
 		}
+	},
+	"validation": {
+		"required": "Обов'язкове поле",
+		"emptySpaces": "Слово не може складатися з пробілів"
 	},
 	"profile": {
 		"title": "Профіль користувача",

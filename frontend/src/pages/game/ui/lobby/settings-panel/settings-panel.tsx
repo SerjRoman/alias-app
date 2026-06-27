@@ -2,10 +2,9 @@ import { Check, Copy, Settings } from "lucide-react";
 import styles from "./settings-panel.module.css";
 import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { type GameStateDetails, type GameWordsLevel, WordPacksModal } from "@entities/game";
+import { type GameStateDetails, WordPacksModal } from "@entities/game";
 import { socketClient } from "@shared/api";
 import { Button, Tooltip } from "@shared/ui";
-import { Select } from "@shared/ui/select";
 import { useTranslation } from "react-i18next";
 import { useModal } from "@shared/lib/hooks";
 
@@ -13,8 +12,6 @@ interface WordPacksModalProps {
 	selectedPacks: { packId: string; count: number }[];
 	onSave: (selections: { packId: string; count: number }[]) => void;
 }
-
-const LEVELS = ["easy", "medium", "hard"] as const;
 
 export function SettingsPanel({
 	game,
@@ -26,10 +23,9 @@ export function SettingsPanel({
 
 	const pointsInputRef = useRef<HTMLInputElement | null>(null);
 	const timeInputRef = useRef<HTMLInputElement | null>(null);
-	const levelSelectRef = useRef<HTMLSelectElement | null>(null);
 	const voiceChatCheckboxRef = useRef<HTMLInputElement | null>(null);
-	const languageSelectRef = useRef<HTMLSelectElement | null>(null);
 	const wordsPerPlayerInputRef = useRef<HTMLInputElement | null>(null);
+	const hatModeCheckboxRef = useRef<HTMLInputElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
 	const [wordPackSelections, setWordPackSelections] = useState<{ packId: string; count: number }[]>([]);
@@ -43,18 +39,16 @@ export function SettingsPanel({
 		if (timeInputRef.current) {
 			timeInputRef.current.value = String(game.settings.roundTimeSeconds);
 		}
-		if (levelSelectRef.current) {
-			levelSelectRef.current.value = game.settings.level ?? "easy";
-		}
 		if (voiceChatCheckboxRef.current) {
 			voiceChatCheckboxRef.current.checked =
 				game.settings.isVoiceChatEnabled ?? true;
 		}
-		if (languageSelectRef.current) {
-			languageSelectRef.current.value = game.settings.language ?? "ru";
-		}
 		if (wordsPerPlayerInputRef.current) {
 			wordsPerPlayerInputRef.current.value = String(game.settings.wordsPerPlayer ?? 0);
+		}
+		if (hatModeCheckboxRef.current) {
+			hatModeCheckboxRef.current.checked =
+				game.settings.isHatMode ?? false;
 		}
 		setWordPackSelections(game.settings.wordPackSelections ?? []);
 	}, [game.settings]);
@@ -68,10 +62,9 @@ export function SettingsPanel({
 	}, []);
 
 	const emitCurrentSettings = (
-		overrideLevel?: GameWordsLevel,
 		overrideVoiceChat?: boolean,
-		overrideLanguage?: "ru" | "en",
 		overrideWordPackSelections?: { packId: string; count: number }[],
+		overrideHatMode?: boolean,
 	) => {
 		const points = Number(
 			pointsInputRef.current?.value ?? game.settings.pointsToWin,
@@ -79,34 +72,32 @@ export function SettingsPanel({
 		const time = Number(
 			timeInputRef.current?.value ?? game.settings.roundTimeSeconds,
 		);
-		const level =
-			overrideLevel ??
-			(levelSelectRef.current?.value as GameWordsLevel) ??
-			game.settings.level ??
-			"easy";
 		const isVoiceChatEnabled =
 			overrideVoiceChat ??
 			voiceChatCheckboxRef.current?.checked ??
 			game.settings.isVoiceChatEnabled ??
 			true;
-		const language =
-			overrideLanguage ??
-			(languageSelectRef.current?.value as "ru" | "en") ??
-			game.settings.language ??
-			"ru";
 		const selections = overrideWordPackSelections ?? wordPackSelections;
-		const perPlayer = Number(
-			wordsPerPlayerInputRef.current?.value ?? game.settings.wordsPerPlayer ?? 0,
-		);
+		const isHatMode =
+			overrideHatMode ??
+			hatModeCheckboxRef.current?.checked ??
+			game.settings.isHatMode ??
+			false;
+		const perPlayer = isHatMode
+			? Number(
+					wordsPerPlayerInputRef.current?.value ??
+						game.settings.wordsPerPlayer ??
+						0,
+			  )
+			: 0;
 
 		socketClient.emit("updateGameSettings", {
 			roomId: game.id,
 			pointsToWin: points,
 			roundTimeSeconds: time,
-			level,
 			isVoiceChatEnabled,
-			language,
 			wordPackSelections: selections,
+			isHatMode,
 			wordsPerPlayer: perPlayer,
 		});
 	};
@@ -115,7 +106,7 @@ export function SettingsPanel({
 
 	const handleSavePacks = (selections: { packId: string; count: number }[]) => {
 		setWordPackSelections(selections);
-		emitCurrentSettings(undefined, undefined, undefined, selections);
+		emitCurrentSettings(undefined, selections);
 	};
 
 	const handleCopyLink = async () => {
@@ -135,16 +126,6 @@ export function SettingsPanel({
 		} catch (err) {
 			console.error("Failed to copy link: ", err);
 		}
-	};
-
-	const handleLevelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newLevel = e.target.value as GameWordsLevel;
-		emitCurrentSettings(newLevel);
-	};
-
-	const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const newLang = e.target.value as "ru" | "en";
-		emitCurrentSettings(undefined, undefined, newLang);
 	};
 
 	return (
@@ -191,47 +172,39 @@ export function SettingsPanel({
 					/>
 				</label>
 
-				<label className={styles.label}>
-					<span>{t("gameSettings.wordsDifficulty")}</span>
-					<Select
-						ref={levelSelectRef}
-						className={styles.inputField}
-						defaultValue={game.settings.level}
-						onChange={handleLevelChange}
-						disabled={!isOwner}
-					>
-						{LEVELS.map((lvl) => (
-							<option key={lvl} value={lvl}>
-								{t(`gameSettings.difficulty.${lvl}`)}
-							</option>
-						))}
-					</Select>
-				</label>
 
-				<label className={styles.label}>
-					<span>{t("gameSettings.wordsLanguage")}</span>
-					<Select
-						ref={languageSelectRef}
-						defaultValue={game.settings.language ?? "ru"}
-						onChange={handleLanguageChange}
-						disabled={!isOwner}
-					>
-						<option value="ru">{t("games.languageRu")} (RU)</option>
-						<option value="en">{t("games.languageEn")} (EN)</option>
-					</Select>
-				</label>
 
-				<label className={styles.label}>
-					<span>{t("games.wordsPerPlayer")}</span>
+				<label className={styles.labelCheckbox}>
 					<input
-						ref={wordsPerPlayerInputRef}
-						className={styles.inputField}
-						type="number"
-						defaultValue={game.settings.wordsPerPlayer ?? 0}
-						onBlur={handleSaveBlur}
+						ref={hatModeCheckboxRef}
+						className={styles.checkboxInput}
+						type="checkbox"
+						defaultChecked={game.settings.isHatMode ?? false}
+						onChange={(e) =>
+							emitCurrentSettings(
+								undefined,
+								undefined,
+								e.target.checked,
+							)
+						}
 						disabled={!isOwner}
 					/>
+					<span>{t("games.modeCustom")}</span>
 				</label>
+
+				{(game.settings.isHatMode ?? false) && (
+					<label className={styles.label}>
+						<span>{t("games.wordsPerPlayer")}</span>
+						<input
+							ref={wordsPerPlayerInputRef}
+							className={styles.inputField}
+							type="number"
+							defaultValue={game.settings.wordsPerPlayer ?? 0}
+							onBlur={handleSaveBlur}
+							disabled={!isOwner}
+						/>
+					</label>
+				)}
 
 				<div className={styles.packsSection}>
 					{isOwner ? (
@@ -277,7 +250,7 @@ export function SettingsPanel({
 							game.settings.isVoiceChatEnabled ?? true
 						}
 						onChange={(e) =>
-							emitCurrentSettings(undefined, e.target.checked)
+							emitCurrentSettings(e.target.checked)
 						}
 						disabled={!isOwner}
 					/>

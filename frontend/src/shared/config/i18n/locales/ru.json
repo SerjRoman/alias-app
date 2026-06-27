@@ -13,7 +13,8 @@
 		"returnToGame": "Вернуться в игру",
 		"leaveGame": "Выйти из игры",
 		"delete": "Удалить",
-		"add": "Добавить"
+		"add": "Добавить",
+		"edit": "Изменить"
 	},
 	"login": {
 		"access": "Войдите в свой аккаунт Alias",
@@ -96,7 +97,14 @@
         "modeCustom": "Свои слова (Шляпа)",
         "wordsPerPlayer": "Слов от каждого игрока",
         "selectedPacksCount": "Выбрано паков",
-        "totalWordsCount": "слов"
+        "totalWordsCount": "слов",
+        "enableHatMode": "Включить",
+        "errorFillAllWords": "Пожалуйста, введите все {{count}} слов",
+        "wordsSubmittedSuccess": "Ваши слова отправлены!",
+        "submitCustomWordsTitle": "Слова для Шляпы",
+        "submitCustomWordsSubtitle": "Введите ровно {{count}} слов для игры:",
+        "word": "Слово",
+        "submittedWordsCount": "Слов отправлено"
 	},
 	"api": {
 		"errors": {
@@ -105,6 +113,10 @@
 			"validation": "Пожалуйста, проверьте введенные данные.",
 			"fallback": "Произошла непредвиденная ошибка"
 		}
+	},
+	"validation": {
+		"required": "Обязательное поле",
+		"emptySpaces": "Слово не может состоять из пробелов"
 	},
 	"profile": {
 		"title": "Профиль пользователя",

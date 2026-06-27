@@ -93,6 +93,15 @@ export class CreateGameDto {
 	@IsOptional()
 	wordsPerPlayer?: number = 0;
 
+	@ApiProperty({
+		description: "Whether hat mode is enabled",
+		example: false,
+		default: false,
+	})
+	@IsBoolean()
+	@IsOptional()
+	isHatMode?: boolean = false;
+
 	@ApiProperty({ type: Boolean, default: true })
 	@IsBoolean()
 	@IsOptional()
@@ -103,13 +112,4 @@ export class CreateGameDto {
 	@IsOptional()
 	isOnlyOwnerCanChangeScore?: boolean = true;
 
-	@ApiProperty({
-		description: "The language of the words used in the game",
-		example: "ru",
-		enum: ["ru", "en"],
-		default: "ru",
-	})
-	@IsString()
-	@IsOptional()
-	language?: "ru" | "en" = "ru";
 }

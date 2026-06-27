@@ -1,0 +1,66 @@
+.container {
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: var(--border-radius);
+	padding: var(--spacing-medium);
+	margin-bottom: var(--spacing-medium);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-small);
+	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+	backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
+}
+
+.title {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: var(--color-primary);
+}
+
+.subtitle {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--color-text-muted);
+}
+
+.inputsGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+	gap: var(--spacing-small);
+	margin-top: var(--spacing-small);
+}
+
+.inputField {
+	background: rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: var(--border-radius);
+	color: var(--color-text);
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.errorText {
+	color: #ef4444;
+	font-size: 0.8rem;
+	margin: var(--spacing-small) 0 0 0;
+}
+
+.successText {
+	color: #10b981;
+	font-size: 0.95rem;
+	margin: 0;
+	font-weight: 500;
+}
+
+.actions {
+	display: flex;
+	gap: var(--spacing-small);
+	margin-top: var(--spacing-small);
+}
+
+.submitBtn {
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+	color: white;
+	border: none;
+}

@@ -30,9 +30,15 @@ export class SubmitCustomWordsUseCase {
 		const room = await this.gameSharedService.loadGame(dto.roomId);
 		room.assertGameInLobby();
 
+		if (!room.settings.isHatMode) {
+			throw new GameError(
+				"Hat mode is not enabled in this room",
+			);
+		}
+
 		if (!room.settings.wordsPerPlayer || room.settings.wordsPerPlayer <= 0) {
 			throw new GameError(
-				"This room does not support custom words submission",
+				"Please configure the number of words per player",
 			);
 		}
 

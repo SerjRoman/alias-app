@@ -51,10 +51,9 @@ export interface GameSettings {
 	roundTimeSeconds: number;
 	pointsToWin: number;
 	isPrivate: boolean;
-	level?: GameWordsLevel;
 	wordsPerPlayer?: number;
+	isHatMode?: boolean;
 	wordPackSelections?: { packId: string; count: number }[];
-	language?: "ru" | "en";
 	isVoiceChatEnabled?: boolean;
 }
 export interface GameState {

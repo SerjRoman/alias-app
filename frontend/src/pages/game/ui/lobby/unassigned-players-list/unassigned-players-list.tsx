@@ -18,6 +18,7 @@ export function UnassignedPlayersList({
 }: Readonly<UnassignedPlayersListProps>) {
 	const { t } = useTranslation();
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
+	const settings = useGameSlice((state) => state.game!.settings);
 	if (players.length === 0) return null;
 
 	return (
@@ -40,6 +41,9 @@ export function UnassignedPlayersList({
 								p.name ||
 								t("playerPopover.unknownPlayer")
 							}
+							submittedWordsCount={p.submittedWordsCount}
+							wordsPerPlayer={settings.wordsPerPlayer}
+							isHatMode={settings.isHatMode}
 						/>
 					);
 				})}

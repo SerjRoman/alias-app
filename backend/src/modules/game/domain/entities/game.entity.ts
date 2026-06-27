@@ -53,7 +53,7 @@ export interface GameSettings {
 	isPrivate: boolean;
 	wordPackSelections: WordPackSelection[];
 	wordsPerPlayer: number;
-	language: "ru" | "en";
+	isHatMode: boolean;
 	isOnlyOwnerCanNextRound: boolean;
 	isOnlyOwnerCanChangeScore: boolean;
 	isVoiceChatEnabled: boolean;
@@ -171,6 +171,19 @@ export class GameEntity extends BaseEntity {
 		if (!allReady) {
 			throw new PlayersNotReadyError();
 		}
+		if (this.settings.isHatMode) {
+			const wordsNeeded = this.settings.wordsPerPlayer;
+			const playersWithNotEnoughWords = this._players.filter(
+				(p) => p.submittedWordsCount !== wordsNeeded,
+			);
+			if (playersWithNotEnoughWords.length > 0) {
+				throw new GameError(
+					`All players must submit exactly ${wordsNeeded} words to start. Not submitted: ${playersWithNotEnoughWords
+						.map((p) => p.name)
+						.join(", ")}`,
+				);
+			}
+		}
 	}
 	asserRoundIsActive() {
 		if (!this._currentRound) throw new RoundNotActiveError();
@@ -219,7 +232,24 @@ export class GameEntity extends BaseEntity {
 	updateSettings(newSettings: Partial<GameSettings>, actorId: string) {
 		this.assertRoomOwner(actorId);
 		this.assertGameInLobby();
+
+		const hatModeChanged =
+			newSettings.isHatMode !== undefined &&
+			newSettings.isHatMode !== this.state.settings.isHatMode;
+		const wordsPerPlayerChanged =
+			newSettings.wordsPerPlayer !== undefined &&
+			newSettings.wordsPerPlayer !== this.state.settings.wordsPerPlayer;
+
 		this.state.settings = { ...this.state.settings, ...newSettings };
+		if (this.state.settings.isHatMode === false) {
+			this.state.settings.wordsPerPlayer = 0;
+		}
+
+		if (hatModeChanged || wordsPerPlayerChanged) {
+			for (const p of this._players) {
+				p.setSubmittedWordsCount(0);
+			}
+		}
 	}
 	joinRoom(
 		playerId: string,

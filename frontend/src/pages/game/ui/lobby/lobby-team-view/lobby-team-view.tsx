@@ -27,6 +27,7 @@ export function LobbyTeamView({
 	const roomId = useGameSlice((state) => state.game!.id);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const players = useGameSlice((state) => state.game!.players);
+	const settings = useGameSlice((state) => state.game!.settings);
 
 	const isMyTeam = team.playerIds.includes(currentUserId);
 	const isOwner = currentUserId === ownerId;
@@ -97,6 +98,9 @@ export function LobbyTeamView({
 									t("playerPopover.unknownPlayer")
 								}
 								triggerClassName={styles.triggerButton}
+								submittedWordsCount={player.submittedWordsCount}
+								wordsPerPlayer={settings.wordsPerPlayer}
+								isHatMode={settings.isHatMode}
 							/>
 						</li>
 					);

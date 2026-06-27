@@ -6,6 +6,7 @@ import {
 	type IGameRepository,
 } from "../game.repository.interface";
 import { VoiceService } from "../voice.service";
+import { DictionaryService } from "../dictionary.service";
 
 @Injectable()
 export class CleanupGameResourcesHandler {
@@ -15,6 +16,7 @@ export class CleanupGameResourcesHandler {
 		@Inject(GAME_REPOSITORY)
 		private readonly gameRepository: IGameRepository,
 		private readonly voiceService: VoiceService,
+		private readonly dictionaryService: DictionaryService,
 	) {}
 
 	@OnEvent(GameDeletedEvent.eventName)
@@ -44,6 +46,20 @@ export class CleanupGameResourcesHandler {
 		} catch (error) {
 			this.logger.error(
 				`Failed to delete voice room for game ${event.roomId}: ${error}`,
+			);
+		}
+
+		try {
+			await this.dictionaryService.clearGameResources(
+				event.roomId,
+				event.playerIds || [],
+			);
+			this.logger.log(
+				`Successfully cleared dictionary words and custom words for game ${event.roomId}`,
+			);
+		} catch (error) {
+			this.logger.error(
+				`Failed to clear dictionary words and custom words for game ${event.roomId}: ${error}`,
 			);
 		}
 	}

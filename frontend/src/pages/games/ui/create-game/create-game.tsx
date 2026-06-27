@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useMutation, translateApiError } from "@shared/api";
 import { useAuth } from "@entities/auth";
 import { Button, Input } from "@shared/ui";
-import { Select } from "@shared/ui/select";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -27,6 +26,7 @@ const createGameSchema = z.object({
 		.min(5, "Points to win must be at least 5")
 		.max(1000, "Points to win must be at most 1000"),
 	isPrivate: z.enum(["true", "false"]),
+	isHatMode: z.boolean(),
 	wordsPerPlayer: z
 		.number()
 		.int()
@@ -40,7 +40,14 @@ const createGameSchema = z.object({
 			}),
 		)
 		.optional(),
-	language: z.enum(["ru", "en"]),
+}).refine(data => {
+	if (data.isHatMode && data.wordsPerPlayer <= 0) {
+		return false;
+	}
+	return true;
+}, {
+	message: "Words per player must be greater than 0 when Hat Mode is enabled",
+	path: ["wordsPerPlayer"]
 });
 
 type CreateGameValues = z.infer<typeof createGameSchema>;
@@ -79,9 +86,9 @@ export function CreateGameForm({
 			roundTimeSeconds: 60,
 			pointsToWin: 30,
 			isPrivate: "false",
+			isHatMode: false,
 			wordsPerPlayer: 0,
 			wordPackSelections: [],
-			language: "ru",
 		},
 	});
 
@@ -95,8 +102,8 @@ export function CreateGameForm({
 					roundTimeSeconds: data.roundTimeSeconds,
 					isPrivate: data.isPrivate === "true",
 					pointsToWin: data.pointsToWin,
-					language: data.language,
-					wordsPerPlayer: data.wordsPerPlayer || 0,
+					isHatMode: data.isHatMode,
+					wordsPerPlayer: data.isHatMode ? (data.wordsPerPlayer || 0) : 0,
 					wordPackSelections: data.wordPackSelections || [],
 					isOnlyOwnerCanNextRound: true,
 					isOnlyOwnerCanChangeScore: true,
@@ -191,18 +198,34 @@ export function CreateGameForm({
 					</label>
 				</div>
 
-				<Input
-					type="number"
-					label={`${t("games.wordsPerPlayer")}:`}
-					error={errors.wordsPerPlayer?.message}
-					{...register("wordsPerPlayer", {
-						valueAsNumber: true,
-						onBlur: () => showAssistant?.(null),
-					})}
-					onFocus={() =>
-						showAssistant?.(t("games.assistant.createFormFocus"))
-					}
-				/>
+				<div className={styles.privateBlock}>
+					<span className={styles.labelTitle}>
+						{t("games.modeCustom")}:
+					</span>
+					<label className={styles.radioLabel}>
+						<input
+							className={styles.radioInput}
+							type="checkbox"
+							{...register("isHatMode")}
+						/>{" "}
+						{t("games.enableHatMode") || "Включить"}
+					</label>
+				</div>
+
+				{watch("isHatMode") && (
+					<Input
+						type="number"
+						label={`${t("games.wordsPerPlayer")}:`}
+						error={errors.wordsPerPlayer?.message}
+						{...register("wordsPerPlayer", {
+							valueAsNumber: true,
+							onBlur: () => showAssistant?.(null),
+						})}
+						onFocus={() =>
+							showAssistant?.(t("games.assistant.createFormFocus"))
+						}
+					/>
+				)}
 
 				<div
 					style={{
@@ -251,17 +274,6 @@ export function CreateGameForm({
 						</span>
 					)}
 				</div>
-
-				<label className={styles.selectLevelLabel}>
-					{t("games.language") || "Язык слов"}:{" "}
-					<Select
-						className={styles.selectLevel}
-						{...register("language")}
-					>
-						<option value="ru">{t("games.languageRu")} (RU)</option>
-						<option value="en">{t("games.languageEn")} (EN)</option>
-					</Select>
-				</label>
 			</div>
 
 			<Button
@@ -269,7 +281,7 @@ export function CreateGameForm({
 				type="submit"
 				disabled={
 					isPending ||
-					(wordPackSelections.length === 0 && (watch("wordsPerPlayer") || 0) === 0)
+					(!watch("isHatMode") && wordPackSelections.length === 0)
 				}
 			>
 				{isPending ? t("common.creating") : t("games.createGame")}
