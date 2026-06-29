@@ -6,7 +6,10 @@ import { LogOut } from "lucide-react";
 import { Button } from "@shared/ui";
 import { Select } from "@shared/ui/select";
 import { useTranslation } from "react-i18next";
-import { ConfirmationModal, type ConfirmationModalProps } from "@shared/ui/modal";
+import {
+	ConfirmationModal,
+	type ConfirmationModalProps,
+} from "@shared/ui/modal";
 import { useModal } from "@shared/lib/hooks";
 
 export interface AdminPanelProps {
@@ -20,9 +23,8 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 	const [selectedKickId, setSelectedKickId] = useState("");
 	const [selectedTeamId, setSelectedTeamId] = useState("");
 	const [selectedPlayerId, setSelectedPlayerId] = useState("");
-	const [modalControl, ModalProvider] = useModal<
-		Omit<ConfirmationModalProps, "isOpen" | "onClose">
-	>();
+	const [modalControl, ModalProvider] =
+		useModal<Omit<ConfirmationModalProps, "isOpen" | "onClose">>();
 	const {
 		setGuesser,
 		kickPlayer,
@@ -202,10 +204,15 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						variant="secondary"
 						onClick={() => {
 							if (!selectedKickId) return;
-							const playerName = game.players?.find((p) => p.id === selectedKickId)?.name || "";
+							const playerName =
+								game.players?.find(
+									(p) => p.id === selectedKickId,
+								)?.name || "";
 							modalControl.open({
 								title: t("admin.kickTitle"),
-								message: t("admin.kickConfirm", { name: playerName }),
+								message: t("admin.kickConfirm", {
+									name: playerName,
+								}),
 								confirmText: t("admin.kickButton"),
 								variant: "secondary",
 								onConfirm: () => {
@@ -222,10 +229,15 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						variant="danger"
 						onClick={() => {
 							if (!selectedKickId) return;
-							const playerName = game.players?.find((p) => p.id === selectedKickId)?.name || "";
+							const playerName =
+								game.players?.find(
+									(p) => p.id === selectedKickId,
+								)?.name || "";
 							modalControl.open({
 								title: t("admin.banTitle"),
-								message: t("admin.banConfirm", { name: playerName }),
+								message: t("admin.banConfirm", {
+									name: playerName,
+								}),
 								confirmText: t("admin.banButton"),
 								variant: "danger",
 								onConfirm: () => {

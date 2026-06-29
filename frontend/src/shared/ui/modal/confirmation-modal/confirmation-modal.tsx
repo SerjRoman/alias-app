@@ -27,7 +27,11 @@ export function ConfirmationModal({
 }: Readonly<ConfirmationModalProps>) {
 	const { t } = useTranslation();
 	return (
-		<Modal isOpen={isOpen} onClose={onClose} className={styles.modalContent}>
+		<Modal
+			isOpen={isOpen}
+			onClose={onClose}
+			className={styles.modalContent}
+		>
 			<h4 className={styles.modalTitle}>{title}</h4>
 			<div className={styles.modalText}>{message}</div>
 			<div className={styles.modalActions}>

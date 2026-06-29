@@ -145,7 +145,11 @@ export function LoginPage() {
 
 						{loginMutation.isError && (
 							<div className={styles.serverError}>
-								{translateApiError(t, loginMutation.error, LOGIN_ERROR_MESSAGES)}
+								{translateApiError(
+									t,
+									loginMutation.error,
+									LOGIN_ERROR_MESSAGES,
+								)}
 							</div>
 						)}
 					</form>
@@ -204,7 +208,11 @@ export function LoginPage() {
 
 						{registerMutation.isError && (
 							<div className={styles.serverError}>
-								{translateApiError(t, registerMutation.error, REGISTER_ERROR_MESSAGES)}
+								{translateApiError(
+									t,
+									registerMutation.error,
+									REGISTER_ERROR_MESSAGES,
+								)}
 							</div>
 						)}
 					</form>

@@ -73,7 +73,7 @@ export interface GameState {
 	lastTeamPlayedIndex: number;
 	createdAt: number;
 	nextRoundNumber: number;
-	kickedPlayerIds?: string[];
+	bannedPlayerIds?: string[];
 }
 
 export class GameEntity extends BaseEntity {
@@ -140,7 +140,7 @@ export class GameEntity extends BaseEntity {
 	}
 	// Guards
 	assertNotBanned(playerId: string) {
-		if (this.state.kickedPlayerIds?.includes(playerId)) {
+		if (this.state.bannedPlayerIds?.includes(playerId)) {
 			throw new PlayerPermanentlyKickedError();
 		}
 	}
@@ -342,9 +342,9 @@ export class GameEntity extends BaseEntity {
 			throw new GameError("Owner cannot kick himself");
 		}
 		this.leaveGame(playerId);
-		this.state.kickedPlayerIds ??= [];
-		if (!this.state.kickedPlayerIds.includes(playerId)) {
-			this.state.kickedPlayerIds.push(playerId);
+		this.state.bannedPlayerIds ??= [];
+		if (!this.state.bannedPlayerIds.includes(playerId)) {
+			this.state.bannedPlayerIds.push(playerId);
 		}
 	}
 	startGame(actorId: string) {
@@ -556,7 +556,7 @@ export class GameEntity extends BaseEntity {
 				? this._currentRound.toPrimitives()
 				: null,
 			players: this._players.map((p) => p.toPrimitives()),
-			kickedPlayerIds: this.state.kickedPlayerIds ?? [],
+			bannedPlayerIds: this.state.bannedPlayerIds ?? [],
 		};
 	}
 	static fromPrimitives(state: GameState): GameEntity {
