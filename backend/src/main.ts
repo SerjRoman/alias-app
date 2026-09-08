@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { ValidationPipe } from "@nestjs/common";
 import { Logger } from "nestjs-pino";
 import { json, urlencoded } from "express";
+import { RedisIoAdapter } from "./common/adapters/redis-io.adapter";
 
 async function bootstrap() {
 	const isProd = process.env.NODE_ENV === "production";
@@ -18,6 +19,12 @@ async function bootstrap() {
 		},
 		bodyParser: false,
 	});
+	app.enableShutdownHooks();
+
+	const redisIoAdapter = new RedisIoAdapter(app);
+	await redisIoAdapter.connectToRedis();
+	app.useWebSocketAdapter(redisIoAdapter);
+
 	app.use(json({ limit: "10mb" }));
 	app.use(urlencoded({ extended: true, limit: "10mb" }));
 	app.useGlobalPipes(
@@ -44,4 +51,4 @@ async function bootstrap() {
 
 	await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
+void bootstrap();

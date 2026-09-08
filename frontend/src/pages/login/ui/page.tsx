@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
-import { useAuth, type User } from "@entities/auth";
 import { Button, Input } from "@shared/ui";
-import { useMutation, translateApiError } from "@shared/api";
+import { useMutation, translateApiError, useAuth, type User } from "@shared/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -22,20 +21,27 @@ type AuthTab = "login" | "register";
 
 type LoginResponse = {
 	accessToken: string;
+	refreshToken?: string;
 	user: User;
 };
 
 function applyAuthResult(
-	setToken: (token: string | null) => void,
-	setUser: (user: User | null) => void,
+	setAuth: (data: {
+		token: string | null;
+		refreshToken?: string | null;
+		user: User | null;
+	}) => void,
 	data: LoginResponse,
 ) {
-	setToken(data.accessToken);
-	setUser(data.user);
+	setAuth({
+		token: data.accessToken,
+		refreshToken: data.refreshToken,
+		user: data.user,
+	});
 }
 
 export function LoginPage() {
-	const { setToken, setUser } = useAuth();
+	const { setAuth } = useAuth();
 	const [activeTab, setActiveTab] = useState<AuthTab>("login");
 	const { t } = useTranslation();
 	const loginMutation = useMutation("post", "/user/login");
@@ -60,7 +66,7 @@ export function LoginPage() {
 				},
 			},
 			{
-				onSuccess: (data) => applyAuthResult(setToken, setUser, data),
+				onSuccess: (data) => applyAuthResult(setAuth, data),
 			},
 		);
 	};
@@ -76,7 +82,7 @@ export function LoginPage() {
 				},
 			},
 			{
-				onSuccess: (data) => applyAuthResult(setToken, setUser, data),
+				onSuccess: (data) => applyAuthResult(setAuth, data),
 			},
 		);
 	};

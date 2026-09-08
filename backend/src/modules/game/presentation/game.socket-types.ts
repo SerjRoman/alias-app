@@ -1,5 +1,5 @@
 import type { Server, Socket } from "socket.io";
-import {
+import type {
 	ToggleGameReadyDto,
 	UpdateGameSettingsDto,
 	JoinGameDto,
@@ -8,7 +8,7 @@ import {
 	StartRoundDto,
 	ChangeWordScoreDto,
 } from "../application/dto/body";
-import {
+import type {
 	GameResponseDetailsDto,
 	GameUpdateResponseDto,
 	TeamResponseDto,
@@ -17,7 +17,7 @@ import {
 	WordResponseDto,
 	GameSettingsDto,
 } from "../application/dto/response";
-import { AuthenticatedUser } from "@common/types/authenticated-user";
+import type { AuthenticatedUser } from "@common/types/authenticated-user";
 
 interface ServerToClientEvents {
 	gameUpdated: (data: GameUpdateResponseDto) => void;

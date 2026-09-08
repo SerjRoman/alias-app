@@ -19,6 +19,7 @@ import {
 import { LoginDto } from "./dto/login.dto";
 import { RegisterDto } from "./dto/register.dto";
 import { AnonymousLoginDto } from "./dto/anonymous-login.dto";
+import { RefreshTokenDto } from "./dto/refresh-token.dto";
 import {
 	ApiTags,
 	ApiOperation,
@@ -134,6 +135,41 @@ export class UserController {
 			LoginResponseDto,
 			await this.userFacade.register(dto),
 		);
+	}
+
+	@Post("refresh")
+	@ApiOperation({ summary: "Refresh access token using refresh token" })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "New access and refresh tokens.",
+		type: LoginResponseDto,
+	})
+	@ApiResponse({
+		status: HttpStatus.UNAUTHORIZED,
+		description: "Unauthorized. Invalid or revoked refresh token.",
+	})
+	async refresh(@Body() dto: RefreshTokenDto): Promise<LoginResponseDto> {
+		this.logger.log("Received refresh token request");
+		return plainToInstance(
+			LoginResponseDto,
+			await this.userFacade.refreshToken(dto),
+		);
+	}
+
+	@Post("logout")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@ApiOperation({ summary: "Logout user and invalidate refresh token" })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "Successfully logged out.",
+	})
+	async logout(
+		@GetAuthenticatedUser() user: AuthenticatedUser,
+	): Promise<{ success: boolean }> {
+		this.logger.log(`User ${user.id} logged out`);
+		await this.userFacade.logout(user.id);
+		return { success: true };
 	}
 
 	@Get("me")
@@ -253,7 +289,6 @@ export class UserController {
 		}
 
 		const optimizedBuffer = await this.imageService.optimizeAvatar(
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access
 			file.buffer,
 		);
 		const uploadResult: UploadApiResponse =
@@ -261,12 +296,12 @@ export class UserController {
 				optimizedBuffer,
 				"avatars",
 			);
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
 		const newAvatarUrl = uploadResult.secure_url;
 
 		const { oldAvatarUrl } = await this.userFacade.updateAvatar(
 			user.id,
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+
 			newAvatarUrl,
 		);
 

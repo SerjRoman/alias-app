@@ -23,6 +23,20 @@
 	padding: var(--spacing-small) 0;
 }
 
+.myTeamFooter {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--spacing-small);
+	width: 100%;
+}
+
+.leaveToSpectatorsBtn {
+	font-size: 0.8rem;
+	padding: 4px 8px;
+	cursor: pointer;
+}
+
 .joinButton {
 	width: 100%;
 	padding: 8px 16px;

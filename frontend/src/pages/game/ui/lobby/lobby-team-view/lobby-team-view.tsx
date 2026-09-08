@@ -1,7 +1,7 @@
 import { Trash2 } from "lucide-react";
 import { useLobbyActions } from "../../../api/use-lobby-actions";
 import styles from "./lobby-team-view.module.css";
-import { useAuth } from "@entities/auth";
+import { useAuth } from "@shared/api";
 import { useMemo } from "react";
 import {
 	type TeamState,
@@ -31,7 +31,7 @@ export function LobbyTeamView({
 
 	const isMyTeam = team.playerIds.includes(currentUserId);
 	const isOwner = currentUserId === ownerId;
-	const { deleteTeam, joinTeam } = useLobbyActions();
+	const { deleteTeam, joinTeam, moveToSpectators } = useLobbyActions();
 	const playersMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
 	const [modalControl, ModalProvider] = useModal<
 		Omit<ConfirmationModalProps, "isOpen" | "onClose">
@@ -69,7 +69,16 @@ export function LobbyTeamView({
 				}
 				footer={
 					isMyTeam ? (
-						<div className={styles.joinedText}>{t("lobby.joined")}</div>
+						<div className={styles.myTeamFooter}>
+							<span className={styles.joinedText}>{t("lobby.joined")}</span>
+							<Button
+								variant="secondary"
+								className={styles.leaveToSpectatorsBtn}
+								onClick={() => moveToSpectators(roomId)}
+							>
+								{t("lobby.leaveToSpectators")}
+							</Button>
+						</div>
 					) : (
 						<Tooltip text={t("tooltips.joinTeam")} position="bottom">
 							<Button

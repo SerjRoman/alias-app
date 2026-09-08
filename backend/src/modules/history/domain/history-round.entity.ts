@@ -1,5 +1,5 @@
 import { HistoryRoundParticipantEntity } from "./history-round-participant.entity";
-import { HistoryRoundState, HistoryRoundParticipantState } from "./types";
+import type { HistoryRoundState, HistoryRoundParticipantState } from "./types";
 
 export class HistoryRoundEntity {
 	private readonly state: Omit<HistoryRoundState, "participants">;

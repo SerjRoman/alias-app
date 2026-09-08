@@ -28,7 +28,16 @@ export function SettingsPanel({
 	const hatModeCheckboxRef = useRef<HTMLInputElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
-	const [wordPackSelections, setWordPackSelections] = useState<{ packId: string; count: number }[]>([]);
+	const [wordPackSelections, setWordPackSelections] = useState<{ packId: string; count: number }[]>(
+		game.settings.wordPackSelections ?? [],
+	);
+	const [prevSettingsSelections, setPrevSettingsSelections] = useState(
+		game.settings.wordPackSelections,
+	);
+	if (game.settings.wordPackSelections !== prevSettingsSelections) {
+		setPrevSettingsSelections(game.settings.wordPackSelections);
+		setWordPackSelections(game.settings.wordPackSelections ?? []);
+	}
 	const [{ open }, WordPackModal] = useModal<WordPacksModalProps>();
 	const code = searchParams.get("code");
 
@@ -50,7 +59,6 @@ export function SettingsPanel({
 			hatModeCheckboxRef.current.checked =
 				game.settings.isHatMode ?? false;
 		}
-		setWordPackSelections(game.settings.wordPackSelections ?? []);
 	}, [game.settings]);
 
 	useEffect(() => {

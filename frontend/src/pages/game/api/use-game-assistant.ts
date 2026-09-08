@@ -76,7 +76,7 @@ export function useGameAssistant(
 	if (!tipKey) return null;
 
 	return {
-		text: t(tipKey as any),
+		text: t(tipKey as never),
 		variant,
 		priority,
 	};

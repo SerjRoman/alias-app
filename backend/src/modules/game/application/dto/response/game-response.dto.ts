@@ -88,8 +88,6 @@ export class GameSettingsDto implements GameSettings {
 	@Expose()
 	isVoiceChatEnabled: boolean;
 
-
-
 	@ApiProperty({
 		description: "Number of custom words each player must submit",
 		example: 5,
@@ -103,7 +101,6 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	isHatMode: boolean;
-
 }
 export class BaseGameResponseDto {
 	@ApiProperty({
@@ -183,6 +180,14 @@ export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
 	})
 	@Expose()
 	lastTeamPlayedIndex: number;
+
+	@ApiProperty({
+		type: [String],
+		description: "List of spectator player IDs",
+		example: ["uuid-player-1"],
+	})
+	@Expose()
+	spectators: string[];
 }
 
 export class GameResponseDetailsDto extends BaseGameResponseDetailsDto {

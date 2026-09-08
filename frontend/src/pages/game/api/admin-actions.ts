@@ -40,4 +40,7 @@ export const adminSocketApi = {
 	startPointing: (gameId: string) => {
 		socketClient.emit("admin:startPointing", { roomId: gameId });
 	},
+	moveToSpectators: (roomId: string, playerId: string) => {
+		socketClient.emit("moveToSpectators", { roomId, playerId });
+	},
 };

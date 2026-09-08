@@ -53,6 +53,13 @@ export const useAdminActions = (gameId: string) => {
 		[gameId],
 	);
 
+	const moveToSpectators = useCallback(
+		(playerId: string) => {
+			adminSocketApi.moveToSpectators(gameId, playerId);
+		},
+		[gameId],
+	);
+
 	return {
 		setGuesser,
 		kickPlayer,
@@ -64,5 +71,6 @@ export const useAdminActions = (gameId: string) => {
 		shufflePlayers,
 		changeRoundTime,
 		startPointing,
+		moveToSpectators,
 	};
 };

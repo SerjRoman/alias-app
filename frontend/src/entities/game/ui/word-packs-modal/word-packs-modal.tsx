@@ -1,7 +1,7 @@
 import { translateApiError, useQuery } from "@shared/api";
 import { Modal } from "@shared/ui/modal";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@shared/ui";
 import styles from "./word-packs-modal.module.css";
 
@@ -35,13 +35,19 @@ export function WordPacksModal({
 }: Readonly<WordPacksModalProps>) {
 	const { t } = useTranslation();
 	const { data, isLoading, error } = useQuery("get", "/word-packs");
-	const [localSelected, setLocalSelected] = useState<Selection[]>([]);
+	const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+	const [prevSelectedPacks, setPrevSelectedPacks] = useState(selectedPacks);
+	const [localSelected, setLocalSelected] = useState<Selection[]>(
+		selectedPacks || [],
+	);
 
-	useEffect(() => {
+	if (isOpen !== prevIsOpen || selectedPacks !== prevSelectedPacks) {
+		setPrevIsOpen(isOpen);
+		setPrevSelectedPacks(selectedPacks);
 		if (isOpen) {
 			setLocalSelected(selectedPacks || []);
 		}
-	}, [isOpen, selectedPacks]);
+	}
 
 	if (isLoading) {
 		return (

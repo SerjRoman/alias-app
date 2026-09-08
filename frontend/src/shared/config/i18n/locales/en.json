@@ -171,18 +171,24 @@
 		"kickOrBan": "Kick / Ban:",
 		"startRound": "Start Round",
 		"startPointing": "Start Pointing",
-		"endGame": "End Game"
+		"endGame": "End Game",
+		"spectatorsOption": "Spectators"
 	},
 	"lobby": {
 		"teams": "Teams",
 		"newTeamPlaceholder": "New Team Name",
 		"addTeam": "Add",
+		"addTeamCard": "Add Team",
+		"createTeamModalTitle": "Create Team",
+		"createTeamBtn": "Create",
 		"noTeams": "No teams created yet.",
 		"readyToStart": "Ready to Start",
 		"startGame": "Start Game",
 		"joined": "Joined",
 		"joinTeam": "Join Team",
 		"spectators": "Spectators / Unassigned",
+		"leaveToSpectators": "To Spectators",
+		"youAreSpectator": "You are a spectator (join a team to play)",
 		"deleteTeamTooltip": "Delete team",
 		"deleteTeamTitle": "Delete Team",
 		"deleteTeamConfirm": "Are you sure you want to delete the team {{name}}?",
@@ -190,6 +196,7 @@
 		"generateRandomTeamName": "Generate random team name"
 	},
 	"activeGame": {
+		"spectatorBanner": "You are spectating this game",
 		"score": "Score: {{score}}",
 		"loading": "Loading...",
 		"skip": "SKIP (-1)",

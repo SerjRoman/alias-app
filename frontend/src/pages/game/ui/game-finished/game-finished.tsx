@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { socketClient } from "@shared/api";
-import { useAuth } from "@entities/auth";
+import { socketClient, useAuth } from "@shared/api";
 import { useGameSlice } from "@entities/game";
 import { Button } from "@shared/ui";
 import { useTranslation } from "react-i18next";

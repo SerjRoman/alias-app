@@ -35,6 +35,7 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 		shufflePlayers,
 		changeRoundTime,
 		startPointing,
+		moveToSpectators,
 	} = useAdminActions(game.id);
 	const playingTeam = game.teams.find(
 		(t) =>
@@ -115,6 +116,9 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						<option value="" disabled>
 							{t("admin.selectTeam")}
 						</option>
+						<option value="__SPECTATORS__">
+							{t("admin.spectatorsOption")}
+						</option>
 						{game.teams?.map((t) => (
 							<option key={t.id} value={t.id}>
 								{t.name}
@@ -125,14 +129,18 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 						variant="primary"
 						onClick={() => {
 							if (!selectedPlayerId || !selectedTeamId) return;
-							assignPlayerToTeam(
-								selectedTeamId,
-								selectedPlayerId,
-							);
+							if (selectedTeamId === "__SPECTATORS__") {
+								moveToSpectators(selectedPlayerId);
+							} else {
+								assignPlayerToTeam(
+									selectedTeamId,
+									selectedPlayerId,
+								);
+							}
 							setSelectedPlayerId("");
 							setSelectedTeamId("");
 						}}
-						disabled={!selectedPlayerId}
+						disabled={!selectedPlayerId || !selectedTeamId}
 					>
 						{t("admin.assign")}
 					</Button>

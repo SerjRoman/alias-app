@@ -1,7 +1,7 @@
 import { HistoryParticipantEntity } from "./history-participant.entity";
 import { HistoryRoundEntity } from "./history-round.entity";
 import { HistoryTeamEntity } from "./history-team.entity";
-import {
+import type {
 	HistoryGameState,
 	HistoryRoundState,
 	HistoryParticipantState,

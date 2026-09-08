@@ -7,8 +7,7 @@ import {
 } from "react-router-dom";
 import styles from "./base-layout.module.css";
 import { Header } from "@widgets/header";
-import { useAuth } from "@entities/auth";
-import { socketClient, useMutation } from "@shared/api";
+import { socketClient, useMutation, useAuth } from "@shared/api";
 
 function PageLoader() {
 	return (

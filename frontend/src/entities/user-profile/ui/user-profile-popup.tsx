@@ -1,8 +1,7 @@
 import * as Popover from "@radix-ui/react-popover";
-import { useAuth } from "../../auth";
 import { type ChangeEvent, useRef } from "react";
 import styles from "./user-profile-popup.module.css";
-import { useMutation } from "@shared/api";
+import { useAuth, useMutation } from "@shared/api";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@shared/ui";
 import { useTranslation } from "react-i18next";

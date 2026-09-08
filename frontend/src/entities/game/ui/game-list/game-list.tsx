@@ -3,13 +3,15 @@ import type { GameState } from "../../model";
 import styles from "./game-list.module.css";
 import { useTranslation } from "react-i18next";
 
+import type { AssistantInputMessage } from "@shared/ui";
+
 type GameListProps = {
 	games: GameState[];
 	onJoin: (
 		game: GameState,
 		code: string | null,
 	) => Promise<string | null | void>;
-	showAssistant?: (msg: any) => void;
+	showAssistant?: (msg: AssistantInputMessage | null) => void;
 };
 
 export function GameList({ games, onJoin, showAssistant }: Readonly<GameListProps>) {
@@ -41,7 +43,7 @@ function GameCard({
 		game: GameState,
 		code: string | null,
 	) => Promise<string | null | void>;
-	showAssistant?: (msg: any) => void;
+	showAssistant?: (msg: AssistantInputMessage | null) => void;
 }>) {
 	const { t } = useTranslation();
 	const [code, setCode] = useState<string>("");

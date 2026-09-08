@@ -1,5 +1,5 @@
 import { plainToInstance } from "class-transformer";
-import { IUserRepository } from "../user.repository.interface";
+import type { IUserRepository } from "../user.repository.interface";
 import { UserShortInfoResponseDto } from "../dto/user-short-info.dto";
 
 export class GetUsersShortInfoUseCase {

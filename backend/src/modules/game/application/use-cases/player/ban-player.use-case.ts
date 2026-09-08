@@ -4,9 +4,11 @@ import {
 	type PlayerKickedPayload,
 	type TeamsUpdatedPayload,
 	type PlayersUpdatedPayload,
+	type GameUpdatedPayload,
 	PLAYER_KICKED,
 	TEAMS_UPDATED,
 	PLAYERS_UPDATED,
+	GAME_UPDATED,
 } from "../../game.events";
 import {
 	type IGameRepository,
@@ -43,10 +45,14 @@ export class BanPlayerUseCase {
 			roomId: room.id,
 			players: roomPrimitives.players,
 		};
+		const eventPayloadGame: GameUpdatedPayload = {
+			room: roomPrimitives,
+		};
 		this.eventEmitter.emit(PLAYER_KICKED, eventPayload);
 
 		this.eventEmitter.emit(TEAMS_UPDATED, eventPayloadTeams);
 		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayloadPlayers);
+		this.eventEmitter.emit(GAME_UPDATED, eventPayloadGame);
 		return roomPrimitives;
 	}
 }

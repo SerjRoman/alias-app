@@ -12,14 +12,42 @@ export class TokenService {
 		private readonly configService: ConfigService,
 	) {}
 
-	async generateAccessToken(payload: JwtPayload): Promise<string> {
-		const accesssToken = await this.jwtService.signAsync(payload, {
+	async generateGuestToken(payload: JwtPayload): Promise<string> {
+		const expiresIn = (this.configService.get<string>(
+			"JWT_GUEST_EXPIRES_IN",
+		) ?? "365d") as StringValue;
+		return this.jwtService.signAsync(payload, {
 			secret: this.configService.getOrThrow<string>("JWT_SECRET_KEY"),
-			expiresIn: this.configService.getOrThrow<string>(
-				"JWT_EXPIRES_IN",
-			) as StringValue,
+			expiresIn,
 		});
-		return accesssToken;
+	}
+
+	async generateAccessToken(payload: JwtPayload): Promise<string> {
+		const expiresIn = (this.configService.get<string>(
+			"JWT_ACCESS_EXPIRES_IN",
+		) ??
+			this.configService.get<string>("JWT_EXPIRES_IN") ??
+			"15m") as StringValue;
+		return this.jwtService.signAsync(payload, {
+			secret: this.configService.getOrThrow<string>("JWT_SECRET_KEY"),
+			expiresIn,
+		});
+	}
+
+	async generateRefreshToken(payload: JwtPayload): Promise<string> {
+		const expiresIn = (this.configService.get<string>(
+			"JWT_REFRESH_EXPIRES_IN",
+		) ?? "30d") as StringValue;
+		const secret =
+			this.configService.get<string>("JWT_REFRESH_SECRET_KEY") ??
+			this.configService.getOrThrow<string>("JWT_SECRET_KEY");
+		return this.jwtService.signAsync(
+			{ ...payload, tokenType: "refresh" },
+			{
+				secret,
+				expiresIn,
+			},
+		);
 	}
 
 	async verifyAccessToken(accessToken: string): Promise<AuthenticatedUser> {
@@ -37,6 +65,27 @@ export class TokenService {
 				throw new UnauthorizedException("Access token expired");
 			}
 			throw new UnauthorizedException("Invalid access token");
+		}
+	}
+
+	async verifyRefreshToken(refreshToken: string): Promise<JwtPayload> {
+		try {
+			const secret =
+				this.configService.get<string>("JWT_REFRESH_SECRET_KEY") ??
+				this.configService.getOrThrow<string>("JWT_SECRET_KEY");
+			const payload = await this.jwtService.verifyAsync<
+				JwtPayload & { tokenType?: string }
+			>(refreshToken, { secret });
+			return {
+				sub: payload.sub,
+				name: payload.name,
+				role: payload.role,
+			};
+		} catch (error) {
+			if (error instanceof TokenExpiredError) {
+				throw new UnauthorizedException("Refresh token expired");
+			}
+			throw new UnauthorizedException("Invalid refresh token");
 		}
 	}
 }

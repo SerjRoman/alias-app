@@ -1,5 +1,5 @@
-import { HistoryRoundEntity } from "../domain/history-round.entity";
-import { HistoryGameEntity } from "../domain/history.entity";
+import type { HistoryRoundEntity } from "../domain/history-round.entity";
+import type { HistoryGameEntity } from "../domain/history.entity";
 
 export interface IHistoryRepository {
 	save(gameHistory: HistoryGameEntity): Promise<void>;

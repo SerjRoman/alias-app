@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { v2 } from "cloudinary";
 import { ConfigService } from "@nestjs/config";
 

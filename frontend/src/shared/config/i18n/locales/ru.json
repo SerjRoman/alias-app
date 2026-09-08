@@ -171,18 +171,24 @@
 		"kickOrBan": "Исключить / Забанить:",
 		"startRound": "Начать раунд",
 		"startPointing": "Начать проверку слов",
-		"endGame": "Завершить игру"
+		"endGame": "Завершить игру",
+		"spectatorsOption": "Зрители"
 	},
 	"lobby": {
 		"teams": "Команды",
 		"newTeamPlaceholder": "Название новой команды",
 		"addTeam": "Добавить",
+		"addTeamCard": "Добавить команду",
+		"createTeamModalTitle": "Создать команду",
+		"createTeamBtn": "Создать",
 		"noTeams": "Команды еще не созданы.",
 		"readyToStart": "Готов к старту",
 		"startGame": "Начать игру",
 		"joined": "Присоединился",
 		"joinTeam": "Вступить в команду",
 		"spectators": "Зрители / Без команды",
+		"leaveToSpectators": "В зрители",
+		"youAreSpectator": "Вы в зрителях (выберите команду, чтобы играть)",
 		"deleteTeamTooltip": "Удалить команду",
 		"deleteTeamTitle": "Удалить команду",
 		"deleteTeamConfirm": "Вы уверены, что хотите удалить команду {{name}}?",
@@ -190,6 +196,7 @@
 		"generateRandomTeamName": "Сгенерировать случайное имя"
 	},
 	"activeGame": {
+		"spectatorBanner": "Вы наблюдаете за игрой как зритель",
 		"score": "Очки: {{score}}",
 		"loading": "Загрузка...",
 		"skip": "ПРОПУСТИТЬ (-1)",

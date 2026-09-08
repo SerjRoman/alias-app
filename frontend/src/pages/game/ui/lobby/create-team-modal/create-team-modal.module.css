@@ -1,0 +1,54 @@
+.modalContent {
+	background-color: var(--color-surface, #ffffff);
+	padding: var(--spacing-large, 24px);
+	border-radius: var(--border-radius, 12px);
+	width: 95%;
+	max-width: 440px;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium, 16px);
+}
+
+.modalTitle {
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 700;
+	color: var(--color-text, #1e293b);
+}
+
+.form {
+	display: flex;
+	flex-direction: column;
+	gap: var(--spacing-medium, 16px);
+}
+
+.inputGroup {
+	display: flex;
+	gap: var(--spacing-small, 8px);
+	align-items: center;
+}
+
+.teamInput {
+	flex: 1;
+	padding: var(--spacing-small, 8px) var(--spacing-medium, 14px);
+	border: 1px solid var(--color-border, #d1d5db);
+	border-radius: var(--border-radius, 8px);
+	font-size: 1rem;
+	background-color: var(--color-surface, #ffffff);
+	color: var(--color-text, #1e293b);
+	transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.teamInput:focus {
+	outline: none;
+	border-color: var(--color-primary, #3b82f6);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.modalActions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+	margin-top: 4px;
+}

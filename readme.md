@@ -1,4 +1,4 @@
-Collecting workspace information# Alias Game - Architecture & Features Documentation
+# Alias Game - Architecture & Features Documentation
 
 ## Project Overview
 Alias Game is a real-time multiplayer word-guessing game built with modern web technologies. Players form teams and try to guess words based on their teammates' descriptions within a time limit.
@@ -282,3 +282,108 @@ npm run dev
 ```
 
 See individual backend README and frontend README for detailed setup instructions.
+
+---
+
+## Game Addons & Interceptors Architecture (Event Pipeline)
+
+Архитектура игровых модификаторов и дополнений построена на базе **пайплайна луковицы (Onion Interceptor Pipeline)** и **FIFO-очереди событий на уровне комнаты**, с выполнением сайд-эффектов через **паттерн Command (исполняемые функции без if/else)**.
+
+### Архитектурная диаграмма
+
+```mermaid
+flowchart TD
+    subgraph Trigger ["1. ВХОДНОЙ ТРИГГЕР"]
+        A1["Ведущий: Клик 'Слово'"] --> Q["FIFO Очередь Комнаты"]
+        A2["Соперник: Клик 'Купить в Магазине'"] --> Q
+        A3["Таймер: Раунд завершен"] --> Q
+    end
+
+    subgraph Pipeline ["2. ПАЙПЛАЙН ИНТЕРСЕПТОРОВ (ONION)"]
+        Q --> S0["Загрузка State из Redis"]
+        S0 --> I_LOBBY
+
+        subgraph Phase1 ["Фаза Лобби и Старта"]
+            I_LOBBY["RequireCustomWordsGuard<br/><i>(Шляпа: проверка сдачи слов)</i>"]
+            I_INIT["InitCustomWordsBag<br/><i>(Шляпа: сбор и перемешивание слов)</i>"]
+            I_LOBBY --> I_INIT
+        end
+
+        subgraph Phase2 ["Фаза Подготовки Раунда"]
+            I_CHAOS_CARD["DrawRoundConstraintCard<br/><i>(Хаос: 'Только шепотом', 'Без глаголов')</i>"]
+            I_CHAOS_TIME["RandomTimeModifier<br/><i>(Хаос: 'Блиц 30 сек')</i>"]
+            I_INIT --> I_CHAOS_CARD
+            I_CHAOS_CARD --> I_CHAOS_TIME
+        end
+
+        subgraph Phase3 ["Фаза Выдачи Слова"]
+            I_WORD_SRC["CustomBagWordSource<br/><i>(Шляпа: достать слово из мешка)</i>"]
+            I_WORD_MASK["MaskWordSabotage<br/><i>(Магазин: скрыть гласные 'С_Н_П_Т_К')</i>"]
+            I_CHAOS_TIME --> I_WORD_SRC
+            I_WORD_SRC --> I_WORD_MASK
+        end
+
+        subgraph Phase4 ["Фаза Действия над Словом"]
+            I_SKIP_BAG["RequeueSkippedWord<br/><i>(Шляпа: вернуть пропущенное в шляпу)</i>"]
+            I_SHIELD["ShieldFromSkips<br/><i>(Магазин: отменить штраф -1)</i>"]
+            I_COINS["AwardCoinsOnWordGuessed<br/><i>(Магазин: начислить +10 монет)</i>"]
+            I_STREAK["StreakComboBonus<br/><i>(Хаос: бонус за серию отгадок)</i>"]
+            I_WORD_MASK --> I_SKIP_BAG
+            I_SKIP_BAG --> I_SHIELD
+            I_SHIELD --> I_COINS
+            I_COINS --> I_STREAK
+        end
+
+        subgraph Phase5 ["Фаза Финала и Победы"]
+            I_TAX["PointTaxSabotage<br/><i>(Магазин: перенести 30% очков себе)</i>"]
+            I_WIN_HAT["FinishOnEmptyBagRule<br/><i>(Шляпа: пустой мешок = конец игры)</i>"]
+            I_STREAK --> I_TAX
+            I_TAX --> I_WIN_HAT
+        end
+    end
+
+    subgraph Execution ["3. ВЫХОД И САЙД-ЭФФЕКТЫ (БЕЗ IF/ELSE)"]
+        I_WIN_HAT --> SAVE["Сохранение State в Redis"]
+        SAVE --> FLUSH["Вызов всех зарегистрированных Effect-функций"]
+        
+        FLUSH --> E_VOICE["Effect: MuteVoiceSabotage<br/><i>services.voice.mute(targetId)</i>"]
+        FLUSH --> E_TIME["Effect: FreezeTimeSabotage<br/><i>services.timer.reduceTime(15s)</i>"]
+        FLUSH --> E_SOCKET["Effect: StateBroadcast<br/><i>services.sockets.emit('gameUpdated')</i>"]
+    end
+```
+
+### Декомпозиция аддонов по функциям-интерсепторам
+
+#### 1. Шляпа (Hat Mode Preset)
+- **`RequireCustomWordsGuard`**: Блокирует старт игры в лобби, пока каждый игрок команды не сдал нужное количество слов.
+- **`InitCustomWordsBag`**: При старте собирает все введенные слова в общий массив `state.bagWords` и перемешивает их.
+- **`CustomBagWordSource`**: Перехватывает запрос слова и выдает его из шляпы вместо стандартных паков.
+- **`RequeueSkippedWord`**: При пропуске возвращает слово обратно в мешок (в конец очереди).
+- **`FinishOnEmptyBagRule`**: Завершает игру, когда мешок со словами полностью опустел.
+
+#### 2. Хаос (Chaos Mode Preset)
+- **`DrawRoundConstraintCard`**: Перед началом каждого раунда выбирает ограничение («Без глаголов», «Шепотом», «С акцентом»).
+- **`RandomTimeModifier`**: Динамически регулирует время раунда (например, «Блиц 30 секунд»).
+- **`StreakComboBonus`**: Начисляет бонусные баллы за серию из 4+ правильных отгадок без пропусков.
+
+#### 3. Магазин (Shop / Sabotage Preset)
+- **`AwardCoinsOnWordGuessed`**: Начисляет внутриигровые монеты отгадчику и ведущему.
+- **`ShieldFromSkips`**: Отменяет штраф `-1` за пропуск слова на текущий раунд.
+- **`PointTaxSabotage`**: Переводит 30% очков соперника на баланс команды покупателя.
+- **`MaskWordSabotage`**: Подменяет буквы слова на маску `_` перед отправкой клиенту ведущего.
+- **`FreezeTimeSabotage` (Effect)**: Вызывает серверную функцию сокращения таймера у активной команды на 15 секунд.
+- **`MuteVoiceSabotage` (Effect)**: Вызывает функцию LiveKit SDK для временного заглушения микрофона игрока на 15 секунд.
+
+### Концепция Callable Effects (Паттерн Command)
+Вместо хранения строк `{ type: 'MUTE_VOICE' }` и огромных блоков `switch/case`, эффекты представляют собой исполняемые функции:
+```typescript
+type GameEffect = (services: GameServices) => Promise<void>;
+```
+Интерсептор регистрирует эффект:
+```typescript
+ctx.addEffect(async (services) => {
+  await services.voice.mute(roomId, targetPlayerId, 15_000);
+  services.sockets.to(roomId).emit('playerMuted', { targetPlayerId, duration: 15 });
+});
+```
+Движок последовательно вызывает `await effect(this.services)`, обеспечивая полную изоляцию и чистоту кода ядра.

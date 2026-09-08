@@ -7,13 +7,17 @@ import {
 	type IUserRepository,
 } from "../user.repository.interface";
 import { JwtPayload } from "@common/types/jwt-payload";
+import { RedisService } from "@common/infrastructure/redis/redis.service";
 
 @Injectable()
 export class LoginRegisteredUseCase {
+	private readonly REFRESH_TTL = 30 * 24 * 60 * 60; // 30 days in seconds
+
 	constructor(
 		@Inject(USER_REPOSITORY)
 		private readonly userRepository: IUserRepository,
 		private readonly tokenService: TokenService,
+		private readonly redisService: RedisService,
 	) {}
 
 	async execute(dto: LoginDto) {
@@ -37,9 +41,19 @@ export class LoginRegisteredUseCase {
 		};
 		const accessToken =
 			await this.tokenService.generateAccessToken(payload);
+		const refreshToken =
+			await this.tokenService.generateRefreshToken(payload);
+
+		await this.redisService.set(
+			`user-refresh:${user.id}`,
+			refreshToken,
+			"EX",
+			this.REFRESH_TTL,
+		);
 
 		return {
 			accessToken,
+			refreshToken,
 			user: { id: user.id, name: user.username, role: "registered" },
 		};
 	}

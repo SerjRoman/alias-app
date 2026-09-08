@@ -83,8 +83,7 @@ export class CreateGameDto {
 	wordPackSelections?: WordPackSelectionDto[] = [];
 
 	@ApiProperty({
-		description:
-			"Number of custom words each player must submit",
+		description: "Number of custom words each player must submit",
 		example: 5,
 		default: 0,
 	})
@@ -111,5 +110,4 @@ export class CreateGameDto {
 	@IsBoolean()
 	@IsOptional()
 	isOnlyOwnerCanChangeScore?: boolean = true;
-
 }

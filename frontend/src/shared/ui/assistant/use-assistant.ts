@@ -40,29 +40,29 @@ export function useAssistant(
 	const timerRef = useRef<number | null>(null);
 
 	const declarativeMessage = parseMessage(declarativeInput);
-	const lastMessageTextRef = useRef<ReactNode>(declarativeMessage?.text);
+	const [prevDeclarativeText, setPrevDeclarativeText] = useState(
+		declarativeMessage?.text,
+	);
 
-	useEffect(() => {
-		const text = declarativeMessage?.text;
-		if (lastMessageTextRef.current !== text) {
-			lastMessageTextRef.current = text;
-
-			setTempMessage(null);
-			if (timerRef.current) {
-				globalThis.clearTimeout(timerRef.current);
-				timerRef.current = null;
-			}
-
-			if (declarativeMessage) {
-				if (declarativeMessage.priority === "high") {
-					setIsOpen(true);
-					setHasNewTip(false);
-				} else if (!isOpen) {
-					setHasNewTip(true);
-				}
+	if (declarativeMessage?.text !== prevDeclarativeText) {
+		setPrevDeclarativeText(declarativeMessage?.text);
+		setTempMessage(null);
+		if (declarativeMessage) {
+			if (declarativeMessage.priority === "high") {
+				setIsOpen(true);
+				setHasNewTip(false);
+			} else if (!isOpen) {
+				setHasNewTip(true);
 			}
 		}
-	}, [declarativeMessage?.text, isOpen]);
+	}
+
+	useEffect(() => {
+		if (timerRef.current) {
+			globalThis.clearTimeout(timerRef.current);
+			timerRef.current = null;
+		}
+	}, [declarativeMessage?.text]);
 
 	// Clean up timer on unmount
 	useEffect(() => {

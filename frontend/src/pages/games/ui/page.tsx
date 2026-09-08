@@ -1,10 +1,9 @@
 import { CreateGameForm } from "./create-game/create-game";
 import styles from "./page.module.css";
 import { RefreshCcw } from "lucide-react";
-import { useMutation, useQuery } from "@shared/api";
+import { useMutation, useQuery, useAuth } from "@shared/api";
 import { GameList, type GameState } from "@entities/game";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@entities/auth";
 import { Button } from "@shared/ui/button";
 import { useTranslation } from "react-i18next";
 import { Assistant, useAssistant } from "@shared/ui";
@@ -96,7 +95,7 @@ export function GamesPage() {
 				) : (
 					games && (
 						<GameList
-							games={sortedGames as any as GameState[]}
+							games={sortedGames as unknown as GameState[]}
 							onJoin={handleJoin}
 							showAssistant={assistantState.show}
 						/>

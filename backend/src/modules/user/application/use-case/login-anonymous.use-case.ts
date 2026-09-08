@@ -15,8 +15,7 @@ export class LoginAnonymousUseCase {
 			name: dto.name,
 			role: "anonymous",
 		};
-		const accessToken =
-			await this.tokenService.generateAccessToken(payload);
+		const accessToken = await this.tokenService.generateGuestToken(payload);
 
 		return {
 			accessToken,

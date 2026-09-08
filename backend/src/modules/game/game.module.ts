@@ -37,6 +37,7 @@ import { ToggleRoundReadyUseCase } from "./application/use-cases/round/toggle-ro
 import { CreateTeamUseCase } from "./application/use-cases/team/create-team.use-case";
 import { DeleteTeamUseCase } from "./application/use-cases/team/delete-team.use-case";
 import { MoveToTeamUseCase } from "./application/use-cases/team/move-to-team.use-case";
+import { MoveToSpectatorsUseCase } from "./application/use-cases/team/move-to-spectators.use-case";
 import { EndPointingUseCase } from "./application/use-cases/round/end-pointing.use-case";
 import { FinishRoundUseCase } from "./application/use-cases/round/finish-round.use-case";
 import { EndGameUseCase } from "./application/use-cases/game/end-game.use-case";
@@ -106,6 +107,7 @@ import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
 		CreateTeamUseCase,
 		DeleteTeamUseCase,
 		MoveToTeamUseCase,
+		MoveToSpectatorsUseCase,
 		EndPointingUseCase,
 		FinishRoundUseCase,
 		EndGameUseCase,

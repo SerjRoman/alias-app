@@ -1,5 +1,5 @@
 import { Outlet, Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "@entities/auth";
+import { useAuth } from "@shared/api";
 
 export function PrivateLayout() {
 	const { user, token, hasHydrated } = useAuth();

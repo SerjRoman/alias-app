@@ -31,12 +31,13 @@ export class SubmitCustomWordsUseCase {
 		room.assertGameInLobby();
 
 		if (!room.settings.isHatMode) {
-			throw new GameError(
-				"Hat mode is not enabled in this room",
-			);
+			throw new GameError("Hat mode is not enabled in this room");
 		}
 
-		if (!room.settings.wordsPerPlayer || room.settings.wordsPerPlayer <= 0) {
+		if (
+			!room.settings.wordsPerPlayer ||
+			room.settings.wordsPerPlayer <= 0
+		) {
 			throw new GameError(
 				"Please configure the number of words per player",
 			);

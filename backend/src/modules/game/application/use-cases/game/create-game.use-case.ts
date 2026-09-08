@@ -30,7 +30,9 @@ export class CreateGameUseCase {
 			isPrivate: createGameDto.isPrivate || false,
 			wordPackSelections: createGameDto.wordPackSelections || [],
 			isHatMode: createGameDto.isHatMode || false,
-			wordsPerPlayer: createGameDto.isHatMode ? (createGameDto.wordsPerPlayer || 0) : 0,
+			wordsPerPlayer: createGameDto.isHatMode
+				? createGameDto.wordsPerPlayer || 0
+				: 0,
 			isOnlyOwnerCanNextRound: true,
 			isOnlyOwnerCanChangeScore: true,
 			isVoiceChatEnabled: true,

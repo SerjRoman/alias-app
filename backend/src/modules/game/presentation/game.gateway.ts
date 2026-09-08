@@ -56,6 +56,7 @@ import {
 	ChangeRoundTimeDto,
 	StartPointingDto,
 	SubmitCustomWordsDto,
+	MoveToSpectatorsDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
@@ -196,6 +197,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: MoveToTeamDto,
 	) {
 		await this.teamFacade.moveToTeam(dto, client.data.user);
+	}
+
+	@SubscribeMessage("moveToSpectators")
+	async moveToSpectators(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: MoveToSpectatorsDto,
+	) {
+		await this.teamFacade.moveToSpectators(dto, client.data.user);
 	}
 
 	@SubscribeMessage("deleteTeam")
@@ -557,21 +566,34 @@ export class GameGateway implements OnGatewayDisconnect {
 				clearTimeout(this.disconnectTimeouts.get(userId));
 			}
 
-			const timeout = setTimeout(async () => {
-				this.disconnectTimeouts.delete(userId);
-				try {
-					this.logger.log(
-						`Grace period expired for user ${client.data?.user?.name || "unknown"}. Marking offline.`,
-					);
-					await this.playerFacade.setPlayerOffline(
-						roomId,
-						client.data.user,
-					);
-				} catch (err) {
-					this.logger.error(
-						`Error in offline grace period timeout for user ${userId}: ${err}`,
-					);
-				}
+			const timeout = setTimeout(() => {
+				void (async () => {
+					this.disconnectTimeouts.delete(userId);
+					try {
+						const game = await this.gameFacade.findOne(roomId);
+						if (game.spectators?.includes(userId)) {
+							this.logger.log(
+								`Grace period expired for spectator ${client.data?.user?.name || "unknown"}. Leaving game.`,
+							);
+							await this.gameFacade.leaveGame(
+								roomId,
+								client.data.user,
+							);
+						} else {
+							this.logger.log(
+								`Grace period expired for user ${client.data?.user?.name || "unknown"}. Marking offline.`,
+							);
+							await this.playerFacade.setPlayerOffline(
+								roomId,
+								client.data.user,
+							);
+						}
+					} catch (err) {
+						this.logger.error(
+							`Error in offline grace period timeout for user ${userId}: ${err}`,
+						);
+					}
+				})();
 			}, 5000);
 
 			this.disconnectTimeouts.set(userId, timeout);

@@ -1,4 +1,4 @@
-import { HistoryTeamState } from "./types";
+import type { HistoryTeamState } from "./types";
 
 export class HistoryTeamEntity {
 	private readonly state: HistoryTeamState;

@@ -18,5 +18,9 @@ export function useLobbyActions() {
 		socketClient.emit("startGame", { roomId });
 	};
 
-	return { createTeam, deleteTeam, joinTeam, startGame };
+	const moveToSpectators = (roomId: string, playerId?: string) => {
+		socketClient.emit("moveToSpectators", { roomId, playerId });
+	};
+
+	return { createTeam, deleteTeam, joinTeam, startGame, moveToSpectators };
 }

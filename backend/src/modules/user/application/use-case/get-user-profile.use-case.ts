@@ -1,6 +1,6 @@
 import { NotFoundException } from "@nestjs/common";
 import { UserProfileDto } from "../dto/user-profile.dto";
-import { IUserRepository } from "../user.repository.interface";
+import type { IUserRepository } from "../user.repository.interface";
 import { plainToInstance } from "class-transformer";
 
 export class GetUserProfileUseCase {

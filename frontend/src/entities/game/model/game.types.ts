@@ -70,6 +70,7 @@ export interface GameStateDetails extends GameState {
 	players: PlayerState[];
 	winnerTeamId: string | null;
 	lastTeamIndex: number;
+	spectators?: string[];
 }
 
 export interface GameStateUpdatePayload extends Omit<GameStateDetails, "settings"> {

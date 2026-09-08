@@ -5,11 +5,10 @@ import {
 	useSearchParams,
 } from "react-router-dom";
 import styles from "./header.module.css";
-import { useAuth } from "@entities/auth";
 import { UserProfilePopup } from "@entities/user-profile";
 import { useTranslation } from "react-i18next";
 import { Select } from "@shared/ui/select";
-import { useQuery, socketClient } from "@shared/api";
+import { useQuery, socketClient, useAuth } from "@shared/api";
 import { Button } from "@shared/ui";
 import { useQueryClient } from "@tanstack/react-query";
 

@@ -1,5 +1,5 @@
 import { DomainEvent } from "@common/domain/domain-event";
-import { GameState } from "../entities/game.entity";
+import type { GameState } from "../entities/game.entity";
 
 export class GameStartedEvent extends DomainEvent {
 	static readonly eventName = "GameStartedEvent";

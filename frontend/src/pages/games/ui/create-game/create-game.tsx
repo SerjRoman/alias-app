@@ -1,7 +1,6 @@
 import styles from "./create-game.module.css";
 import { useNavigate } from "react-router-dom";
-import { useMutation, translateApiError } from "@shared/api";
-import { useAuth } from "@entities/auth";
+import { useMutation, translateApiError, useAuth } from "@shared/api";
 import { Button, Input } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";

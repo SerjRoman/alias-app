@@ -6,6 +6,7 @@ export interface IGameRepository {
 	findAllGames(): Promise<GameEntity[]>;
 	saveGame(game: GameEntity): Promise<void>;
 	deleteGame(gameId: string): Promise<void>;
+	setGameTtl(gameId: string, ttlSeconds: number): Promise<void>;
 
 	// User-Room mapping
 	setUserRoom(userId: string, roomId: string): Promise<void>;

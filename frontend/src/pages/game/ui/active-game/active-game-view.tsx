@@ -4,16 +4,20 @@ import { RoundInProgressBlock } from "./round-in-progress/round-in-progress-bloc
 import { RoundPendingControls } from "./round-pending-controls/round-pending-controls";
 import { RoundFinishedResults } from "./round-finished-results/round-finished-results";
 import styles from "./active-game-view.module.css";
-import { useAuth } from "@entities/auth";
+import { useAuth } from "@shared/api";
 import { useGameSlice, RoundStatus, type PlayerDisplayInfo } from "@entities/game";
 import { useActiveGameSync } from "../../api";
 import { RoundPointing } from "./round-pointing/round-pointing";
+import { Eye } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { SpectatorsList } from "../spectators-list";
 
 interface ActiveGameViewProps {
 	playersDisplayMap: Map<string, PlayerDisplayInfo>;
 }
 
 export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewProps>) {
+	const { t } = useTranslation();
 	const { game } = useGameSlice();
 	const { user } = useAuth();
 	const navigate = useNavigate();
@@ -30,6 +34,14 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 	const mePlayer = game.players.find((p) => user.id === p.id);
 	const isGuesser = game.currentRound.guesserId === user.id;
 	const isOwner = game.ownerId === user.id;
+	const allAssignedIds = new Set(game.teams.flatMap((t) => t.playerIds));
+	const isSpectator =
+		game.spectators?.includes(user.id) ||
+		!allAssignedIds.has(user.id);
+
+	const spectatorPlayers = game.players.filter(
+		(p) => game.spectators?.includes(p.id) || !allAssignedIds.has(p.id),
+	);
 
 	const isMyTeamPlaying = game.teams.find(
 		(team) =>
@@ -41,6 +53,12 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 	);
 	return (
 		<div className={styles.container}>
+			{isSpectator && (
+				<div className={styles.spectatorBanner}>
+					<Eye size={18} />
+					<span>{t("activeGame.spectatorBanner")}</span>
+				</div>
+			)}
 			<div className={styles.teamsGrid}>
 				{game.teams.map((team) => (
 					<ActiveGameTeamView
@@ -52,6 +70,11 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 					/>
 				))}
 			</div>
+
+			<SpectatorsList
+				players={spectatorPlayers}
+				playersDisplayMap={playersDisplayMap}
+			/>
 
 			<div className={styles.playZone}>
 				{currentRound.status === RoundStatus.PENDING && (

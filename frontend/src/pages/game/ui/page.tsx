@@ -4,7 +4,6 @@ import { LobbyView } from "@pages/game/ui/lobby";
 import styles from "./page.module.css";
 import { Blocks } from "react-loader-spinner";
 import { useKickHandler } from "../api/use-kick-handler";
-import { useAuth } from "@entities/auth";
 import {
 	GameVoiceRenderer,
 	useGameSync,
@@ -20,7 +19,7 @@ import { Settings } from "lucide-react";
 import { Button, Tooltip, Assistant, useAssistant } from "@shared/ui";
 import { LiveKitRoom } from "@livekit/components-react";
 import "@livekit/components-styles";
-import { useQuery } from "@shared/api";
+import { useQuery, useAuth, socketClient } from "@shared/api";
 import { useTranslation } from "react-i18next";
 import { useGameAssistant } from "../api";
 import { AudioHandlingWrapper } from "./audio-handling-wrapper";
@@ -60,6 +59,37 @@ export function GamePage() {
 	const { user } = useAuth();
 	useGameSync();
 	useKickHandler();
+
+	const isSpectator =
+		!!game &&
+		!!user &&
+		(game.spectators?.includes(user.id) ||
+			!game.teams.some((t) => t.playerIds.includes(user.id)));
+
+	const isSpectatorRef = useRef(isSpectator);
+	const roomIdRef = useRef(roomId);
+
+	useEffect(() => {
+		isSpectatorRef.current = isSpectator;
+		roomIdRef.current = game?.id || roomId;
+	}, [isSpectator, game?.id, roomId]);
+
+	useEffect(() => {
+		const handleBeforeUnload = () => {
+			if (isSpectatorRef.current && roomIdRef.current) {
+				socketClient.emit("leaveGame", { roomId: roomIdRef.current });
+			}
+		};
+		window.addEventListener("beforeunload", handleBeforeUnload);
+
+		return () => {
+			window.removeEventListener("beforeunload", handleBeforeUnload);
+			if (isSpectatorRef.current && roomIdRef.current) {
+				socketClient.emit("leaveGame", { roomId: roomIdRef.current });
+			}
+		};
+	}, []);
+
 	useEffect(() => {
 		if (!game?.settings.isVoiceChatEnabled) {
 			clearVoiceToken();

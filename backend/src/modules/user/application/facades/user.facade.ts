@@ -3,10 +3,13 @@ import { AuthenticatedUser } from "@common/types/authenticated-user";
 import { AnonymousLoginDto } from "../dto/anonymous-login.dto";
 import { LoginDto } from "../dto/login.dto";
 import { RegisterDto } from "../dto/register.dto";
+import { RefreshTokenDto } from "../dto/refresh-token.dto";
 import { GetMeUseCase } from "../use-case/get-me.use-case";
 import { LoginAnonymousUseCase } from "../use-case/login-anonymous.use-case";
 import { LoginRegisteredUseCase } from "../use-case/login-registered.use-case";
 import { RegisterUseCase } from "../use-case/register.use-case";
+import { RefreshTokenUseCase } from "../use-case/refresh-token.use-case";
+import { LogoutUseCase } from "../use-case/logout.use-case";
 import { GetUserByIdUseCase } from "../use-case/get-user-by-id.use-case";
 import { UpdateAvatarUseCase } from "../use-case/update-avatar.use-case";
 import { GetUsersShortInfoUseCase } from "../use-case/get-users-short-info.use-case";
@@ -19,6 +22,8 @@ export class UserFacade {
 		private readonly loginAnonymousUseCase: LoginAnonymousUseCase,
 		private readonly loginRegisteredUseCase: LoginRegisteredUseCase,
 		private readonly registerUseCase: RegisterUseCase,
+		private readonly refreshTokenUseCase: RefreshTokenUseCase,
+		private readonly logoutUseCase: LogoutUseCase,
 		private readonly getUserByIdUseCase: GetUserByIdUseCase,
 		private readonly updateAvatarUseCase: UpdateAvatarUseCase,
 		private readonly getUsersShortInfoUseCase: GetUsersShortInfoUseCase,
@@ -39,6 +44,14 @@ export class UserFacade {
 
 	async register(dto: RegisterDto) {
 		return this.registerUseCase.execute(dto);
+	}
+
+	async refreshToken(dto: RefreshTokenDto) {
+		return this.refreshTokenUseCase.execute(dto);
+	}
+
+	async logout(userId: string) {
+		return this.logoutUseCase.execute(userId);
 	}
 
 	async getUserById(userId: string) {

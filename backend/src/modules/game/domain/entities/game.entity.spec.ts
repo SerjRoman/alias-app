@@ -104,6 +104,82 @@ describe("GameEntity Domain", () => {
 		});
 	});
 
+	describe("Spectators", () => {
+		it("should allow moving player to spectators in lobby", () => {
+			const game = GameEntity.create(ownerId, defaultSettings);
+			const playerId = "player-1";
+			game.joinRoom(playerId, "John Doe");
+			const team = game.createTeam(ownerId, "Red Team");
+			game.movePlayerToTeam(playerId, team.id);
+			expect(game.teams[0].playerIds.has(playerId)).toBe(true);
+
+			game.moveToSpectators(playerId);
+
+			expect(game.teams[0].playerIds.has(playerId)).toBe(false);
+			expect(game.spectators).toContain(playerId);
+			const player = game.players.find((p) => p.id === playerId);
+			expect(player?.isReady).toBe(false);
+		});
+
+		it("should exclude spectators from readiness requirements when starting game", () => {
+			const game = GameEntity.create(ownerId, defaultSettings);
+			const p1 = "p1";
+			const p2 = "p2";
+			const spec = "spec";
+
+			game.joinRoom(p1, "Player 1");
+			game.joinRoom(p2, "Player 2");
+			game.joinRoom(spec, "Spectator");
+
+			const t1 = game.createTeam(ownerId, "Team 1");
+			const t2 = game.createTeam(ownerId, "Team 2");
+
+			game.movePlayerToTeam(p1, t1.id);
+			game.movePlayerToTeam(p2, t2.id);
+			game.moveToSpectators(spec);
+
+			game.togglePlayerGameReady(p1);
+			game.togglePlayerGameReady(p2);
+			// spec is NOT ready
+
+			expect(() => game.startGame(ownerId)).not.toThrow();
+			expect(game.status).toBe(GameStatus.IN_PROGRESS);
+			expect(game.spectators).toContain(spec);
+		});
+
+		it("should automatically add new players joining mid-game to spectators", () => {
+			const game = GameEntity.create(ownerId, defaultSettings);
+			const p1 = "p1";
+			const p2 = "p2";
+			game.joinRoom(p1, "Player 1");
+			game.joinRoom(p2, "Player 2");
+			const t1 = game.createTeam(ownerId, "Team 1");
+			const t2 = game.createTeam(ownerId, "Team 2");
+			game.movePlayerToTeam(p1, t1.id);
+			game.movePlayerToTeam(p2, t2.id);
+			game.togglePlayerGameReady(p1);
+			game.togglePlayerGameReady(p2);
+			game.startGame(ownerId);
+
+			const midGamePlayer = "mid-game-player";
+			game.joinRoom(midGamePlayer, "Late Joiner");
+
+			expect(game.spectators).toContain(midGamePlayer);
+		});
+
+		it("should remove spectator on leaveGame and removePlayer", () => {
+			const game = GameEntity.create(ownerId, defaultSettings);
+			const spec = "spec";
+			game.joinRoom(spec, "Spectator");
+			game.moveToSpectators(spec);
+			expect(game.spectators).toContain(spec);
+
+			game.leaveGame(spec);
+			expect(game.spectators).not.toContain(spec);
+			expect(game.players.find((p) => p.id === spec)).toBeUndefined();
+		});
+	});
+
 	describe("Kicking and Banning (Exclusions)", () => {
 		it("should temporarily kick a player by setting their offline status", () => {
 			const game = GameEntity.create(ownerId, defaultSettings);

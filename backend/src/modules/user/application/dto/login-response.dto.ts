@@ -24,6 +24,14 @@ export class LoginResponseDto {
 	})
 	accessToken: string;
 
+	@ApiProperty({
+		description:
+			"Refresh token for registered users (absent for guest users)",
+		required: false,
+		example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+	})
+	refreshToken?: string;
+
 	@ApiProperty({ description: "User info" })
 	user: UserDto;
 }

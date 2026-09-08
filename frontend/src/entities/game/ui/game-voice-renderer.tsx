@@ -1,7 +1,7 @@
 import { useTracks, AudioTrack } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import { useGameSlice } from "../model/game.slice";
-import { useAuth } from "@entities/auth";
+import { useAuth } from "@shared/api";
 import { GameStatus, RoundStatus } from "../model/game.types";
 import { getVoiceParticipantUserId } from "../lib/voice";
 

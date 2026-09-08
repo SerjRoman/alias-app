@@ -39,7 +39,6 @@ export class UserGateway implements OnGatewayConnection {
 				token,
 				{
 					secret: this.configService.getOrThrow("JWT_SECRET_KEY"),
-					ignoreExpiration: true,
 				},
 			);
 			client.data = client.data || {};

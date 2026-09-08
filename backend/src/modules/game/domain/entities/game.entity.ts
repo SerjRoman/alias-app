@@ -74,6 +74,7 @@ export interface GameState {
 	createdAt: number;
 	nextRoundNumber: number;
 	bannedPlayerIds?: string[];
+	spectators?: string[];
 }
 
 export class GameEntity extends BaseEntity {
@@ -84,6 +85,7 @@ export class GameEntity extends BaseEntity {
 	private _teams: TeamEntity[] = [];
 	private _players: PlayerEntity[] = [];
 	private _currentRound: RoundEntity | null = null;
+	private _spectators: string[] = [];
 	private constructor(
 		initial: Omit<GameState, "teams" | "players" | "currentRound">,
 		teams: TeamState[],
@@ -96,6 +98,7 @@ export class GameEntity extends BaseEntity {
 		this._teams = teams.map((t) => TeamEntity.fromPrimitives(t));
 		this._currentRound =
 			currentRound && RoundEntity.fromPrimitives(currentRound);
+		this._spectators = initial.spectators ? [...initial.spectators] : [];
 		this.state = { ...initial };
 	}
 
@@ -111,6 +114,9 @@ export class GameEntity extends BaseEntity {
 	}
 	get settings() {
 		return { ...this.state.settings };
+	}
+	get spectators() {
+		return [...this._spectators];
 	}
 	get players() {
 		return [...this._players];
@@ -166,19 +172,25 @@ export class GameEntity extends BaseEntity {
 		if (this._teams.length < 2) {
 			throw new TeamError("Need at least 2 teams to start");
 		}
+		const assignedPlayerIds = new Set(
+			this._teams.flatMap((t) => Array.from(t.playerIds)),
+		);
+		const teamPlayers = this._players.filter((p) =>
+			assignedPlayerIds.has(p.id),
+		);
 		const allReady =
-			this._players.every((p) => p.isReady) && this._players.length > 0;
+			teamPlayers.length > 0 && teamPlayers.every((p) => p.isReady);
 		if (!allReady) {
 			throw new PlayersNotReadyError();
 		}
 		if (this.settings.isHatMode) {
 			const wordsNeeded = this.settings.wordsPerPlayer;
-			const playersWithNotEnoughWords = this._players.filter(
+			const playersWithNotEnoughWords = teamPlayers.filter(
 				(p) => p.submittedWordsCount !== wordsNeeded,
 			);
 			if (playersWithNotEnoughWords.length > 0) {
 				throw new GameError(
-					`All players must submit exactly ${wordsNeeded} words to start. Not submitted: ${playersWithNotEnoughWords
+					`All team players must submit exactly ${wordsNeeded} words to start. Not submitted: ${playersWithNotEnoughWords
 						.map((p) => p.name)
 						.join(", ")}`,
 				);
@@ -257,12 +269,14 @@ export class GameEntity extends BaseEntity {
 		role: "registered" | "anonymous" = "anonymous",
 	) {
 		this.assertNotBanned(playerId);
-		this.assertGameInLobby();
 		if (this._players.some((p) => p.id === playerId)) {
 			throw new PlayerAlreadyInGameError(playerId);
 		}
 		const player = PlayerEntity.create(playerId, name, role);
 		this._players.push(player);
+		if (!this._spectators.includes(playerId)) {
+			this._spectators.push(playerId);
+		}
 	}
 	setPlayerOffline(playerId: string) {
 		const player = this.getPlayerOrThrow(playerId);
@@ -278,11 +292,13 @@ export class GameEntity extends BaseEntity {
 		this.getPlayerOrThrow(playerId);
 		this._players = this._players.filter((p) => p.id !== playerId);
 		this._teams.forEach((t) => t.removePlayer(playerId));
+		this._spectators = this._spectators.filter((id) => id !== playerId);
 	}
 	leaveGame(playerId: string) {
 		this.getPlayerOrThrow(playerId);
 		this._players = this._players.filter((p) => p.id !== playerId);
 		this._teams.forEach((t) => t.removePlayer(playerId));
+		this._spectators = this._spectators.filter((id) => id !== playerId);
 	}
 	togglePlayerGameReady(playerId: string, actorId?: string) {
 		if (actorId) {
@@ -325,7 +341,23 @@ export class GameEntity extends BaseEntity {
 		if (targetTeam.playerIds.has(playerId)) return;
 
 		this._teams.forEach((t) => t.removePlayer(playerId));
+		this._spectators = this._spectators.filter((id) => id !== playerId);
 		targetTeam.addPlayer(playerId);
+	}
+
+	moveToSpectators(playerId: string, actorId?: string) {
+		if (actorId && actorId !== playerId) {
+			this.assertRoomOwner(actorId);
+		}
+		this.assertGameInLobby();
+		this.getPlayerOrThrow(playerId);
+		this._teams.forEach((t) => t.removePlayer(playerId));
+		if (!this._spectators.includes(playerId)) {
+			this._spectators.push(playerId);
+		}
+		const player = this.getPlayerOrThrow(playerId);
+		player.setReady(false);
+		player.setRoundReady(false);
 	}
 	kickPlayer(actorId: string, playerId: string) {
 		this.assertRoomOwner(actorId);
@@ -349,6 +381,17 @@ export class GameEntity extends BaseEntity {
 	}
 	startGame(actorId: string) {
 		this.assertCanStartGame(actorId);
+		const assignedPlayerIds = new Set(
+			this._teams.flatMap((t) => Array.from(t.playerIds)),
+		);
+		for (const player of this._players) {
+			if (
+				!assignedPlayerIds.has(player.id) &&
+				!this._spectators.includes(player.id)
+			) {
+				this._spectators.push(player.id);
+			}
+		}
 		this.state.status = GameStatus.IN_PROGRESS;
 		this.addDomainEvent(new GameStartedEvent(this.id, this.toPrimitives()));
 	}
@@ -557,6 +600,7 @@ export class GameEntity extends BaseEntity {
 				: null,
 			players: this._players.map((p) => p.toPrimitives()),
 			bannedPlayerIds: this.state.bannedPlayerIds ?? [],
+			spectators: [...this._spectators],
 		};
 	}
 	static fromPrimitives(state: GameState): GameEntity {
@@ -575,6 +619,7 @@ export class GameEntity extends BaseEntity {
 				lastTeamPlayedIndex: -1,
 				createdAt: Date.now(),
 				nextRoundNumber: 1,
+				spectators: [],
 			},
 			[],
 			[],

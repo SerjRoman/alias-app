@@ -1,6 +1,6 @@
 import { HistoryRoundEntity } from "../domain/history-round.entity";
 import { HistoryGameEntity } from "../domain/history.entity";
-import { HistoryGameState } from "../domain/types";
+import type { HistoryGameState } from "../domain/types";
 import {
 	HistoryGameOrmEntity,
 	HistoryParticipantOrmEntity,

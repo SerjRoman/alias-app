@@ -56,6 +56,10 @@ export class RedisGameRepository implements IGameRepository {
 		const key = `${this.ROOM_PREFIX}${gameId}`;
 		await this.redis.del(key);
 	}
+	async setGameTtl(gameId: string, ttlSeconds: number): Promise<void> {
+		const key = `${this.ROOM_PREFIX}${gameId}`;
+		await this.redis.expire(key, ttlSeconds);
+	}
 
 	async setUserRoom(userId: string, roomId: string): Promise<void> {
 		const key = `${this.USER_TO_ROOM_PREFIX}${userId}`;

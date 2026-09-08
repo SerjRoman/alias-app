@@ -29,7 +29,7 @@ export class EndPointingUseCase {
 		await this.gameRepository.saveGame(room);
 
 		if (room.status === GameStatus.FINISHED) {
-			this.roundScheduler.scheduleGameDeletion(
+			await this.roundScheduler.scheduleGameDeletion(
 				room.id,
 				24 * 60 * 60 * 1000,
 			);

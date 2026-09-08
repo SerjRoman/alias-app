@@ -85,8 +85,7 @@ export class UpdateGameSettingsDto {
 	isVoiceChatEnabled?: boolean;
 
 	@ApiProperty({
-		description:
-			"Number of custom words each player must submit",
+		description: "Number of custom words each player must submit",
 		example: 5,
 	})
 	@IsNumber()
@@ -101,5 +100,4 @@ export class UpdateGameSettingsDto {
 	@IsBoolean()
 	@IsOptional()
 	isHatMode?: boolean;
-
 }

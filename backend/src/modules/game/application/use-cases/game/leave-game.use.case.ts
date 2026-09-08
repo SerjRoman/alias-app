@@ -1,7 +1,9 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameSharedService } from "../../game-shared.service";
 import {
+	GAME_UPDATED,
 	PLAYERS_UPDATED,
+	type GameUpdatedPayload,
 	type PlayersUpdatedPayload,
 	TEAMS_UPDATED,
 	type TeamsUpdatedPayload,
@@ -35,8 +37,12 @@ export class LeaveGameUseCase {
 			roomId: room.id,
 			players: roomPrimitives.players,
 		};
+		const eventPayloadGame: GameUpdatedPayload = {
+			room: roomPrimitives,
+		};
 		this.eventEmitter.emit(TEAMS_UPDATED, eventPayloadTeams);
 		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayloadPlayers);
+		this.eventEmitter.emit(GAME_UPDATED, eventPayloadGame);
 		return room.toPrimitives();
 	}
 }

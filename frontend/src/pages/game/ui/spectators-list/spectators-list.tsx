@@ -1,4 +1,4 @@
-import styles from "./unassigned-players-list.module.css";
+import styles from "./spectators-list.module.css";
 import {
 	type PlayerState,
 	PlayerPopover,
@@ -7,18 +7,19 @@ import {
 } from "@entities/game";
 import { useTranslation } from "react-i18next";
 
-interface UnassignedPlayersListProps {
+interface SpectatorsListProps {
 	players: PlayerState[];
-	roomId: string;
 	playersDisplayMap: Map<string, PlayerDisplayInfo>;
 }
-export function UnassignedPlayersList({
+
+export function SpectatorsList({
 	players,
 	playersDisplayMap,
-}: Readonly<UnassignedPlayersListProps>) {
+}: Readonly<SpectatorsListProps>) {
 	const { t } = useTranslation();
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
 	const settings = useGameSlice((state) => state.game!.settings);
+
 	if (players.length === 0) return null;
 
 	return (

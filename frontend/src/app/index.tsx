@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import "../shared/config/i18n/i18n";
+import "@shared/config";
 import "./index.css";
 import { App } from "./App";
 

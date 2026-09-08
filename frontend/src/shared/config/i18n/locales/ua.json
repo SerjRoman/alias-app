@@ -156,18 +156,24 @@
 		"kickOrBan": "Виключити / Забанити:",
 		"startRound": "Розпочати раунд",
 		"startPointing": "Розпочати перевірку слів",
-		"endGame": "Завершити гру"
+		"endGame": "Завершити гру",
+		"spectatorsOption": "Глядачі"
 	},
 	"lobby": {
 		"teams": "Команди",
 		"newTeamPlaceholder": "Назва нової команди",
 		"addTeam": "Додати",
+		"addTeamCard": "Додати команду",
+		"createTeamModalTitle": "Створити команду",
+		"createTeamBtn": "Створити",
 		"noTeams": "Команди ще не створено.",
 		"readyToStart": "Готовий до старту",
 		"startGame": "Розпочати гру",
 		"joined": "Приєднався",
 		"joinTeam": "Приєднатися до команди",
 		"spectators": "Глядачі / Без команди",
+		"leaveToSpectators": "В глядачі",
+		"youAreSpectator": "Ви в глядачах (оберіть команду, щоб грати)",
 		"deleteTeamTooltip": "Вилучити команду",
 		"deleteTeamTitle": "Видалити команду",
 		"deleteTeamConfirm": "Ви впевнені, що хочете видалити команду {{name}}?",
@@ -175,6 +181,7 @@
 		"generateRandomTeamName": "Згенерувати випадкову назву"
 	},
 	"activeGame": {
+		"spectatorBanner": "Ви спостерігаєте за грою як глядач",
 		"score": "Очки: {{score}}",
 		"loading": "Завантаження...",
 		"skip": "ПРОПУСТИТИ (-1)",

@@ -1,18 +1,18 @@
-import { Plus, Play } from "lucide-react";
+import { Plus, Play, Eye } from "lucide-react";
 import { useState } from "react";
 import styles from "./lobby-view.module.css";
 import { SettingsPanel } from "./settings-panel/settings-panel";
 import { LobbyTeamView } from "./lobby-team-view/lobby-team-view";
-import { UnassignedPlayersList } from "./unassigned-players-list/unassigned-players-list";
+import { SpectatorsList } from "../spectators-list";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@entities/auth";
+import { useAuth } from "@shared/api";
 import { useGameSlice, type PlayerDisplayInfo } from "@entities/game";
 import { useLobbyActions } from "../../api";
 import { ToggleGameReadyButton } from "./game-ready-button/game-ready-button";
 import { CustomWordsForm } from "./custom-words-form/custom-words-form";
-import { Button, Tooltip, RandomDice } from "@shared/ui";
+import { Button, Tooltip } from "@shared/ui";
 import { useTranslation } from "react-i18next";
-import { generateTeamName } from "../../lib";
+import { CreateTeamModal } from "./create-team-modal";
 
 interface LobbyViewProps {
 	playersDisplayMap: Map<string, PlayerDisplayInfo>;
@@ -20,7 +20,7 @@ interface LobbyViewProps {
 
 export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 	const { t } = useTranslation();
-	const [newTeamName, setNewTeamName] = useState("");
+	const [isCreateTeamModalOpen, setIsCreateTeamModalOpen] = useState(false);
 	const { game } = useGameSlice();
 	const { user } = useAuth();
 	const { createTeam, startGame } = useLobbyActions();
@@ -29,14 +29,6 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 		navigate("/games");
 		return null;
 	}
-	function handleCreateTeam() {
-		if (!newTeamName.trim() || !game) return;
-		createTeam(game.id, newTeamName);
-		setNewTeamName("");
-	}
-	const handleRandomName = () => {
-		setNewTeamName(generateTeamName(t));
-	};
 
 	const isOwner = game.ownerId === user.id;
 	const mePlayer = game.players.find((p) => user.id === p.id);
@@ -44,47 +36,21 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 	const unassignedPlayers = game.players.filter(
 		(p) => !allAssignedIds.has(p.id),
 	);
-	const isAllReady = game.players.every((p) => p.isReady);
+	const assignedPlayers = game.players.filter((p) => allAssignedIds.has(p.id));
+	const isAllReady =
+		assignedPlayers.length > 0 && assignedPlayers.every((p) => p.isReady);
 
 	return (
 		<div className={styles.container}>
 			<SettingsPanel game={game} isOwner={isOwner} />
-			<UnassignedPlayersList
+			<SpectatorsList
 				players={unassignedPlayers}
-				roomId={game.id}
 				playersDisplayMap={playersDisplayMap}
 			/>
 
 			<div className={styles.teamContainer}>
 				<div className={styles.teamListHeader}>
 					<h2>{t("lobby.teams")}</h2>
-					{isOwner && (
-						<div className={styles.createTeamWrapper}>
-							<input
-								type="text"
-								className={styles.teamNameInput}
-								value={newTeamName}
-								onChange={(e) => setNewTeamName(e.target.value)}
-								placeholder={t("lobby.newTeamPlaceholder")}
-								onKeyDown={(e) =>
-									e.key === "Enter" && handleCreateTeam()
-								}
-							/>
-							<RandomDice
-								onClick={handleRandomName}
-								title={t("lobby.generateRandomTeamName")}
-							/>
-							<Tooltip text={t("tooltips.addTeam")}>
-								<Button
-									onClick={handleCreateTeam}
-									disabled={!newTeamName.trim()}
-									className={styles.addTeamButton}
-								>
-									<Plus size={16} /> {t("lobby.addTeam")}
-								</Button>
-							</Tooltip>
-						</div>
-					)}
 				</div>
 
 				<div className={styles.teamsGrid}>
@@ -95,9 +61,24 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 							playersDisplayMap={playersDisplayMap}
 						/>
 					))}
+					{isOwner && (
+						<button
+							type="button"
+							className={styles.addTeamCard}
+							onClick={() => setIsCreateTeamModalOpen(true)}
+							aria-label={t("lobby.addTeamCard")}
+						>
+							<div className={styles.addTeamCardIcon}>
+								<Plus size={18} />
+							</div>
+							<span className={styles.addTeamCardText}>
+								{t("lobby.addTeamCard")}
+							</span>
+						</button>
+					)}
 				</div>
 
-				{game.teams.length === 0 && (
+				{game.teams.length === 0 && !isOwner && (
 					<p className={styles.emptyMessage}>{t("lobby.noTeams")}</p>
 				)}
 			</div>
@@ -116,12 +97,17 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 					/>
 				</div>
 			)}
-			{allAssignedIds.has(user.id) && (
+			{allAssignedIds.has(user.id) ? (
 				<div className={styles.toggleReadyContainer}>
 					<ToggleGameReadyButton
 						roomId={game.id}
 						isReady={mePlayer?.isReady || false}
 					/>
+				</div>
+			) : (
+				<div className={styles.spectatorNotice}>
+					<Eye size={18} />
+					<span>{t("lobby.youAreSpectator")}</span>
 				</div>
 			)}
 			{isOwner && (
@@ -137,6 +123,13 @@ export function LobbyView({ playersDisplayMap }: Readonly<LobbyViewProps>) {
 						</Button>
 					</Tooltip>
 				</div>
+			)}
+			{isOwner && (
+				<CreateTeamModal
+					isOpen={isCreateTeamModalOpen}
+					onClose={() => setIsCreateTeamModalOpen(false)}
+					onCreate={(teamName) => createTeam(game.id, teamName)}
+				/>
 			)}
 		</div>
 	);

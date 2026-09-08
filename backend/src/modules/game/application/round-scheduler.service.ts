@@ -60,7 +60,7 @@ export class RoundScheduler {
 		const { callback } = metadata;
 
 		const existingTimeout = this.schedulerRegistry.getTimeout(timeoutName);
-		clearTimeout(existingTimeout);
+		clearTimeout(existingTimeout as NodeJS.Timeout);
 		this.schedulerRegistry.deleteTimeout(timeoutName);
 		this.timeoutsMetadata.delete(timeoutName);
 
@@ -82,21 +82,17 @@ export class RoundScheduler {
 		}
 	}
 
-	scheduleGameDeletion(roomId: string, milliseconds: number) {
-		const timeoutName = `game-deletion-${roomId}`;
-
-		const timeout = setTimeout(() => {
-			this.logger.log(
-				`Deleting game ${roomId} after 24 hours of being finished`,
+	async scheduleGameDeletion(roomId: string, milliseconds: number) {
+		const seconds = Math.max(1, Math.floor(milliseconds / 1000));
+		this.logger.log(
+			`Setting Redis TTL of ${seconds}s for finished game ${roomId}`,
+		);
+		try {
+			await this.repository.setGameTtl(roomId, seconds);
+		} catch (error) {
+			this.logger.error(
+				`Failed to set Redis TTL for game ${roomId}: ${error}`,
 			);
-			try {
-				void this.repository.deleteGame(roomId);
-				this.logger.log(`Game ${roomId} deleted successfully`);
-			} catch (error) {
-				this.logger.error(`Failed to delete game ${roomId}: ${error}`);
-			}
-		}, milliseconds);
-
-		this.schedulerRegistry.addTimeout(timeoutName, timeout);
+		}
 	}
 }

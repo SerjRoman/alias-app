@@ -110,13 +110,17 @@ export class DictionaryService {
 
 		if (selections && selections.length > 0) {
 			try {
-				const packWords = await this.wordPackClient.getRandomWords(selections);
+				const packWords =
+					await this.wordPackClient.getRandomWords(selections);
 				allWords.push(...packWords);
 				this.logger.log(
 					`Loaded ${packWords.length} words from ${selections.length} pack(s) to add to custom words`,
 				);
 			} catch (err) {
-				this.logger.error(`Failed to load pack words for combined mode`, err);
+				this.logger.error(
+					`Failed to load pack words for combined mode`,
+					err,
+				);
 			}
 		}
 
@@ -154,18 +158,22 @@ export class DictionaryService {
 		this.logger.log(`Cleared word cache for room ${roomId}`);
 
 		await Promise.all([
-			this.dictionaryRepository.clearCustomWords(roomId).catch((err) =>
-				this.logger.error(
-					`Failed to clear custom words for room ${roomId}`,
-					err,
+			this.dictionaryRepository
+				.clearCustomWords(roomId)
+				.catch((err) =>
+					this.logger.error(
+						`Failed to clear custom words for room ${roomId}`,
+						err,
+					),
 				),
-			),
-			this.dictionaryRepository.setWords(roomId, []).catch((err) =>
-				this.logger.error(
-					`Failed to clear standard words for room ${roomId}`,
-					err,
+			this.dictionaryRepository
+				.setWords(roomId, [])
+				.catch((err) =>
+					this.logger.error(
+						`Failed to clear standard words for room ${roomId}`,
+						err,
+					),
 				),
-			),
 			...playerIds.map((playerId) =>
 				this.dictionaryRepository
 					.clearCustomWordsForPlayer(roomId, playerId)
@@ -183,7 +191,10 @@ export class DictionaryService {
 		roomId: string,
 		playerId: string,
 	): Promise<void> {
-		await this.dictionaryRepository.clearCustomWordsForPlayer(roomId, playerId);
+		await this.dictionaryRepository.clearCustomWordsForPlayer(
+			roomId,
+			playerId,
+		);
 	}
 
 	private async refillCache(roomId: string): Promise<void> {

@@ -1,8 +1,7 @@
 import { type SubmitEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
-import { useAuth, type User } from "@entities/auth";
-import { useMutation, translateApiError } from "@shared/api";
+import { useMutation, translateApiError, useAuth, type User } from "@shared/api";
 import { Button, Input } from "@shared/ui";
 import { useTranslation } from "react-i18next";
 
@@ -12,18 +11,22 @@ type LoginResponse = {
 };
 
 function applyAuthResult(
-	setToken: (token: string | null) => void,
-	setUser: (user: User | null) => void,
+	setAuth: (data: { token: string | null; user: User | null }) => void,
 	data: LoginResponse,
 ) {
-	setToken(data.accessToken);
-	setUser(data.user);
+	setAuth({
+		token: data.accessToken,
+		user: data.user,
+	});
 }
 
 export function AnonymousLoginPage() {
-	const { setToken, setUser } = useAuth();
+	const { setAuth } = useAuth();
 	const [name, setName] = useState("");
-	const { mutate, isPending, error, isError } = useMutation("post", "/user/login/anonymous");
+	const { mutate, isPending, error, isError } = useMutation(
+		"post",
+		"/user/login/anonymous",
+	);
 	const { t } = useTranslation();
 	const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -33,7 +36,7 @@ export function AnonymousLoginPage() {
 				body: { name: name.trim() },
 			},
 			{
-				onSuccess: (data) => applyAuthResult(setToken, setUser, data),
+				onSuccess: (data) => applyAuthResult(setAuth, data),
 			},
 		);
 	};

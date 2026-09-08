@@ -24,59 +24,71 @@
 	margin: 0;
 }
 
-.createTeamWrapper {
+.addTeamCard {
 	display: flex;
-	gap: var(--spacing-small);
-	width: 100%;
-	max-width: clamp(300px, 50%, 500px);
+	flex-direction: column;
+	align-items: center;
 	justify-content: center;
-}
-
-.teamNameInput {
-	flex: 1;
-	padding: var(--spacing-small) var(--spacing-medium);
-	border: 1px solid var(--color-border);
+	justify-self: center;
+	align-self: center;
+	gap: var(--spacing-small);
+	width: 200px;
+	max-width: 100%;
+	min-height: 120px;
+	border: 2px dashed var(--color-border);
 	border-radius: var(--border-radius);
-	font-size: 1rem;
-	transition: border-color 0.2s;
-	background-color: var(--color-surface);
-}
-
-.teamNameInput:focus {
+	background-color: transparent;
+	color: var(--color-text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	padding: var(--spacing-medium);
+	text-decoration: none;
 	outline: none;
-	border-color: var(--color-primary);
 }
 
-.addTeamButton {
+.addTeamCard:hover {
+	border-color: var(--color-primary);
+	background-color: var(--color-hover);
+	color: var(--color-primary);
+	transform: translateY(-2px);
+	box-shadow: var(--box-shadow);
+}
+
+.addTeamCard:focus-visible {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.addTeamCardIcon {
 	display: flex;
 	align-items: center;
-	gap: 6px;
-	padding: var(--spacing-small) var(--spacing-large);
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 50%;
+	background-color: var(--color-hover);
+	color: inherit;
+	transition: all 0.2s ease;
+}
+
+.addTeamCard:hover .addTeamCardIcon {
 	background-color: var(--color-primary);
 	color: var(--color-text-light);
-	border: none;
-	border-radius: var(--border-radius);
-	font-weight: bold;
-	cursor: pointer;
-	transition:
-		background-color 0.2s,
-		opacity 0.2s;
+	transform: scale(1.08);
 }
 
-.addTeamButton:hover:not(:disabled) {
-	background-color: var(--color-primary-hover);
-}
-
-.addTeamButton:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-	filter: grayscale(1);
+.addTeamCardText {
+	font-size: 0.9rem;
+	font-weight: 600;
 }
 
 .teamsGrid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(260px, 320px));
+	justify-content: center;
+	align-items: center;
 	gap: var(--spacing-medium);
+	width: 100%;
 }
 
 .emptyMessage {
@@ -124,5 +136,22 @@
 .toggleReadyContainer {
 	display: flex;
 	flex-direction: column;
+	align-items: center;
+	gap: var(--spacing-small);
 	justify-content: center;
+}
+
+.spectatorNotice {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--spacing-small);
+	padding: 10px 16px;
+	margin: 0 auto;
+	background: var(--color-surface, #ffffff);
+	border: 1px dashed var(--color-border, #ccc);
+	border-radius: var(--border-radius);
+	color: #666;
+	font-size: 0.95rem;
+	font-weight: 500;
 }
