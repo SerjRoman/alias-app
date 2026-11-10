@@ -32,7 +32,7 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 	const playersMap = new Map(game.players.map((p) => [p.id, p]));
 
 	const mePlayer = game.players.find((p) => user.id === p.id);
-	const isGuesser = game.currentRound.guesserId === user.id;
+	const isExplainer = game.currentRound.explainerId === user.id;
 	const isOwner = game.ownerId === user.id;
 	const allAssignedIds = new Set(game.teams.flatMap((t) => t.playerIds));
 	const isSpectator =
@@ -81,7 +81,7 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 					<RoundPendingControls
 						roomId={game.id}
 						isMyTeamPlaying={!!isMyTeamPlaying}
-						isGuesser={isGuesser}
+						isExplainer={isExplainer}
 						isAllReady={!!isAllReady}
 						myReadyState={mePlayer?.isRoundReady || false}
 					/>
@@ -90,8 +90,9 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 				{currentRound.status === RoundStatus.IN_PROGRESS && (
 					<RoundInProgressBlock
 						roomId={game.id}
-						isGuesser={isGuesser}
+						isExplainer={isExplainer}
 						endTime={currentRound.endTime}
+						pausedAt={currentRound.pausedAt}
 						words={currentRound.words}
 					/>
 				)}

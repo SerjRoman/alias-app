@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class SetGuesserDto {
+export class SetExplainerDto {
 	@ApiProperty({
-		description: "ID of the player to set as guesser",
+		description: "ID of the player to set as explainer",
 		example: "player123",
 	})
 	playerId: string;

@@ -28,7 +28,7 @@ export class RoundDetailsResponseDto {
 
 	@ApiProperty()
 	@Expose()
-	guesserId: string;
+	explainerId: string;
 
 	@ApiProperty()
 	@Expose()

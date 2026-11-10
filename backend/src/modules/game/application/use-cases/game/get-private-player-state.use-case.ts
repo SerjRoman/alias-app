@@ -1,4 +1,4 @@
-import { GameStatus } from "../../../domain/entities/game.entity";
+import { GameStatus } from "../../../domain";
 import { GameSharedService } from "../../game-shared.service";
 import { Injectable } from "@nestjs/common";
 
@@ -8,17 +8,18 @@ export class GetPrivatePlayerStateUseCase {
 
 	async execute(roomId: string, userId: string) {
 		const room = await this.gameSharedService.loadGame(roomId);
+		const state = room.getState();
 
-		if (room.status !== GameStatus.IN_PROGRESS || !room.currentRound) {
+		if (state.status !== GameStatus.IN_PROGRESS || !state.currentRound) {
 			return null;
 		}
 
-		if (room.currentRound.guesserId !== userId) {
+		if (state.currentRound.explainerId !== userId) {
 			return null;
 		}
 
 		return {
-			word: room.currentRound.currentWord,
+			word: state.currentRound.currentWord,
 		};
 	}
 }

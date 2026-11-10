@@ -2,9 +2,8 @@ import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InvalidGameCode } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
 import {
-	type GameUpdatedPayload,
-	GAME_UPDATED,
 	PLAYERS_UPDATED,
+	ROUND_UPDATED,
 	TEAMS_UPDATED,
 } from "../../game.events";
 import {
@@ -14,41 +13,70 @@ import {
 import { UserDto } from "@common/dto/user.dto";
 import { JoinGameDto } from "../../dto/body";
 import { Injectable, Inject } from "@nestjs/common";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoundScheduler } from "../../round-scheduler.service";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
+import type { GameState } from "../../../domain";
 
 @Injectable()
-export class JoinGameUseCase {
+export class JoinGameUseCase extends RoomUseCase<JoinGameDto, GameState> {
+	protected override readonly notify = ["game"] as const;
+
 	constructor(
-		private readonly gameSharedService: GameSharedService,
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly repository: IGameRepository,
-		private readonly eventEmitter: EventEmitter2,
-	) {}
-	async execute(dto: JoinGameDto, actor: UserDto) {
-		const currentRoomId = await this.repository.getUserRoom(actor.id);
+		repository: IGameRepository,
+		eventEmitter: EventEmitter2,
+		private readonly roundScheduler: RoundScheduler,
+	) {
+		super(fifoQueue, gameSharedService, repository, eventEmitter);
+	}
+
+	override async execute(
+		dto: JoinGameDto,
+		actor: UserDto,
+	): Promise<GameState> {
+		const currentRoomId = await this.gameRepository.getUserRoom(actor.id);
 		if (currentRoomId && currentRoomId !== dto.roomId) {
 			try {
-				const oldRoom =
-					await this.gameSharedService.loadGame(currentRoomId);
-				oldRoom.leaveGame(actor.id);
-				await this.repository.saveGame(oldRoom);
-				await this.repository.removeUserRoom(actor.id);
+				await this.fifoQueue.run(currentRoomId, async () => {
+					const oldRoom =
+						await this.gameSharedService.loadGame(currentRoomId);
+					oldRoom.dispatch({
+						type: "LEAVE_GAME",
+						actorId: actor.id,
+						payload: { playerId: actor.id },
+					});
+					await this.gameRepository.saveGame(oldRoom);
+					await this.gameRepository.removeUserRoom(actor.id);
 
-				const oldRoomPrimitives = oldRoom.toPrimitives();
-				this.eventEmitter.emit(TEAMS_UPDATED, {
-					roomId: oldRoom.id,
-					teams: oldRoomPrimitives.teams,
+					const oldRoomPrimitives = oldRoom.toPrimitives();
+					this.eventEmitter.emit(TEAMS_UPDATED, {
+						roomId: oldRoom.id,
+						teams: oldRoomPrimitives.teams,
+					});
+					this.eventEmitter.emit(PLAYERS_UPDATED, {
+						roomId: oldRoom.id,
+						players: oldRoomPrimitives.players,
+					});
 				});
-				this.eventEmitter.emit(PLAYERS_UPDATED, {
-					roomId: oldRoom.id,
-					players: oldRoomPrimitives.players,
-				});
-			} catch (e) {
-				await this.repository.removeUserRoom(actor.id);
+			} catch {
+				await this.gameRepository.removeUserRoom(actor.id);
 			}
 		}
 
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		if (room.settings.isPrivate && room.settings.code) {
+		return super.execute(dto, actor);
+	}
+
+	protected override async handle(
+		room: GameEngine,
+		dto: JoinGameDto,
+		actor: UserDto,
+	): Promise<GameState> {
+		const state = room.getState();
+		if (state.settings?.isPrivate && state.settings?.code) {
 			if (!dto.code) {
 				throw new InvalidGameCode();
 			}
@@ -57,24 +85,48 @@ export class JoinGameUseCase {
 					dto.roomId,
 					dto.code,
 				))
-			)
+			) {
 				throw new InvalidGameCode();
-		}
-		const existingPlayer = room.players.find((p) => p.id === actor.id);
-
-		if (existingPlayer) {
-			room.setPlayerOnline(existingPlayer.id);
-		} else {
-			room.joinRoom(actor.id, actor.name, actor.role);
+			}
 		}
 
-		await this.repository.saveGame(room);
-		await this.repository.setUserRoom(actor.id, room.id);
-		const roomPrimitives = room.toPrimitives();
-		const eventPayload: GameUpdatedPayload = {
-			room: roomPrimitives,
-		};
-		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
-		return roomPrimitives;
+		room.dispatch({
+			type: "JOIN_GAME",
+			actorId: actor.id,
+			payload: {
+				playerId: actor.id,
+				name: actor.name,
+				role: actor.role,
+			},
+		});
+
+		return room.toPrimitives();
+	}
+
+	protected override async afterCommit(
+		room: GameEngine,
+		dto: JoinGameDto,
+		actor: UserDto,
+	): Promise<void> {
+		await this.gameRepository.setUserRoom(actor.id, room.id);
+
+		const updatedState = room.getState();
+		if (updatedState.ownerOfflineSince === null) {
+			this.roundScheduler.clearOwnerTransferTimeout(dto.roomId);
+		}
+		if (
+			updatedState.currentRound?.status === "IN_PROGRESS" &&
+			!updatedState.currentRound.pausedAt
+		) {
+			const remaining = Math.max(
+				0,
+				updatedState.currentRound.endTime - Date.now(),
+			);
+			this.roundScheduler.resumeRoundTimeout(dto.roomId, remaining);
+			this.eventEmitter.emit(ROUND_UPDATED, {
+				round: updatedState.currentRound,
+				roomId: dto.roomId,
+			});
+		}
 	}
 }

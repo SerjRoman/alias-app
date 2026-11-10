@@ -24,8 +24,8 @@ export class HistoryRoundEntity {
 	get teamId() {
 		return this.state.teamId;
 	}
-	get guesserId() {
-		return this.state.guesserId;
+	get explainerId() {
+		return this.state.explainerId;
 	}
 	get words() {
 		return [...this.state.words];

@@ -1,4 +1,10 @@
-export { socketClient } from "./socket";
+export {
+	socketClient,
+	setWsErrorResolver,
+	resolveWsErrorMessage,
+	type WsErrorResolver,
+	type WsErrorPayload,
+} from "./socket";
 export {
 	useMutation,
 	useQuery,

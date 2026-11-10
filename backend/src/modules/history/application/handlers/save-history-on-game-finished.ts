@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { GameFinishedEvent } from "../../../game/domain/events/game.events";
+import { GameFinishedEvent } from "../../../game/domain";
 import {
 	HISTORY_REPOSITORY,
 	type IHistoryRepository,
@@ -17,14 +17,47 @@ export class SaveHistoryOnGameFinishedHandler {
 
 	@OnEvent(GameFinishedEvent.eventName)
 	async handle(event: GameFinishedEvent) {
-		this.logger.log(
-			`Received GameFinishedEvent with payload=${JSON.stringify(event)}`,
-		);
+		try {
+			this.logger.log(
+				`Received GameFinishedEvent with payload=${JSON.stringify(event)}`,
+			);
 
-		await this.historyRepo.updateGameState(
-			event.roomId,
-			event.gameState.status,
-			event.gameState.winnerTeamId,
-		);
+			const activeParticipants = (event.gameState?.players ?? []).map(
+				(player) => ({
+					id: `${event.gameState.id}:${player.id}`,
+					name: player.name,
+					teamId: player.teamId ?? "",
+					userId: player.role === "registered" ? player.id : null,
+					finalScore: player.score ?? 0,
+				}),
+			);
+
+			const leftParticipants = (event.gameState?.leftPlayers ?? []).map(
+				(player) => ({
+					id: `${event.gameState.id}:${player.id}`,
+					name: player.name,
+					teamId: player.teamId ?? "",
+					userId: player.id,
+					finalScore: player.score ?? 0,
+				}),
+			);
+
+			const allParticipants = [
+				...activeParticipants,
+				...leftParticipants,
+			];
+
+			await this.historyRepo.updateGameState(
+				event.roomId,
+				event.gameState.status,
+				event.gameState.winnerTeamId ?? null,
+				allParticipants,
+			);
+		} catch (error) {
+			this.logger.error(
+				`Failed to update game history on game finished for roomId=${event.roomId}: ${error instanceof Error ? error.message : String(error)}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
 	}
 }

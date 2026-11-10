@@ -1,6 +1,6 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
-import { IsBoolean, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsString, IsUUID } from "class-validator";
 
 export class KickPlayerDto {
 	@ApiProperty({

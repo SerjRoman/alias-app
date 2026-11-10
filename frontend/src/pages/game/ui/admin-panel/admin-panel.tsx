@@ -11,6 +11,7 @@ import {
 	type ConfirmationModalProps,
 } from "@shared/ui/modal";
 import { useModal } from "@shared/lib/hooks";
+import { CreateTeamModal } from "../lobby/create-team-modal";
 
 export interface AdminPanelProps {
 	game: GameStateDetails;
@@ -19,14 +20,18 @@ export interface AdminPanelProps {
 
 export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 	const { t } = useTranslation();
-	const [selectedGuesserId, setSelectedGuesserId] = useState("");
+	const [selectedExplainerId, setSelectedExplainerId] = useState("");
 	const [selectedKickId, setSelectedKickId] = useState("");
 	const [selectedTeamId, setSelectedTeamId] = useState("");
 	const [selectedPlayerId, setSelectedPlayerId] = useState("");
+	const [selectedDeleteTeamId, setSelectedDeleteTeamId] = useState("");
+	const [isCreateTeamOpen, setIsCreateTeamOpen] = useState(false);
 	const [modalControl, ModalProvider] =
 		useModal<Omit<ConfirmationModalProps, "isOpen" | "onClose">>();
 	const {
-		setGuesser,
+		setExplainer,
+		createTeam,
+		deleteTeam,
 		kickPlayer,
 		banPlayer,
 		startRound,
@@ -91,61 +96,158 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 					</div>
 				</div>
 			)}
-			{isGameInLobby && (
-				<div className={styles.row}>
-					<span>{t("admin.movePlayerToTeam")}</span>
-					<Select
-						className={styles.select}
-						value={selectedPlayerId}
-						onChange={(e) => setSelectedPlayerId(e.target.value)}
-					>
-						<option value="" disabled>
-							{t("admin.selectPlayer")}
-						</option>
-						{game.players?.map((p) => (
-							<option key={p.id} value={p.id}>
-								{p.name}
-							</option>
-						))}
-					</Select>
-					<Select
-						className={styles.select}
-						value={selectedTeamId}
-						onChange={(e) => setSelectedTeamId(e.target.value)}
-					>
-						<option value="" disabled>
-							{t("admin.selectTeam")}
-						</option>
-						<option value="__SPECTATORS__">
-							{t("admin.spectatorsOption")}
-						</option>
-						{game.teams?.map((t) => (
-							<option key={t.id} value={t.id}>
-								{t.name}
-							</option>
-						))}
-					</Select>
+
+			<div className={styles.row}>
+				<span>{t("admin.teamManagement", "Управление командами:")}</span>
+				<div className={styles.controls}>
 					<Button
 						variant="primary"
-						onClick={() => {
-							if (!selectedPlayerId || !selectedTeamId) return;
-							if (selectedTeamId === "__SPECTATORS__") {
-								moveToSpectators(selectedPlayerId);
-							} else {
-								assignPlayerToTeam(
-									selectedTeamId,
-									selectedPlayerId,
-								);
-							}
-							setSelectedPlayerId("");
-							setSelectedTeamId("");
-						}}
-						disabled={!selectedPlayerId || !selectedTeamId}
+						onClick={() => setIsCreateTeamOpen(true)}
 					>
-						{t("admin.assign")}
+						+ {t("admin.createTeamTitle", "Создать команду")}
 					</Button>
 				</div>
-			)}
+			</div>
+
+			<div className={styles.row}>
+				<span>{t("admin.deleteTeamTitle", "Удалить команду:")}</span>
+				<div className={styles.controls}>
+					<Select
+						className={styles.select}
+						value={selectedDeleteTeamId}
+						onChange={(e) => setSelectedDeleteTeamId(e.target.value)}
+					>
+						<option value="" disabled>
+							{t("admin.selectTeamToDelete", "Выберите команду")}
+						</option>
+						{game.teams?.map((team) => {
+							const isPlaying = Boolean(
+								!isGameInLobby &&
+									game.currentRound &&
+									(game.currentRound.teamId === team.id ||
+										(game.activeTeamId &&
+											game.activeTeamId === team.id)),
+							);
+							return (
+								<option
+									key={team.id}
+									value={team.id}
+									disabled={isPlaying}
+								>
+									{team.name} ({team.playerIds.length} игр.)
+									{isPlaying ? ` (${t("admin.playingBadge", "играет")})` : ""}
+								</option>
+							);
+						})}
+					</Select>
+					<Button
+						variant="danger"
+						onClick={() => {
+							if (!selectedDeleteTeamId) return;
+							const teamToDelete = game.teams.find(
+								(team) => team.id === selectedDeleteTeamId,
+							);
+							modalControl.open({
+								title: t("admin.deleteTeamTitle", "Удалить команду"),
+								message: t(
+									"admin.deleteTeamConfirm",
+									`Удалить команду "${teamToDelete?.name}"? Игроки перейдут в зрители.`,
+									{ name: teamToDelete?.name },
+								),
+								confirmText: t("common.delete", "Удалить"),
+								variant: "danger",
+								onConfirm: () => {
+									deleteTeam(selectedDeleteTeamId);
+									setSelectedDeleteTeamId("");
+								},
+							});
+						}}
+						disabled={
+							!selectedDeleteTeamId ||
+							(!isGameInLobby &&
+								(game.teams.length <= 2 ||
+									game.currentRound?.teamId === selectedDeleteTeamId ||
+									(Boolean(game.activeTeamId) &&
+										game.activeTeamId === selectedDeleteTeamId)))
+						}
+					>
+						{t("common.delete", "Удалить")}
+					</Button>
+				</div>
+				{!isGameInLobby && game.teams.length <= 2 && (
+					<span className={styles.warningHint}>
+						{t("admin.minTeamsWarning", "В игре должно оставаться минимум 2 команды")}
+					</span>
+				)}
+			</div>
+
+			<div className={styles.row}>
+				<span>{t("admin.movePlayerToTeam")}</span>
+				<Select
+					className={styles.select}
+					value={selectedPlayerId}
+					onChange={(e) => setSelectedPlayerId(e.target.value)}
+				>
+					<option value="" disabled>
+						{t("admin.selectPlayer")}
+					</option>
+					{game.players?.map((p) => {
+						const isSpec =
+							game.spectators?.includes(p.id) ||
+							!game.teams.some((team) =>
+								team.playerIds.includes(p.id),
+							);
+						const currentTeam = game.teams.find((team) =>
+							team.playerIds.includes(p.id),
+						);
+						const tag = isSpec
+							? `[${t("admin.spectatorLabel", "Зритель")}]`
+							: `[${currentTeam?.name || "Команда"}]`;
+						return (
+							<option key={p.id} value={p.id}>
+								{p.name} {tag}
+							</option>
+						);
+					})}
+				</Select>
+				<Select
+					className={styles.select}
+					value={selectedTeamId}
+					onChange={(e) => setSelectedTeamId(e.target.value)}
+				>
+					<option value="" disabled>
+						{t("admin.selectTeam")}
+					</option>
+					<option value="__SPECTATORS__">
+						{t("admin.spectatorsOption")}
+					</option>
+					{game.teams?.map((team) => (
+						<option key={team.id} value={team.id}>
+							{team.name}
+						</option>
+					))}
+				</Select>
+				<Button
+					variant="primary"
+					onClick={() => {
+						if (!selectedPlayerId || !selectedTeamId) return;
+						if (selectedTeamId === "__SPECTATORS__") {
+							moveToSpectators(selectedPlayerId);
+						} else {
+							assignPlayerToTeam(
+								selectedTeamId,
+								selectedPlayerId,
+							);
+						}
+						setSelectedPlayerId("");
+						setSelectedTeamId("");
+					}}
+					disabled={!selectedPlayerId || !selectedTeamId}
+				>
+					{t("admin.assign")}
+				</Button>
+			</div>
+
 			{isGameInLobby && (
 				<div className={styles.row}>
 					<Button
@@ -163,11 +265,11 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 			)}
 			{game.currentRound?.status === "PENDING" && (
 				<div className={styles.row}>
-					<span>{t("admin.guesser")}</span>
+					<span>{t("admin.explainer", "Объясняющий:")}</span>
 					<Select
 						className={styles.select}
-						value={selectedGuesserId}
-						onChange={(e) => setSelectedGuesserId(e.target.value)}
+						value={selectedExplainerId}
+						onChange={(e) => setSelectedExplainerId(e.target.value)}
 					>
 						<option value="" disabled>
 							{t("admin.selectPlayer")}
@@ -181,15 +283,24 @@ export function AdminPanel({ game, onClose }: Readonly<AdminPanelProps>) {
 					<Button
 						variant="primary"
 						onClick={() => {
-							setGuesser(selectedGuesserId);
-							setSelectedGuesserId("");
+							setExplainer(selectedExplainerId);
+							setSelectedExplainerId("");
 						}}
-						disabled={!selectedGuesserId}
+						disabled={!selectedExplainerId}
 					>
 						{t("admin.assign")}
 					</Button>
 				</div>
 			)}
+
+			<CreateTeamModal
+				isOpen={isCreateTeamOpen}
+				onClose={() => setIsCreateTeamOpen(false)}
+				onCreate={(teamName) => {
+					createTeam(teamName);
+					setIsCreateTeamOpen(false);
+				}}
+			/>
 
 			<div className={styles.row}>
 				<span>{t("admin.kickOrBan")}</span>

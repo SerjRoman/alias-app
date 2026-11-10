@@ -1,10 +1,10 @@
-import type { GameEntity } from "../domain/entities/game.entity";
+import type { GameEngine } from "../domain/engine/game-engine";
 
 export interface IGameRepository {
 	// Game
-	findGameById(gameId: string): Promise<GameEntity | null>;
-	findAllGames(): Promise<GameEntity[]>;
-	saveGame(game: GameEntity): Promise<void>;
+	findGameById(gameId: string): Promise<GameEngine | null>;
+	findAllGames(): Promise<GameEngine[]>;
+	saveGame(game: GameEngine): Promise<void>;
 	deleteGame(gameId: string): Promise<void>;
 	setGameTtl(gameId: string, ttlSeconds: number): Promise<void>;
 

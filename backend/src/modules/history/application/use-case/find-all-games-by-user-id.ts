@@ -113,8 +113,9 @@ export class FindAllGamesByUserIdUseCase {
 					id: r.id,
 					roundNumber: r.roundNumber,
 					teamId: r.teamId,
-					guesserParticipantId:
-						participantIdByPlayerId.get(r.guesserId) ?? r.guesserId,
+					explainerParticipantId:
+						participantIdByPlayerId.get(r.explainerId) ??
+						r.explainerId,
 				})),
 			});
 		}

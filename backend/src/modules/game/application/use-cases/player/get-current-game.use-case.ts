@@ -13,6 +13,7 @@ export class GetCurrentGameUseCase {
 
 	async execute(userId: string) {
 		const roomId = await this.gameRepository.getUserRoom(userId);
+		console.log("ROOMID", roomId);
 		if (!roomId) {
 			return { roomId: null, code: null };
 		}
@@ -21,14 +22,15 @@ export class GetCurrentGameUseCase {
 			await this.gameRepository.removeUserRoom(userId);
 			return { roomId: null, code: null };
 		}
-		const isUserInGame = game.players.some((p) => p.id === userId);
+		const state = game.getState();
+		const isUserInGame = state.players.some((p) => p.id === userId);
 		if (!isUserInGame) {
 			await this.gameRepository.removeUserRoom(userId);
 			return { roomId: null, code: null };
 		}
 		return {
 			roomId,
-			code: game.settings.code || null,
+			code: state.settings?.code || null,
 		};
 	}
 }

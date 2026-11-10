@@ -7,44 +7,79 @@ import {
 import { UpdateGameSettingsDto } from "../../dto/body";
 import { Injectable, Inject, Logger } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import {
-	GAME_SETTINGS_UPDATED,
-	type GameSettingsUpdatedPayload,
-} from "../../game.events";
 import { DictionaryService } from "../../dictionary.service";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
+import type { GameState } from "../../../domain/state/game.state";
+
+interface UpdateGameSettingsContext extends Record<string, unknown> {
+	shouldClearWords?: boolean;
+}
 
 @Injectable()
-export class UpdateGameSettingsUseCase {
+export class UpdateGameSettingsUseCase extends RoomUseCase<
+	UpdateGameSettingsDto,
+	GameState,
+	UpdateGameSettingsContext
+> {
 	private readonly logger = new Logger(UpdateGameSettingsUseCase.name);
+	protected override readonly notify = ["settings"] as const;
 
 	constructor(
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-		private readonly gameSharedService: GameSharedService,
-		private readonly eventEmitter: EventEmitter2,
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
 		private readonly dictionaryService: DictionaryService,
-	) {}
-	async execute(settingsDto: UpdateGameSettingsDto, actor: UserDto) {
-		const { roomId, ...settingsToUpdate } = { ...settingsDto };
-		const room = await this.gameSharedService.loadGame(roomId);
-		room.assertRoomOwner(actor.id);
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
 
+	protected override beforeHandle(
+		engine: GameEngine,
+		dto: UpdateGameSettingsDto,
+		_actor: UserDto,
+		context: UpdateGameSettingsContext,
+	): void {
+		const prevSettings = engine.getState().settings;
 		const hatModeChanged =
-			settingsDto.isHatMode !== undefined &&
-			settingsDto.isHatMode !== room.settings.isHatMode;
+			dto.isHatMode !== undefined &&
+			dto.isHatMode !== prevSettings?.isHatMode;
 		const wordsPerPlayerChanged =
-			settingsDto.wordsPerPlayer !== undefined &&
-			settingsDto.wordsPerPlayer !== room.settings.wordsPerPlayer;
+			dto.wordsPerPlayer !== undefined &&
+			dto.wordsPerPlayer !== prevSettings?.wordsPerPlayer;
+		context.shouldClearWords = hatModeChanged || wordsPerPlayerChanged;
+	}
 
-		room.updateSettings(settingsToUpdate, actor.id);
-		await this.gameRepository.saveGame(room);
+	protected override handle(
+		engine: GameEngine,
+		dto: UpdateGameSettingsDto,
+		actor: UserDto,
+	): void {
+		const settingsToUpdate = { ...dto };
+		delete (settingsToUpdate as { roomId?: string }).roomId;
+		engine.dispatch({
+			type: "UPDATE_SETTINGS",
+			actorId: actor.id,
+			payload: settingsToUpdate,
+		});
+	}
 
-		if (hatModeChanged || wordsPerPlayerChanged) {
-			const playerIds = room.toPrimitives().players.map((p) => p.id);
+	protected override async afterCommit(
+		engine: GameEngine,
+		_dto: UpdateGameSettingsDto,
+		_actor: UserDto,
+		_result: GameState | void,
+		context: UpdateGameSettingsContext,
+	): Promise<void> {
+		if (context.shouldClearWords) {
+			const playerIds = engine.toPrimitives().players.map((p) => p.id);
 			await Promise.all(
 				playerIds.map((playerId) =>
 					this.dictionaryService
-						.clearCustomWordsForPlayer(roomId, playerId)
+						.clearCustomWordsForPlayer(engine.id, playerId)
 						.catch((err) =>
 							this.logger.error(
 								`Failed to clear custom words for player ${playerId} on settings update`,
@@ -54,14 +89,5 @@ export class UpdateGameSettingsUseCase {
 				),
 			);
 		}
-
-		const roomPrimitives = room.toPrimitives();
-		const eventPayload: GameSettingsUpdatedPayload = {
-			roomId: roomPrimitives.id,
-			settings: roomPrimitives.settings,
-		};
-		this.eventEmitter.emit(GAME_SETTINGS_UPDATED, eventPayload);
-
-		return roomPrimitives;
 	}
 }

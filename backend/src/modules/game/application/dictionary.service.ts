@@ -1,4 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
+import { NoWordsAvailableError } from "../domain/errors/game.errors";
 import {
 	DICTIONARY_REPOSITORY,
 	type IDictionaryRepository,
@@ -44,7 +45,9 @@ export class DictionaryService {
 			cached = this.gameWordsCache.get(roomId);
 		}
 		if (!cached || cached.length === 0) {
-			throw new Error("No more words available for this game");
+			throw new NoWordsAvailableError(
+				"No more words available for this game",
+			);
 		}
 		const word = cached.pop()!;
 		// Refill in background if running low
@@ -99,13 +102,16 @@ export class DictionaryService {
 		selections?: WordPackSelection[],
 	): Promise<void> {
 		const allWords: string[] = [];
-		for (const playerId of playerIds) {
-			const playerWords =
-				await this.dictionaryRepository.getCustomWordsForPlayer(
+		const result = await Promise.all(
+			playerIds.map((playerId) => {
+				return this.dictionaryRepository.getCustomWordsForPlayer(
 					roomId,
 					playerId,
 				);
-			allWords.push(...playerWords);
+			}),
+		);
+		for (const words of result) {
+			allWords.push(...words);
 		}
 
 		if (selections && selections.length > 0) {
@@ -138,16 +144,18 @@ export class DictionaryService {
 		await this.refillCache(roomId);
 
 		// Clean up custom player words in Redis
-		for (const playerId of playerIds) {
-			await this.dictionaryRepository
-				.clearCustomWordsForPlayer(roomId, playerId)
-				.catch((err) =>
-					this.logger.error(
-						`Failed to clear custom words for room ${roomId} player ${playerId}`,
-						err,
-					),
-				);
-		}
+		void Promise.all(
+			playerIds.map((playerId) => {
+				return this.dictionaryRepository
+					.clearCustomWordsForPlayer(roomId, playerId)
+					.catch((err) =>
+						this.logger.error(
+							`Failed to clear custom words for room ${roomId} player ${playerId}`,
+							err,
+						),
+					);
+			}),
+		);
 	}
 
 	public async clearGameResources(

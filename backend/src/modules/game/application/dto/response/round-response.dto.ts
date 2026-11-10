@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose, Type, Exclude } from "class-transformer";
 import { WordResponseDto } from "./word-response.dto";
-import { RoundStatus } from "../../../domain/entities/round.entity";
+import { RoundStatus } from "../../../domain";
 
 export class RoundResponseDto {
 	@ApiProperty({ example: "uuid-round-1" })
@@ -13,11 +13,15 @@ export class RoundResponseDto {
 		description: "ID of the player explaining words",
 	})
 	@Expose()
-	guesserId: string;
+	explainerId: string;
 
 	@ApiProperty({ example: "uuid-team-1" })
 	@Expose()
 	teamId: string;
+
+	@ApiProperty({ example: 1, description: "Current round number" })
+	@Expose()
+	roundNumber: number;
 
 	@ApiProperty({
 		example: "number",
@@ -39,4 +43,12 @@ export class RoundResponseDto {
 	@Type(() => WordResponseDto)
 	@Expose()
 	words: WordResponseDto[];
+
+	@ApiPropertyOptional({ example: 1794318000000, nullable: true })
+	@Expose()
+	pausedAt?: number | null;
+
+	@ApiPropertyOptional({ example: 35000, nullable: true })
+	@Expose()
+	remainingMs?: number | null;
 }

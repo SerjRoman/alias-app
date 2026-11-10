@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { HistoryGameOrmEntity } from "./entities";
+import { HistoryGameOrmEntity, HistoryParticipantOrmEntity } from "./entities";
 import { Repository } from "typeorm";
 import { IHistoryRepository } from "../application/history.repository";
 import { HistoryGameEntity } from "../domain/history.entity";
@@ -116,10 +116,48 @@ export class HistoryRepository implements IHistoryRepository {
 		gameId: string,
 		status: string,
 		winnerTeamId: string | null,
+		participants?: Array<{
+			id: string;
+			name: string;
+			teamId: string;
+			userId: string | null;
+			finalScore: number;
+		}>,
 	): Promise<void> {
 		await this.historyRepo.update(gameId, {
 			status,
 			winnerTeamId,
 		});
+
+		if (participants && participants.length > 0) {
+			const game = await this.historyRepo.findOne({
+				where: { id: gameId },
+				relations: ["participants"],
+			});
+			if (game) {
+				const existingMap = new Map(
+					(game.participants ?? []).map((p) => [p.id, p]),
+				);
+				for (const p of participants) {
+					const existing = existingMap.get(p.id);
+					if (existing) {
+						existing.finalScore = p.finalScore;
+						if (p.teamId) existing.teamId = p.teamId;
+					} else {
+						const newParticipant =
+							new HistoryParticipantOrmEntity();
+						newParticipant.id = p.id;
+						newParticipant.gameId = gameId;
+						newParticipant.name = p.name;
+						newParticipant.teamId = p.teamId;
+						newParticipant.userId = p.userId;
+						newParticipant.finalScore = p.finalScore;
+						game.participants ??= [];
+						game.participants.push(newParticipant);
+					}
+				}
+				await this.historyRepo.save(game);
+			}
+		}
 	}
 }

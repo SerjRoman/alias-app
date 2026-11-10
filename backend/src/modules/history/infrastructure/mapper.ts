@@ -31,7 +31,7 @@ export class HistoryGameMapper {
 					id: r.id,
 					gameId: r.gameId,
 					teamId: r.teamId,
-					guesserId: r.guesserId,
+					explainerId: r.explainerId,
 					words: r.words,
 					roundNumber: r.roundNumber,
 					participants:
@@ -82,7 +82,7 @@ export class HistoryGameMapper {
 			roundOrm.id = r.id;
 			roundOrm.gameId = r.gameId;
 			roundOrm.teamId = r.teamId;
-			roundOrm.guesserId = r.guesserId;
+			roundOrm.explainerId = r.explainerId;
 			roundOrm.words = r.words;
 			roundOrm.roundNumber = r.roundNumber;
 
@@ -123,7 +123,7 @@ export class HistoryRoundMapper {
 			id: orm.id,
 			gameId: orm.gameId,
 			teamId: orm.teamId,
-			guesserId: orm.guesserId,
+			explainerId: orm.explainerId,
 			words: orm.words,
 			roundNumber: orm.roundNumber,
 			participants:
@@ -144,7 +144,7 @@ export class HistoryRoundMapper {
 		orm.id = primitives.id;
 		orm.gameId = primitives.gameId;
 		orm.teamId = primitives.teamId;
-		orm.guesserId = primitives.guesserId;
+		orm.explainerId = primitives.explainerId;
 		orm.words = primitives.words;
 		orm.roundNumber = primitives.roundNumber;
 

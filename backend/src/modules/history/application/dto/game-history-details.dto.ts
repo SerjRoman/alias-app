@@ -75,7 +75,7 @@ export class HistoryRoundDto {
 
 	@ApiProperty({ example: "player-1" })
 	@Expose()
-	guesserId: string;
+	explainerId: string;
 
 	@ApiProperty({
 		description:

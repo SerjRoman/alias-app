@@ -3,7 +3,7 @@ import {
 	USER_REPOSITORY,
 	type IUserRepository,
 } from "../user.repository.interface";
-import { GameFinishedEvent } from "../../../game/domain/events/game.events";
+import { GameFinishedEvent } from "../../../game/domain";
 import { Inject, Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -14,7 +14,16 @@ export class UpdateUserStatOnGameFinishedHandler {
 	) {}
 	@OnEvent(GameFinishedEvent.eventName)
 	async execute(event: GameFinishedEvent) {
-		const playerIds = event.gameState.players
+		const allPlayers = [
+			...(event.gameState.players ?? []),
+			...(event.gameState.leftPlayers ?? []).map((lp) => ({
+				id: lp.id,
+				role: "registered" as const,
+				score: lp.score,
+				teamId: lp.teamId ?? undefined,
+			})),
+		];
+		const playerIds = allPlayers
 			.map((player) =>
 				player.id && player.role === "registered" ? player.id : null,
 			)
@@ -22,20 +31,16 @@ export class UpdateUserStatOnGameFinishedHandler {
 		const users = await this.userRepository.findManyByIds(playerIds);
 		const winnerTeamId = event.gameState.winnerTeamId;
 		const updatedUsers = users.map((user) => {
-			const playerState = event.gameState.players.find(
-				(p) => p.id === user.id,
-			);
+			const playerState = allPlayers.find((p) => p.id === user.id);
 			if (!playerState) return user;
 
-			const isWinner = event.gameState.teams.some(
-				(team) =>
-					team.id === winnerTeamId &&
-					team.playerIds.includes(user.id),
-			);
+			const isWinner =
+				Boolean(winnerTeamId) && playerState.teamId === winnerTeamId;
+			const playerScore = playerState.score ?? 0;
 			if (isWinner) {
-				user.addGameResult(playerState.score, true);
+				user.addGameResult(playerScore, true);
 			} else {
-				user.addGameResult(playerState.score, false);
+				user.addGameResult(playerScore, false);
 			}
 			return user;
 		});

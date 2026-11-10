@@ -104,7 +104,11 @@ export function GamesList({ games }: Readonly<GamesListProps>) {
 												</p>
 												<p>
 													{t("profile.host", {
-														name: currentParticipants?.get(round.guesserParticipantId)?.name ?? t("profile.unknownHost"),
+														name:
+															currentParticipants?.get(
+																round.explainerParticipantId,
+															)?.name ??
+															t("profile.unknownHost"),
 													})}
 												</p>
 											</li>

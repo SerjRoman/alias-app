@@ -6,13 +6,13 @@ interface PlayerItemProps {
 	name: string;
 	isOwner: boolean;
 	isReady: boolean;
-	isGuesser: boolean;
+	isExplainer: boolean;
 	isOnline: boolean;
 }
 
 export function PlayerItem({
 	name,
-	isGuesser,
+	isExplainer,
 	isOwner,
 	isOnline,
 	isReady,
@@ -34,12 +34,12 @@ export function PlayerItem({
 				/>
 			)}
 
-			{isGuesser && (
+			{isExplainer && (
 				<ArrowLeft
 					size={16}
-					className={styles.guesserIcon}
+					className={styles.explainerIcon}
 					strokeWidth={2.5}
-					aria-label="Current Guesser"
+					aria-label="Current Explainer"
 				/>
 			)}
 		</li>

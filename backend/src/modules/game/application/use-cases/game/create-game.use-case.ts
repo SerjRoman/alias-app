@@ -1,8 +1,7 @@
+import { v4 as uuidv4 } from "uuid";
 import { UserDto } from "@common/dto/user.dto";
-import {
-	type GameSettings,
-	GameEntity,
-} from "../../../domain/entities/game.entity";
+import { GameStatus, type GameSettings } from "../../../domain";
+import { GameEngine } from "../../../domain/engine/game-engine";
 import { CreateGameDto } from "../../dto/body";
 import { GameSharedService } from "../../game-shared.service";
 import {
@@ -37,7 +36,17 @@ export class CreateGameUseCase {
 			isOnlyOwnerCanChangeScore: true,
 			isVoiceChatEnabled: true,
 		};
-		const newRoom = GameEntity.create(user.id, settings);
+		const newRoom = GameEngine.create(uuidv4(), user.id, {
+			status: GameStatus.LOBBY,
+			settings,
+			pointsToWin: settings.pointsToWin,
+			roundTimeSeconds: settings.roundTimeSeconds,
+			winnerTeamId: null,
+			lastTeamPlayedIndex: -1,
+			createdAt: Date.now(),
+			nextRoundNumber: 1,
+			spectators: [],
+		});
 
 		await this.repository.saveGame(newRoom);
 		return { room: newRoom.toPrimitives(), code };

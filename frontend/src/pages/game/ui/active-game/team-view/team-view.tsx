@@ -40,11 +40,11 @@ export function ActiveGameTeamView({ team, playersDisplayMap }: Readonly<TeamVie
 	const players = useGameSlice((state) => state.game!.players);
 	const ownerId = useGameSlice((state) => state.game!.ownerId);
     const {t} = useTranslation()
-	const currentGuesserId = useGameSlice(
-		(state) => state.game?.currentRound?.guesserId,
+	const currentExplainerId = useGameSlice(
+		(state) => state.game?.currentRound?.explainerId,
 	);
 	const playersMap = useMemo(() => new Map(players.map((p) => [p.id, p])), [players]);
-	const isPlayingTeam = team.playerIds.includes(currentGuesserId!);
+	const isPlayingTeam = team.playerIds.includes(currentExplainerId!);
 
 	const roomContext = useMaybeRoomContext();
 	const [speakingPlayerIds, setSpeakingPlayerIds] = useState<Set<string>>(
@@ -77,7 +77,7 @@ export function ActiveGameTeamView({ team, playersDisplayMap }: Readonly<TeamVie
 								playerUsername={playerDisplayInfo?.username}
 								playerScore={player.score}
 								playerIsOwner={player.id === ownerId}
-								playerIsGuesser={player.id === currentGuesserId}
+								playerIsExplainer={player.id === currentExplainerId}
 								playerIsReady={player.isRoundReady}
 								playerIsSpeaking={speakingPlayerIds.has(player.id)}
 								triggerClassName={styles.triggerButton}

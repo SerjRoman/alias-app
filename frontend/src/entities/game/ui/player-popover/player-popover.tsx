@@ -14,7 +14,7 @@ interface PlayerPopoverProps {
 	playerIsOnline?: boolean;
 	playerIsReady?: boolean;
 	playerIsOwner?: boolean;
-	playerIsGuesser?: boolean;
+	playerIsExplainer?: boolean;
 	playerIsSpeaking?: boolean;
 	playerAvatar?: string;
 	playerUsername?: string;
@@ -30,7 +30,7 @@ export function PlayerPopover({
 	playerIsOnline,
 	playerIsReady,
 	playerIsOwner,
-	playerIsGuesser,
+	playerIsExplainer,
 	playerIsSpeaking,
 	playerName,
 	playerScore,
@@ -60,7 +60,7 @@ export function PlayerPopover({
 	]
 		.filter(Boolean)
 		.join(" ");
-	const shouldShowMeta = playerIsOwner || playerIsGuesser || playerIsSpeaking;
+	const shouldShowMeta = playerIsOwner || playerIsExplainer || playerIsSpeaking;
 
 	return (
 		<Popover.Root>
@@ -90,12 +90,12 @@ export function PlayerPopover({
 										aria-label="Room Owner"
 									/>
 								)}
-								{playerIsGuesser && (
+								{playerIsExplainer && (
 									<ArrowLeft
 										size={16}
-										className={styles.guesserIcon}
+										className={styles.explainerIcon}
 										strokeWidth={2.5}
-										aria-label="Current Guesser"
+										aria-label="Current Explainer"
 									/>
 								)}
 							</div>

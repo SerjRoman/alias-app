@@ -1,7 +1,5 @@
-// TECH_DEBT: Вынести обработку таймаута раунда в отдельный метод, который будет вызываться как из планировщика, так и при форсированном старте раунда. Это позволит избежать дублирования кода и обеспечит более чистую архитектуру.
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { RoundNotActiveError } from "../../../domain/errors/round.errors";
-import { GameError } from "../../../domain/errors/game.errors";
+import { NoWordsAvailableError } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
 import { type RoundUpdatedPayload, ROUND_UPDATED } from "../../game.events";
 import {
@@ -13,63 +11,90 @@ import { StartRoundDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
 import { DictionaryService } from "../../dictionary.service";
 import { Inject, Injectable } from "@nestjs/common";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoundStatus } from "../../../domain";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
-export class StartRoundForcedUseCase {
+export class StartRoundForcedUseCase extends RoomUseCase<
+	StartRoundDto,
+	RoundUpdatedPayload
+> {
+	protected override readonly notify = ["round"] as const;
+
 	constructor(
-		private readonly gameSharedService: GameSharedService,
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-		private readonly eventEmitter: EventEmitter2,
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
 		private readonly roundScheduler: RoundScheduler,
 		private readonly dictionaryService: DictionaryService,
-	) {}
-	async execute(dto: StartRoundDto, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		if (!room.currentRound) {
-			throw new RoundNotActiveError();
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
+
+	protected override async handle(
+		room: GameEngine,
+		dto: StartRoundDto,
+		actor: UserDto,
+	): Promise<RoundUpdatedPayload> {
+		const state = room.getState();
+		room.assertCanStartRound(actor.id, true);
+
+		const text = await this.dictionaryService.popWordForGame(room.id);
+		if (!text) {
+			throw new NoWordsAvailableError();
 		}
-		const startTime = Date.now();
-		room.startRound(actor.id, startTime, true);
+
+		const durationSeconds =
+			state.roundTimeSeconds ?? state.settings?.roundTimeSeconds ?? 60;
+
+		room.dispatch({
+			type: "START_ROUND",
+			actorId: actor.id,
+			payload: {
+				durationSeconds,
+				firstWordText: text,
+				force: true,
+			},
+		});
+
 		this.roundScheduler.scheduleRoundTimeout(
 			room.id,
-			room.settings.roundTimeSeconds * 1000,
+			durationSeconds * 1000,
 			() => {
 				void this.handleRoundTimeout(room.id);
 			},
 		);
-		const text = await this.dictionaryService.popWordForGame(room.id);
-		if (!text) {
-			throw new GameError(
-				"Unexpected error: no words available for the game",
-			);
-		}
 
-		room.nextWord(room.currentRound.guesserId, text, false);
-
-		await this.gameRepository.saveGame(room);
-
-		const eventPayload: RoundUpdatedPayload = {
-			round: room.currentRound.toPrimitives(),
+		return {
+			round: room.toPrimitives().currentRound!,
 			roomId: room.id,
 		};
-		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
-		return eventPayload;
 	}
 
 	private async handleRoundTimeout(roomId: string) {
-		const room = await this.gameSharedService.loadGame(roomId);
-		if (!room.currentRound) {
-			throw new RoundNotActiveError();
-		}
+		await this.fifoQueue.run(roomId, async () => {
+			const room = await this.gameSharedService.loadGame(roomId);
+			const currentRound = room.getState().currentRound;
+			if (currentRound?.status !== RoundStatus.IN_PROGRESS) {
+				return;
+			}
 
-		room.startPointing();
-		await this.gameRepository.saveGame(room);
+			room.dispatch({
+				type: "START_POINTING",
+				actorId: "system",
+			});
+			await this.gameRepository.saveGame(room);
 
-		const eventPayload: RoundUpdatedPayload = {
-			round: room.currentRound.toPrimitives(),
-			roomId: room.id,
-		};
-		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
+			const updatedRound = room.toPrimitives().currentRound!;
+			const eventPayload: RoundUpdatedPayload = {
+				round: updatedRound,
+				roomId: room.id,
+			};
+			this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
+		});
 	}
 }

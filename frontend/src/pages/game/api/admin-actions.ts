@@ -4,8 +4,14 @@ export const adminSocketApi = {
 	addTime: (gameId: string, seconds: number) => {
 		socketClient.emit("admin:addTime", { roomId: gameId, seconds });
 	},
-	setGuesser: (gameId: string, playerId: string) => {
-		socketClient.emit("admin:setGuesser", { roomId: gameId, playerId });
+	setExplainer: (gameId: string, playerId: string) => {
+		socketClient.emit("admin:setExplainer", { roomId: gameId, playerId });
+	},
+	createTeam: (gameId: string, teamName: string) => {
+		socketClient.emit("createTeam", { roomId: gameId, teamName });
+	},
+	deleteTeam: (gameId: string, teamId: string) => {
+		socketClient.emit("deleteTeam", { roomId: gameId, teamId });
 	},
 	kickPlayer: (gameId: string, playerId: string) => {
 		socketClient.emit("admin:kickPlayer", {

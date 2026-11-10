@@ -47,6 +47,7 @@ async function bootstrap() {
 			persistAuthorization: true,
 		},
 		raw: ["yaml"],
+		yamlDocumentUrl: "api-yaml",
 	});
 
 	await app.listen(process.env.PORT ?? 3000);

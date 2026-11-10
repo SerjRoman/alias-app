@@ -65,7 +65,7 @@ export class RoundSummaryDto {
 
 	@ApiProperty()
 	@Expose()
-	guesserParticipantId: string;
+	explainerParticipantId: string;
 }
 
 export class GameSummaryResponseDto {

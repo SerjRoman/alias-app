@@ -185,13 +185,16 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is already in the game room.",
 	})
-	join(@Body() dto: JoinGameDto, @GetAuthenticatedUser() user: UserDto) {
+	async join(
+		@Body() dto: JoinGameDto,
+		@GetAuthenticatedUser() user: UserDto,
+	) {
 		this.logger.log(
 			`Received join request with body=${JSON.stringify(dto)} userId=${user.id}`,
 		);
 		return plainToInstance(
 			GameResponseDto,
-			this.gameFacade.joinGame(dto, user),
+			await this.gameFacade.joinGame(dto, user),
 			{
 				excludeExtraneousValues: true,
 			},
@@ -220,7 +223,7 @@ export class GameController {
 		status: HttpStatus.FORBIDDEN,
 		description: "Forbidden. The user is not an owner.",
 	})
-	getCode(
+	async getCode(
 		@Body() dto: GetRoomCodeDto,
 		@GetAuthenticatedUser() user: UserDto,
 	) {
@@ -229,7 +232,7 @@ export class GameController {
 		);
 		return plainToInstance(
 			GetRoomCodeResponseDto,
-			this.gameFacade.getRoomCode(dto, user),
+			await this.gameFacade.getRoomCode(dto, user),
 			{ excludeExtraneousValues: true },
 		);
 	}

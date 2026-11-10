@@ -12,7 +12,6 @@ import {
 	ApiOperation,
 	ApiResponse,
 	ApiTags,
-	ApiProperty,
 	ApiParam,
 } from "@nestjs/swagger";
 import { FindAllGamesByUserIdUseCase } from "../application/use-case/find-all-games-by-user-id";

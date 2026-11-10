@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { GetCurrentGameUseCase } from "../use-cases/player/get-current-game.use-case";
-import { GetUserRoomUseCase } from "../use-cases/player/get-user-room.use-case";
 import { KickPlayerUseCase } from "../use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "../use-cases/player/set-player-offline.use-case";
 import { BanPlayerUseCase } from "../use-cases/player/ban-player.use-case";
@@ -12,16 +11,11 @@ import { KickPlayerDto, BanPlayerDto, SubmitCustomWordsDto } from "../dto/body";
 export class PlayerFacade {
 	constructor(
 		private readonly getCurrentGameUseCase: GetCurrentGameUseCase,
-		private readonly getUserRoomUseCase: GetUserRoomUseCase,
 		private readonly kickPlayerUseCase: KickPlayerUseCase,
 		private readonly setPlayerOfflineUseCase: SetPlayerOfflineUseCase,
 		private readonly banPlayerUseCase: BanPlayerUseCase,
 		private readonly submitCustomWordsUseCase: SubmitCustomWordsUseCase,
 	) {}
-
-	async getUserRoom(userId: string) {
-		return this.getUserRoomUseCase.execute(userId);
-	}
 
 	async getGameIdByUserId(userId: string) {
 		return this.getCurrentGameUseCase.execute(userId);

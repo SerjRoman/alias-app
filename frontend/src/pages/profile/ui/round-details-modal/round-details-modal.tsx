@@ -103,7 +103,8 @@ export function RoundDetailsModal({
 											<ul className={styles.statsList}>
 												{stats.map((stat) => {
 													const participantName = participantsMap?.get(stat.participantId)?.name ?? t("profile.unknownHost");
-													const isHost = stat.participantId === round.guesserId;
+													const isHost =
+														stat.participantId === round.explainerId;
 
 													return (
 														<li key={stat.participantId} className={styles.statItem}>

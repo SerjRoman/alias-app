@@ -1,58 +1,76 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { GameSharedService } from "../../game-shared.service";
-import {
-	type PlayerKickedPayload,
-	type TeamsUpdatedPayload,
-	type PlayersUpdatedPayload,
-	type GameUpdatedPayload,
-	PLAYER_KICKED,
-	TEAMS_UPDATED,
-	PLAYERS_UPDATED,
-	GAME_UPDATED,
-} from "../../game.events";
+import { type PlayerKickedPayload, PLAYER_KICKED } from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
 } from "../../game.repository.interface";
 import { BanPlayerDto } from "../../dto/body";
 import { UserDto } from "@common/dto/user.dto";
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, Optional } from "@nestjs/common";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoomUseCase } from "../room.use-case";
+import { RoundScheduler } from "../../round-scheduler.service";
+import type { GameEngine } from "../../../domain/engine/game-engine";
+import type { GameState } from "../../../domain";
 
 @Injectable()
-export class BanPlayerUseCase {
+export class BanPlayerUseCase extends RoomUseCase<BanPlayerDto, GameState> {
+	protected override readonly notify = [
+		"teams",
+		"players",
+		"game",
+		"round",
+	] as const;
+
 	constructor(
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-		private readonly gameSharedService: GameSharedService,
-		private readonly eventEmitter: EventEmitter2,
-	) {}
-	async execute(dto: BanPlayerDto, roomId: string, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(roomId);
-		room.banPlayer(actor.id, dto.playerId);
-		await this.gameRepository.saveGame(room);
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
+		@Optional()
+		private readonly roundScheduler?: RoundScheduler,
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
+
+	override async execute(
+		dto: BanPlayerDto,
+		actorOrRoomId: UserDto | string,
+		optionalActor?: UserDto,
+	): Promise<GameState> {
+		const actor = (optionalActor ?? actorOrRoomId) as UserDto;
+		return super.execute(dto, actor);
+	}
+
+	protected override handle(
+		engine: GameEngine,
+		dto: BanPlayerDto,
+		actor: UserDto,
+	): void {
+		engine.dispatch({
+			type: "KICK_PLAYER",
+			actorId: actor.id,
+			payload: { targetPlayerId: dto.playerId, isPermanent: true },
+		});
+	}
+
+	protected override async afterCommit(
+		engine: GameEngine,
+		dto: BanPlayerDto,
+	): Promise<void> {
 		await this.gameRepository.removeUserRoom(dto.playerId);
-		const roomPrimitives = room.toPrimitives();
+
+		const round = engine.getState().currentRound;
+		if (round && round.pausedAt !== null && round.pausedAt !== undefined) {
+			this.roundScheduler?.pauseRoundTimeout(engine.id);
+		}
 
 		const eventPayload: PlayerKickedPayload = {
 			kickedUserId: dto.playerId,
-			roomId: room.id,
-		};
-		const eventPayloadTeams: TeamsUpdatedPayload = {
-			roomId: room.id,
-			teams: roomPrimitives.teams,
-		};
-		const eventPayloadPlayers: PlayersUpdatedPayload = {
-			roomId: room.id,
-			players: roomPrimitives.players,
-		};
-		const eventPayloadGame: GameUpdatedPayload = {
-			room: roomPrimitives,
+			roomId: engine.id,
 		};
 		this.eventEmitter.emit(PLAYER_KICKED, eventPayload);
-
-		this.eventEmitter.emit(TEAMS_UPDATED, eventPayloadTeams);
-		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayloadPlayers);
-		this.eventEmitter.emit(GAME_UPDATED, eventPayloadGame);
-		return roomPrimitives;
 	}
 }

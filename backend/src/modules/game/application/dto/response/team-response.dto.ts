@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 
 export class TeamResponseDto {
@@ -9,6 +9,10 @@ export class TeamResponseDto {
 	@ApiProperty({ example: "The Winners" })
 	@Expose()
 	name: string;
+
+	@ApiPropertyOptional({ example: "#FF0000" })
+	@Expose()
+	color?: string;
 
 	@ApiProperty({
 		type: [String],
@@ -21,10 +25,11 @@ export class TeamResponseDto {
 	@Expose()
 	score: number;
 
-	@ApiProperty({
-		example: 0,
-		description: "Index of the last player who explained",
+	@ApiPropertyOptional({
+		example: "uuid-player-1",
+		nullable: true,
+		description: "ID of the last player who explained in this team",
 	})
 	@Expose()
-	lastGuesserIndex: number;
+	lastExplainerId?: string | null;
 }

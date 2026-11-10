@@ -33,10 +33,12 @@ export class WsExceptionsFilter implements WsExceptionFilter {
 			if (typeof response === "string") {
 				errorMessage = response;
 			} else if (response && typeof response === "object") {
-				const msg = (response as any).message;
+				const msg = (response as Record<string, unknown>).message;
 				errorMessage = Array.isArray(msg)
 					? msg.join(", ")
-					: msg || exception.message;
+					: typeof msg === "string"
+						? msg
+						: exception.message;
 			} else {
 				errorMessage = exception.message;
 			}
@@ -46,7 +48,9 @@ export class WsExceptionsFilter implements WsExceptionFilter {
 			if (typeof err === "string") {
 				errorMessage = err;
 			} else if (err && typeof err === "object") {
-				errorMessage = (err as any).message || JSON.stringify(err);
+				const msg = (err as Record<string, unknown>).message;
+				errorMessage =
+					typeof msg === "string" ? msg : JSON.stringify(err);
 			} else {
 				errorMessage = exception.message;
 			}
@@ -55,11 +59,52 @@ export class WsExceptionsFilter implements WsExceptionFilter {
 			errorMessage = exception.message;
 		}
 
+		let code = "INTERNAL_ERROR";
+		const details: Record<string, unknown> = {};
+
+		if (exception && typeof exception === "object") {
+			if (
+				"code" in exception &&
+				typeof (exception as { code: unknown }).code === "string"
+			) {
+				code = (exception as { code: string }).code;
+			}
+			if (
+				"details" in exception &&
+				typeof (exception as { details: unknown }).details ===
+					"object" &&
+				(exception as { details: unknown }).details !== null
+			) {
+				Object.assign(
+					details,
+					(exception as { details: Record<string, unknown> }).details,
+				);
+			}
+			for (const key of [
+				"teamId",
+				"teamName",
+				"playerId",
+				"roomId",
+				"wordId",
+			]) {
+				if (
+					key in exception &&
+					typeof (exception as Record<string, unknown>)[key] ===
+						"string" &&
+					!details[key]
+				) {
+					details[key] = (exception as Record<string, unknown>)[key];
+				}
+			}
+		}
+
 		const errorResponse = {
 			event: "exception",
 			data: {
+				code,
 				name: errorName,
 				message: errorMessage,
+				details,
 			},
 		};
 

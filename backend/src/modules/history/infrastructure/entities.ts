@@ -7,8 +7,7 @@ import {
 	OneToMany,
 	UpdateDateColumn,
 } from "typeorm";
-import { type GameSettings } from "../../game/domain/entities/game.entity";
-import { WordState } from "../../game/domain/entities/round.entity";
+import { type GameSettings, type WordState } from "../../game/domain";
 
 @Entity("history_games")
 export class HistoryGameOrmEntity {
@@ -60,7 +59,7 @@ export class HistoryRoundOrmEntity {
 
 	@Column() gameId: string;
 	@Column() teamId: string;
-	@Column() guesserId: string;
+	@Column() explainerId: string;
 
 	@Column("jsonb")
 	words: WordState[];

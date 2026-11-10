@@ -1,56 +1,53 @@
-import { EventEmitter2 } from "@nestjs/event-emitter";
+import { MoveToSpectatorsDto } from "../../dto/body";
+import { UserDto } from "@common/dto/user.dto";
+import { Injectable, Inject, Optional } from "@nestjs/common";
+import { RoomUseCase } from "../room.use-case";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
 import { GameSharedService } from "../../game-shared.service";
-import {
-	GAME_UPDATED,
-	PLAYERS_UPDATED,
-	TEAMS_UPDATED,
-	type GameUpdatedPayload,
-	type PlayersUpdatedPayload,
-	type TeamsUpdatedPayload,
-} from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
 } from "../../game.repository.interface";
-import { MoveToSpectatorsDto } from "../../dto/body";
-import { UserDto } from "@common/dto/user.dto";
-import { Injectable, Inject } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { RoundScheduler } from "../../round-scheduler.service";
+import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
-export class MoveToSpectatorsUseCase {
+export class MoveToSpectatorsUseCase extends RoomUseCase<MoveToSpectatorsDto> {
+	protected override notify = ["teams", "players", "game", "round"] as const;
+
 	constructor(
-		private readonly gameSharedService: GameSharedService,
-		private readonly eventEmitter: EventEmitter2,
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-	) {}
-	async execute(dto: MoveToSpectatorsDto, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		if (dto.playerId) {
-			room.moveToSpectators(dto.playerId, actor.id);
-		} else {
-			room.moveToSpectators(actor.id);
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
+		@Optional()
+		private readonly roundScheduler?: RoundScheduler,
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
+
+	protected override handle(
+		room: GameEngine,
+		dto: MoveToSpectatorsDto,
+		actor: UserDto,
+	) {
+		const targetPlayerId = dto.playerId ?? actor.id;
+
+		room.dispatch({
+			type: "MOVE_TO_SPECTATORS",
+			actorId: dto.playerId ? actor.id : undefined,
+			payload: {
+				playerId: targetPlayerId,
+			},
+		});
+	}
+
+	protected override afterCommit(room: GameEngine) {
+		const round = room.getState().currentRound;
+		if (round && round.pausedAt !== null && round.pausedAt !== undefined) {
+			this.roundScheduler?.pauseRoundTimeout(room.id);
 		}
-
-		await this.gameRepository.saveGame(room);
-		const roomPrimitives = room.toPrimitives();
-
-		const eventPayloadTeams: TeamsUpdatedPayload = {
-			roomId: room.id,
-			teams: roomPrimitives.teams,
-		};
-		const eventPayloadPlayers: PlayersUpdatedPayload = {
-			roomId: room.id,
-			players: roomPrimitives.players,
-		};
-		const eventPayloadGame: GameUpdatedPayload = {
-			room: roomPrimitives,
-		};
-
-		this.eventEmitter.emit(TEAMS_UPDATED, eventPayloadTeams);
-		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayloadPlayers);
-		this.eventEmitter.emit(GAME_UPDATED, eventPayloadGame);
-
-		return roomPrimitives;
 	}
 }

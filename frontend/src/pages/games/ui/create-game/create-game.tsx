@@ -106,6 +106,7 @@ export function CreateGameForm({
 					wordPackSelections: data.wordPackSelections || [],
 					isOnlyOwnerCanNextRound: true,
 					isOnlyOwnerCanChangeScore: true,
+					isShopEnabled: false,
 				},
 				headers: { Authorization: `Bearer ${token}` },
 			},

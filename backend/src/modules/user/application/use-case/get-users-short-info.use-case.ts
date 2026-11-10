@@ -1,9 +1,17 @@
 import { plainToInstance } from "class-transformer";
-import type { IUserRepository } from "../user.repository.interface";
+import {
+	USER_REPOSITORY,
+	type IUserRepository,
+} from "../user.repository.interface";
 import { UserShortInfoResponseDto } from "../dto/user-short-info.dto";
+import { Inject, Injectable } from "@nestjs/common";
 
+@Injectable()
 export class GetUsersShortInfoUseCase {
-	constructor(private readonly userRepository: IUserRepository) {}
+	constructor(
+		@Inject(USER_REPOSITORY)
+		private readonly userRepository: IUserRepository,
+	) {}
 	async execute(userIds: string[]) {
 		return plainToInstance(
 			UserShortInfoResponseDto,

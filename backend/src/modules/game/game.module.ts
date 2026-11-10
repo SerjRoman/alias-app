@@ -19,15 +19,15 @@ import { FindOneGameUseCase } from "./application/use-cases/game/find-one.use-ca
 import { GetGameCodeUseCase } from "./application/use-cases/game/get-game-code.use-case";
 import { GetPrivatePlayerStateUseCase } from "./application/use-cases/game/get-private-player-state.use-case";
 import { JoinGameUseCase } from "./application/use-cases/game/join-game.use-case";
-import { LeaveGameUseCase } from "./application/use-cases/game/leave-game.use.case";
+import { LeaveGameUseCase } from "./application/use-cases/game/leave-game.use-case";
 import { NextRoundUseCase } from "./application/use-cases/game/next-round.use-case";
 import { NextWordUseCase } from "./application/use-cases/game/next-word.use-case";
 import { StartGameUseCase } from "./application/use-cases/game/start-game.use-case";
 import { ToggleReadyUseCase } from "./application/use-cases/game/toggle-game-ready.use-case";
+import { TransferOwnershipUseCase } from "./application/use-cases/game/transfer-ownership.use-case";
 import { UpdateGameSettingsUseCase } from "./application/use-cases/game/update-game-settings.use-case";
 import { ValidateCodeUseCase } from "./application/use-cases/game/validate-code.use-case";
 import { GetCurrentGameUseCase } from "./application/use-cases/player/get-current-game.use-case";
-import { GetUserRoomUseCase } from "./application/use-cases/player/get-user-room.use-case";
 import { KickPlayerUseCase } from "./application/use-cases/player/kick-player.use-case";
 import { SetPlayerOfflineUseCase } from "./application/use-cases/player/set-player-offline.use-case";
 import { BanPlayerUseCase } from "./application/use-cases/player/ban-player.use-case";
@@ -41,7 +41,7 @@ import { MoveToSpectatorsUseCase } from "./application/use-cases/team/move-to-sp
 import { EndPointingUseCase } from "./application/use-cases/round/end-pointing.use-case";
 import { FinishRoundUseCase } from "./application/use-cases/round/finish-round.use-case";
 import { EndGameUseCase } from "./application/use-cases/game/end-game.use-case";
-import { SetGuesserUseCase } from "./application/use-cases/round/set-guesser.use-case";
+import { SetExplainerUseCase } from "./application/use-cases/round/set-explainer.use-case";
 import { ShufflePlayersUseCase } from "./application/use-cases/game/shuffle-players.use-case";
 import { ChangeRoundTimeUseCase } from "./application/use-cases/round/change-round-time.use-case";
 import { StartPointingUseCase } from "./application/use-cases/round/start-pointing.use-case";
@@ -53,10 +53,12 @@ import { CleanupGameResourcesHandler } from "./application/handlers/cleanup-game
 import { WordPackModule } from "../word-pack/word-pack.module";
 import { WORD_PACK_CLIENT } from "./application/word-pack-client.interface";
 import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
+import { RoomFifoQueueService } from "./application/room-fifo-queue.service";
 
 @Module({
 	imports: [WordPackModule],
 	providers: [
+		RoomFifoQueueService,
 		GameGateway,
 		GameSharedService,
 		RoundScheduler,
@@ -94,10 +96,10 @@ import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
 		NextWordUseCase,
 		StartGameUseCase,
 		ToggleReadyUseCase,
+		TransferOwnershipUseCase,
 		UpdateGameSettingsUseCase,
 		ValidateCodeUseCase,
 		GetCurrentGameUseCase,
-		GetUserRoomUseCase,
 		KickPlayerUseCase,
 		SetPlayerOfflineUseCase,
 		BanPlayerUseCase,
@@ -111,13 +113,19 @@ import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
 		EndPointingUseCase,
 		FinishRoundUseCase,
 		EndGameUseCase,
-		SetGuesserUseCase,
+		SetExplainerUseCase,
 		ShufflePlayersUseCase,
 		ChangeRoundTimeUseCase,
 		StartPointingUseCase,
 		StartRoundForcedUseCase,
 	],
 	controllers: [GameController],
-	exports: [GameFacade, PlayerFacade, RoundFacade, TeamFacade],
+	exports: [
+		RoomFifoQueueService,
+		GameFacade,
+		PlayerFacade,
+		RoundFacade,
+		TeamFacade,
+	],
 })
 export class GameModule {}

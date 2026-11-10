@@ -8,15 +8,17 @@ import { useTranslation } from "react-i18next";
 
 interface Props {
 	roomId: string;
-	isGuesser: boolean;
+	isExplainer: boolean;
 	endTime: number;
+	pausedAt?: number | null;
 	words: WordState[];
 }
 
 export function RoundInProgressBlock({
 	roomId,
-	isGuesser,
+	isExplainer,
 	endTime,
+	pausedAt,
 	words,
 }: Readonly<Props>) {
 	const { t } = useTranslation();
@@ -24,15 +26,15 @@ export function RoundInProgressBlock({
 	const { nextWord } = useActiveGameActions();
 
 	useGameShortcuts({
-		onNextWord: isGuesser ? () => nextWord(roomId, false) : undefined,
-		onSkipWord: isGuesser ? () => nextWord(roomId, true) : undefined,
+		onNextWord: isExplainer ? () => nextWord(roomId, false) : undefined,
+		onSkipWord: isExplainer ? () => nextWord(roomId, true) : undefined,
 	});
 
 	return (
 		<>
-			<Timer endTime={endTime} />
+			<Timer endTime={endTime} pausedAt={pausedAt} />
 
-			{isGuesser && (
+			{isExplainer && (
 				<div className={styles.wordCard}>
 					<div className={styles.secretWord}>
 						{currentWord?.text || t("common.loading")}

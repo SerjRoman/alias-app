@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { GameDeletedEvent } from "../../domain/events/game.events";
+import { GameDeletedEvent } from "../../domain";
 import {
 	GAME_REPOSITORY,
 	type IGameRepository,

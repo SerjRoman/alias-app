@@ -2,9 +2,23 @@ import { useCallback } from "react";
 import { adminSocketApi } from "../api/admin-actions";
 
 export const useAdminActions = (gameId: string) => {
-	const setGuesser = useCallback(
+	const setExplainer = useCallback(
 		(playerId: string) => {
-			adminSocketApi.setGuesser(gameId, playerId);
+			adminSocketApi.setExplainer(gameId, playerId);
+		},
+		[gameId],
+	);
+
+	const createTeam = useCallback(
+		(teamName: string) => {
+			adminSocketApi.createTeam(gameId, teamName);
+		},
+		[gameId],
+	);
+
+	const deleteTeam = useCallback(
+		(teamId: string) => {
+			adminSocketApi.deleteTeam(gameId, teamId);
 		},
 		[gameId],
 	);
@@ -61,7 +75,9 @@ export const useAdminActions = (gameId: string) => {
 	);
 
 	return {
-		setGuesser,
+		setExplainer,
+		createTeam,
+		deleteTeam,
 		kickPlayer,
 		banPlayer,
 		startRound,

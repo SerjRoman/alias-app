@@ -10,7 +10,6 @@ import {
 	MaxLength,
 	MinLength,
 	ValidateNested,
-	IsIn,
 	Min,
 } from "class-validator";
 import { Type } from "class-transformer";
@@ -110,4 +109,9 @@ export class CreateGameDto {
 	@IsBoolean()
 	@IsOptional()
 	isOnlyOwnerCanChangeScore?: boolean = true;
+
+	@ApiProperty({ type: Boolean, default: false, required: false })
+	@IsBoolean()
+	@IsOptional()
+	isShopEnabled?: boolean = false;
 }

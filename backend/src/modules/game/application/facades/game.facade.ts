@@ -10,7 +10,7 @@ import { EndGameUseCase } from "../use-cases/game/end-game.use-case";
 import { GetGameCodeUseCase } from "../use-cases/game/get-game-code.use-case";
 import { GetPrivatePlayerStateUseCase } from "../use-cases/game/get-private-player-state.use-case";
 import { JoinGameUseCase } from "../use-cases/game/join-game.use-case";
-import { LeaveGameUseCase } from "../use-cases/game/leave-game.use.case";
+import { LeaveGameUseCase } from "../use-cases/game/leave-game.use-case";
 import { NextRoundUseCase } from "../use-cases/game/next-round.use-case";
 import { NextWordUseCase } from "../use-cases/game/next-word.use-case";
 import { StartGameUseCase } from "../use-cases/game/start-game.use-case";

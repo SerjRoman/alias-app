@@ -29,7 +29,7 @@ export function useGameAssistant(
 			tipKey = "gameMaster.lobby.player";
 		}
 	} else if (game.status === GameStatus.IN_PROGRESS && currentRound) {
-		const isGuesser = currentRound.guesserId === userId;
+		const isExplainer = currentRound.explainerId === userId;
 		const isMyTeamPlaying = game.teams.find(
 			(team) =>
 				team.id === currentRound.teamId &&
@@ -38,7 +38,7 @@ export function useGameAssistant(
 
 		if (currentRound.status === RoundStatus.PENDING) {
 			if (isMyTeamPlaying) {
-				tipKey = isGuesser
+				tipKey = isExplainer
 					? "gameMaster.pending.myTurnExplainer"
 					: "gameMaster.pending.myTurnGuesser";
 				priority = "high"; // Force open to notify player it is their turn!
@@ -48,7 +48,7 @@ export function useGameAssistant(
 			}
 		} else if (currentRound.status === RoundStatus.IN_PROGRESS) {
 			if (isMyTeamPlaying) {
-				tipKey = isGuesser
+				tipKey = isExplainer
 					? "gameMaster.inProgress.myTurnExplainer"
 					: "gameMaster.inProgress.myTurnGuesser";
 				variant = "warning";

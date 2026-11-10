@@ -68,7 +68,7 @@ import {
 	GameSettingsDto,
 } from "../application/dto/response";
 import { ADMIN_EVENTS } from "./socket.events";
-import { SetGuesserDto } from "../application/dto/body/set-guesser.dto";
+import { SetExplainerDto } from "../application/dto/body/set-explainer.dto";
 import { RoomNotFoundError } from "../domain/errors/game.errors";
 
 @WebSocketGateway({
@@ -82,7 +82,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	@WebSocketServer() server: GameServer;
 
 	private readonly logger = new Logger(GameGateway.name);
-	private disconnectTimeouts = new Map<string, NodeJS.Timeout>();
+	private readonly disconnectTimeouts = new Map<string, NodeJS.Timeout>();
 	constructor(
 		private readonly gameFacade: GameFacade,
 		private readonly playerFacade: PlayerFacade,
@@ -128,15 +128,14 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.disconnectTimeouts.delete(userId);
 		}
 
-		// Если игрок уже в другой комнате — выходим из неё
+		// Если сокет был подключен к другой комнате — отключаем сокет от старой комнаты
 		const { roomId: currentRoomId } =
 			await this.playerFacade.getGameIdByUserId(userId);
 		if (currentRoomId && currentRoomId !== dto.roomId) {
 			this.logger.log(
-				`User ${client.data.user.name} is in room ${currentRoomId}, leaving before joining ${dto.roomId}`,
+				`User ${client.data.user.name} is switching from room ${currentRoomId} to ${dto.roomId}`,
 			);
-			await this.gameFacade.leaveGame(currentRoomId, client.data.user);
-			client.leave(currentRoomId);
+			await client.leave(currentRoomId);
 		}
 
 		const room = await this.gameFacade.joinGame(dto, client.data.user);
@@ -146,8 +145,8 @@ export class GameGateway implements OnGatewayDisconnect {
 		});
 
 		client.emit("gameUpdated", publicState);
-		if (await this.isGuesser(dto.roomId, client.data.user.id))
-			await this.sendPrivateWordToGuesser(room.id, client.data.user.id);
+		if (await this.isExplainer(dto.roomId, client.data.user.id))
+			await this.sendPrivateWordToExplainer(room.id, client.data.user.id);
 
 		return publicState;
 	}
@@ -264,9 +263,12 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: StartRoundDto,
 	) {
 		await this.roundFacade.startRound(dto, client.data.user);
-		const isGuesser = await this.isGuesser(dto.roomId, client.data.user.id);
-		if (isGuesser) {
-			await this.sendPrivateWordToGuesser(
+		const isExplainer = await this.isExplainer(
+			dto.roomId,
+			client.data.user.id,
+		);
+		if (isExplainer) {
+			await this.sendPrivateWordToExplainer(
 				dto.roomId,
 				client.data.user.id,
 			);
@@ -323,12 +325,13 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.gameFacade.endGame(dto, client.data.user);
 	}
-	@SubscribeMessage(ADMIN_EVENTS.setGuesser)
-	async setGuesser(
+	@SubscribeMessage(ADMIN_EVENTS.setExplainer)
+	async setExplainer(
 		@ConnectedSocket() client: GameSocket,
-		@MessageBody() dto: SetGuesserDto,
+		@MessageBody() dto: SetExplainerDto,
 	) {
-		await this.roundFacade.setGuesser(dto, client.data.user);
+		await this.roundFacade.setExplainer(dto, client.data.user);
+		await this.sendPrivateWordToExplainer(dto.roomId, dto.playerId);
 	}
 	@SubscribeMessage(ADMIN_EVENTS.shufflePlayers)
 	async shufflePlayers(
@@ -360,23 +363,32 @@ export class GameGateway implements OnGatewayDisconnect {
 			dto,
 			client.data.user,
 		);
-		await this.sendPrivateWordToGuesser(data.roomId, data.round.guesserId);
+		await this.sendPrivateWordToExplainer(
+			data.roomId,
+			data.round.explainerId,
+		);
 	}
-	private async isGuesser(roomId: string, userId: string): Promise<boolean> {
+	private async isExplainer(
+		roomId: string,
+		userId: string,
+	): Promise<boolean> {
 		const privateState = await this.gameFacade.getPrivatePlayerState(
 			roomId,
 			userId,
 		);
 		return Boolean(privateState?.word) || false;
 	}
-	private async sendPrivateWordToGuesser(roomId: string, guesserId: string) {
+	private async sendPrivateWordToExplainer(
+		roomId: string,
+		explainerId: string,
+	) {
 		let privateState: Awaited<
 			ReturnType<GameFacade["getPrivatePlayerState"]>
 		>;
 		try {
 			privateState = await this.gameFacade.getPrivatePlayerState(
 				roomId,
-				guesserId,
+				explainerId,
 			);
 		} catch (error) {
 			if (error instanceof RoomNotFoundError) {
@@ -392,7 +404,7 @@ export class GameGateway implements OnGatewayDisconnect {
 			const targetSocket = sockets.find(
 				(socket) =>
 					(socket as unknown as AuthenticatedSocket).data.user.id ===
-					guesserId,
+					explainerId,
 			) as unknown as AuthenticatedSocket;
 			if (targetSocket) {
 				targetSocket.emit(
@@ -402,7 +414,7 @@ export class GameGateway implements OnGatewayDisconnect {
 					}),
 				);
 				this.logger.log(
-					`Sent private word to guesser ${targetSocket.data.user.name}`,
+					`Sent private word to explainer ${targetSocket.data.user.name}`,
 				);
 			}
 		}

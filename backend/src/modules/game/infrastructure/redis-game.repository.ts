@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { IGameRepository } from "../application/game.repository.interface";
 import { RedisService } from "../../../common/infrastructure/redis/redis.service";
-import { GameEntity, GameState } from "../domain/entities/game.entity";
+import { GameEngine } from "../domain/engine/game-engine";
+import type { GameState } from "../domain";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 
 @Injectable()
@@ -14,19 +15,19 @@ export class RedisGameRepository implements IGameRepository {
 		private readonly redis: RedisService,
 		private readonly eventEmitter: EventEmitter2,
 	) {}
-	removeUserRooms(userIds: string[]): Promise<number> {
+	async removeUserRooms(userIds: string[]): Promise<number> {
+		if (userIds.length === 0) return 0;
 		return this.redis.del(
 			...userIds.map((userId) => `${this.USER_TO_ROOM_PREFIX}${userId}`),
 		);
 	}
-	async findGameById(gameId: string): Promise<GameEntity | null> {
+	async findGameById(gameId: string): Promise<GameEngine | null> {
 		const key = `${this.ROOM_PREFIX}${gameId}`;
-		return this.redis.get(key).then((data) => {
-			if (!data) return null;
-			return GameEntity.fromPrimitives(JSON.parse(data) as GameState);
-		});
+		const data = await this.redis.get(key);
+		if (!data) return null;
+		return GameEngine.fromPrimitives(JSON.parse(data) as GameState);
 	}
-	async findAllGames(): Promise<GameEntity[]> {
+	async findAllGames(): Promise<GameEngine[]> {
 		const pattern = `${this.ROOM_PREFIX}*`;
 		const keys = await this.redis.keys(pattern);
 		if (keys.length === 0) {
@@ -34,12 +35,12 @@ export class RedisGameRepository implements IGameRepository {
 		}
 		const gamesData = await this.redis.mget(keys);
 		return gamesData
-			.filter((data) => data !== null)
+			.filter((data): data is string => data !== null)
 			.map((data) =>
-				GameEntity.fromPrimitives(JSON.parse(data) as GameState),
+				GameEngine.fromPrimitives(JSON.parse(data) as GameState),
 			);
 	}
-	async saveGame(game: GameEntity): Promise<void> {
+	async saveGame(game: GameEngine): Promise<void> {
 		const key = `${this.ROOM_PREFIX}${game.id}`;
 		await this.redis.set(
 			key,

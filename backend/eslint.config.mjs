@@ -35,4 +35,10 @@ export default tseslint.config(
 			"@typescript-eslint/consistent-type-imports": "error",
 		},
 	},
+	{
+		files: ["**/*.spec.ts"],
+		rules: {
+			"@typescript-eslint/unbound-method": "off",
+		},
+	},
 );

@@ -48,6 +48,7 @@ function GameCard({
 	const { t } = useTranslation();
 	const [code, setCode] = useState<string>("");
 	const isLobby = game.status === "LOBBY";
+	const canJoin = game.status === "LOBBY" || game.status === "IN_PROGRESS";
 	const statusClass = isLobby ? styles.statusLobby : styles.statusInProgress;
 	const [error, setError] = useState<string | null>(null);
 	async function handleJoin() {
@@ -72,7 +73,7 @@ function GameCard({
 					</span>
 				</div>
 
-				{game.settings.isPrivate && isLobby && (
+				{game.settings.isPrivate && canJoin && (
 					<div className={styles.privateSection}>
 						<input
 							type="text"
@@ -94,10 +95,10 @@ function GameCard({
 				className={styles.joinButton}
 				onClick={handleJoin}
 				disabled={
-					!isLobby || (game.settings.isPrivate && code.length === 0)
+					!canJoin || (game.settings.isPrivate && code.length === 0)
 				}
 			>
-				{isLobby ? t("games.join") : t("games.started")}
+				{canJoin ? t("games.join") : t("games.finished")}
 			</button>
 			{error && <div className={styles.errorText}>{error}</div>}
 		</div>

@@ -1,10 +1,16 @@
-import { NotFoundException } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { UserProfileDto } from "../dto/user-profile.dto";
-import type { IUserRepository } from "../user.repository.interface";
+import {
+	USER_REPOSITORY,
+	type IUserRepository,
+} from "../user.repository.interface";
 import { plainToInstance } from "class-transformer";
-
+@Injectable()
 export class GetUserProfileUseCase {
-	constructor(private readonly userRepository: IUserRepository) {}
+	constructor(
+		@Inject(USER_REPOSITORY)
+		private readonly userRepository: IUserRepository,
+	) {}
 	async execute(userId: string): Promise<UserProfileDto> {
 		const user = await this.userRepository.findById(userId);
 		if (!user) {

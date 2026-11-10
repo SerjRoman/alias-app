@@ -1,5 +1,5 @@
 export const ADMIN_EVENTS = {
-	setGuesser: "admin:setGuesser",
+	setExplainer: "admin:setExplainer",
 	kickPlayer: "admin:kickPlayer",
 	banPlayer: "admin:banPlayer",
 	startRound: "admin:startRound",
@@ -9,4 +9,4 @@ export const ADMIN_EVENTS = {
 	assignPlayerToTeam: "admin:assignPlayerToTeam",
 	shufflePlayers: "admin:shufflePlayers",
 	changeRoundTime: "admin:changeRoundTime",
-};
+} as const;

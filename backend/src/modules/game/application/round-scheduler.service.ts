@@ -6,7 +6,7 @@ import {
 } from "./game.repository.interface";
 
 interface TimeoutMetadata {
-	callback: () => void;
+	callback: () => Promise<void> | void;
 	endTime: number;
 }
 
@@ -23,13 +23,13 @@ export class RoundScheduler {
 	scheduleRoundTimeout(
 		roomId: string,
 		milliseconds: number,
-		callback: () => void,
+		callback: () => Promise<void> | void,
 	) {
 		const timeoutName = `round-timeout-${roomId}`;
 
 		const wrappedCallback = () => {
 			this.timeoutsMetadata.delete(timeoutName);
-			callback();
+			void callback();
 		};
 
 		const timeout = setTimeout(wrappedCallback, milliseconds);
@@ -69,9 +69,84 @@ export class RoundScheduler {
 		if (newDuration > 0) {
 			this.scheduleRoundTimeout(roomId, newDuration, callback);
 		} else {
-			callback();
+			void callback();
 		}
 		return newDuration;
+	}
+
+	pauseRoundTimeout(roomId: string): number | null {
+		const timeoutName = `round-timeout-${roomId}`;
+
+		const metadata = this.timeoutsMetadata.get(timeoutName);
+		if (
+			!metadata ||
+			!this.schedulerRegistry.doesExist("timeout", timeoutName)
+		) {
+			return null;
+		}
+
+		const remainingTime = Math.max(0, metadata.endTime - Date.now());
+		const existingTimeout = this.schedulerRegistry.getTimeout(timeoutName);
+		clearTimeout(existingTimeout as NodeJS.Timeout);
+		this.schedulerRegistry.deleteTimeout(timeoutName);
+
+		this.timeoutsMetadata.set(timeoutName, {
+			callback: metadata.callback,
+			endTime: remainingTime,
+		});
+
+		return remainingTime;
+	}
+
+	resumeRoundTimeout(
+		roomId: string,
+		remainingMs?: number,
+		callback?: () => Promise<void> | void,
+	) {
+		const timeoutName = `round-timeout-${roomId}`;
+		const metadata = this.timeoutsMetadata.get(timeoutName);
+
+		const actualCallback = callback ?? metadata?.callback;
+		const actualDuration = remainingMs ?? (metadata ? metadata.endTime : 0);
+
+		if (!actualCallback || actualDuration <= 0) {
+			return;
+		}
+
+		this.scheduleRoundTimeout(roomId, actualDuration, actualCallback);
+	}
+
+	scheduleOwnerTransferTimeout(
+		roomId: string,
+		milliseconds: number,
+		callback: () => Promise<void> | void,
+	) {
+		const timeoutName = `owner-transfer-timeout-${roomId}`;
+
+		const wrappedCallback = () => {
+			this.timeoutsMetadata.delete(timeoutName);
+			void callback();
+		};
+
+		const timeout = setTimeout(wrappedCallback, milliseconds);
+
+		this.timeoutsMetadata.set(timeoutName, {
+			callback,
+			endTime: Date.now() + milliseconds,
+		});
+
+		if (this.schedulerRegistry.doesExist("timeout", timeoutName)) {
+			this.schedulerRegistry.deleteTimeout(timeoutName);
+		}
+		this.schedulerRegistry.addTimeout(timeoutName, timeout);
+	}
+
+	clearOwnerTransferTimeout(roomId: string) {
+		const timeoutName = `owner-transfer-timeout-${roomId}`;
+		if (this.schedulerRegistry.doesExist("timeout", timeoutName)) {
+			this.schedulerRegistry.deleteTimeout(timeoutName);
+			this.timeoutsMetadata.delete(timeoutName);
+		}
 	}
 
 	clearRoundTimeout(roomId: string) {

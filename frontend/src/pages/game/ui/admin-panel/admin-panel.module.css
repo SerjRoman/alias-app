@@ -27,6 +27,13 @@
 	display: flex;
 	gap: var(--spacing-small, 8px);
 	align-items: center;
+	flex-wrap: wrap;
+}
+
+.warningHint {
+	font-size: 0.8rem;
+	color: #e07a5f;
+	margin-top: -2px;
 }
 
 .select {

@@ -32,11 +32,11 @@ export class VoiceService {
 		if (!game) {
 			throw new RoomNotFoundError(roomId);
 		}
-		if (!game.settings.isVoiceChatEnabled) {
+		if (!game.getState().settings?.isVoiceChatEnabled) {
 			throw new VoiceChatDisabledError();
 		}
-		const key = this.configService.getOrThrow("LIVEKIT_KEY");
-		const secret = this.configService.getOrThrow("LIVEKIT_SECRET");
+		const key = this.configService.getOrThrow<string>("LIVEKIT_KEY");
+		const secret = this.configService.getOrThrow<string>("LIVEKIT_SECRET");
 		const roomName = `${this.ROOM_PREFIX}${roomId}`;
 		const participantName = `${this.PARTICIPANT_PREFIX}${userId}`;
 		const accessToken = new AccessToken(key, secret, {

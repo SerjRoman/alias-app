@@ -4,7 +4,7 @@ import {
 	type GameSettings as DetailsGameSettings,
 	GameStatus,
 	type WordPackSelection,
-} from "../../../domain/entities/game.entity";
+} from "../../../domain";
 import { PlayerResponseDto } from "./player.dto";
 import { RoundResponseDto } from "./round-response.dto";
 import { TeamResponseDto } from "./team-response.dto";
@@ -101,6 +101,13 @@ export class GameSettingsDto implements GameSettings {
 	})
 	@Expose()
 	isHatMode: boolean;
+
+	@ApiPropertyOptional({
+		description: "Whether the in-game shop is enabled",
+		example: false,
+	})
+	@Expose()
+	isShopEnabled?: boolean;
 }
 export class BaseGameResponseDto {
 	@ApiProperty({
@@ -140,6 +147,28 @@ export class GameResponseDto extends BaseGameResponseDto {
 	@Type(() => GameSettingsDto)
 	@Expose()
 	settings: GameSettingsDto;
+}
+
+export class LeftPlayerDto {
+	@ApiProperty({ example: "uuid-player-1" })
+	@Expose()
+	id: string;
+
+	@ApiProperty({ example: "Alice" })
+	@Expose()
+	name: string;
+
+	@ApiPropertyOptional({ example: "uuid-team-1", nullable: true })
+	@Expose()
+	teamId: string | null;
+
+	@ApiProperty({ example: 10 })
+	@Expose()
+	score: number;
+
+	@ApiProperty({ example: 1794318000000 })
+	@Expose()
+	leftAt: number;
 }
 
 export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
@@ -188,6 +217,22 @@ export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
 	})
 	@Expose()
 	spectators: string[];
+
+	@ApiPropertyOptional({
+		type: [LeftPlayerDto],
+		description: "Snapshots of players who left during the active game",
+	})
+	@Expose()
+	@Type(() => LeftPlayerDto)
+	leftPlayers?: LeftPlayerDto[];
+
+	@ApiPropertyOptional({
+		example: 1794318000000,
+		nullable: true,
+		description: "Timestamp when room owner went offline",
+	})
+	@Expose()
+	ownerOfflineSince?: number | null;
 }
 
 export class GameResponseDetailsDto extends BaseGameResponseDetailsDto {

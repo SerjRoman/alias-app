@@ -2,7 +2,7 @@ import { Injectable, Inject } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { RoundNotActiveError } from "../../../domain/errors/round.errors";
 import { GameSharedService } from "../../game-shared.service";
-import { RoundUpdatedPayload, ROUND_UPDATED } from "../../game.events";
+import { type RoundUpdatedPayload } from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
@@ -10,31 +10,52 @@ import {
 import { UserDto } from "@common/dto/user.dto";
 import { StartPointingDto } from "../../dto/body";
 import { RoundScheduler } from "../../round-scheduler.service";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
-export class StartPointingUseCase {
+export class StartPointingUseCase extends RoomUseCase<
+	StartPointingDto,
+	RoundUpdatedPayload | null
+> {
+	protected override readonly notify = ["round"] as const;
+
 	constructor(
-		private readonly gameSharedService: GameSharedService,
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-		private readonly eventEmitter: EventEmitter2,
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
 		private readonly roundScheduler: RoundScheduler,
-	) {}
-	async execute(dto: StartPointingDto, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		if (!room.currentRound) {
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
+
+	protected override handle(
+		engine: GameEngine,
+		dto: StartPointingDto,
+		actor: UserDto,
+	): RoundUpdatedPayload | null {
+		const currentRound = engine.getState().currentRound;
+		if (!currentRound) {
 			throw new RoundNotActiveError();
 		}
 
-		room.startPointing(actor.id);
-		this.roundScheduler.clearRoundTimeout(dto.roomId);
-		await this.gameRepository.saveGame(room);
+		engine.dispatch({
+			type: "START_POINTING",
+			actorId: actor.id,
+		});
 
-		const eventPayload: RoundUpdatedPayload = {
-			round: room.currentRound.toPrimitives(),
-			roomId: room.id,
-		};
-		this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
-		return eventPayload;
+		this.roundScheduler.clearRoundTimeout(dto.roomId);
+
+		const updatedRound = engine.getState().currentRound;
+		if (updatedRound) {
+			return {
+				round: updatedRound,
+				roomId: dto.roomId,
+			};
+		}
+		return null;
 	}
 }

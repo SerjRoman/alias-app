@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 interface RoundPendingControlsProps {
 	roomId: string;
 	isMyTeamPlaying: boolean;
-	isGuesser: boolean;
+	isExplainer: boolean;
 	isAllReady: boolean;
 	myReadyState: boolean;
 }
@@ -17,7 +17,7 @@ interface RoundPendingControlsProps {
 export function RoundPendingControls({
 	roomId,
 	isMyTeamPlaying,
-	isGuesser,
+	isExplainer,
 	isAllReady,
 	myReadyState,
 }: Readonly<RoundPendingControlsProps>) {
@@ -42,7 +42,7 @@ export function RoundPendingControls({
 				</p>
 			)}
 
-			{isGuesser && (
+			{isExplainer && (
 				<Button
 					onClick={() => startRound(roomId)}
 					className={styles.startBtn}

@@ -5,14 +5,15 @@ import styles from "./timer.module.css";
 interface GameTimerProps {
 	endTime: number;
 	totalDuration?: number;
+	pausedAt?: number | null;
 }
 
-export function Timer({ endTime }: Readonly<GameTimerProps>) {
+export function Timer({ endTime, pausedAt }: Readonly<GameTimerProps>) {
 	const [timeLeft, setTimeLeft] = useState(0);
 
 	useEffect(() => {
 		const tick = () => {
-			const now = Date.now();
+			const now = pausedAt ?? Date.now();
 			const delta = endTime - now;
 
 			if (delta <= 0) {
@@ -25,10 +26,12 @@ export function Timer({ endTime }: Readonly<GameTimerProps>) {
 
 		tick();
 
+		if (pausedAt) return;
+
 		const intervalId = setInterval(tick, 100);
 
 		return () => clearInterval(intervalId);
-	}, [endTime]);
+	}, [endTime, pausedAt]);
 
 	const minutes = Math.floor(timeLeft / 60);
 	const seconds = timeLeft % 60;
@@ -42,7 +45,7 @@ export function Timer({ endTime }: Readonly<GameTimerProps>) {
 	return (
 		<div className={containerClass}>
 			<Clock className={styles.icon} />
-			<span>{formattedTime}</span>
+			<span>{formattedTime}{pausedAt ? " ⏸" : ""}</span>
 		</div>
 	);
 }

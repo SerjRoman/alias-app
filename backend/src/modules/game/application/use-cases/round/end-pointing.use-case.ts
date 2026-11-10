@@ -6,40 +6,49 @@ import {
 import { UserDto } from "@common/dto/user.dto";
 import { GameSharedService } from "../../game-shared.service";
 import { EndPointingDto } from "../../dto/body";
-import { GameStatus } from "../../../domain/entities/game.entity";
-import { GameUpdatedPayload, GAME_UPDATED } from "../../game.events";
+import { type GameFinishedPayload, GAME_FINISHED } from "../../game.events";
 import { EventEmitter2 } from "@nestjs/event-emitter";
-import { DictionaryService } from "../../dictionary.service";
 import { RoundScheduler } from "../../round-scheduler.service";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
-export class EndPointingUseCase {
-	constructor(
-		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
-		private readonly gameSharedService: GameSharedService,
-		private readonly eventEmitter: EventEmitter2,
-		private readonly roundScheduler: RoundScheduler,
-		private readonly dictionaryService: DictionaryService,
-	) {}
-	async execute(dto: EndPointingDto, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.assertRoomOwner(actor.id);
-		room.endPointing();
-		await this.gameRepository.saveGame(room);
+export class EndPointingUseCase extends RoomUseCase<EndPointingDto, void> {
+	protected override readonly notify = ["game"] as const;
 
-		if (room.status === GameStatus.FINISHED) {
+	constructor(
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
+		@Inject(GAME_REPOSITORY)
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
+		private readonly roundScheduler: RoundScheduler,
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
+	}
+
+	protected override handle(
+		engine: GameEngine,
+		dto: EndPointingDto,
+		actor: UserDto,
+	): void {
+		engine.dispatch({
+			type: "END_POINTING",
+			actorId: actor.id,
+		});
+	}
+
+	protected override async afterCommit(engine: GameEngine): Promise<void> {
+		if (engine.getState().status === "FINISHED") {
 			await this.roundScheduler.scheduleGameDeletion(
-				room.id,
+				engine.getState().id,
 				24 * 60 * 60 * 1000,
 			);
-		} else {
-			await this.dictionaryService.popWordForGame(room.id);
+			const finishedPayload: GameFinishedPayload = {
+				room: engine.toPrimitives(),
+			};
+			this.eventEmitter.emit(GAME_FINISHED, finishedPayload);
 		}
-
-		const eventPayload: GameUpdatedPayload = {
-			room: room.toPrimitives(),
-		};
-		this.eventEmitter.emit(GAME_UPDATED, eventPayload);
 	}
 }

@@ -8,80 +8,44 @@ import {
 	type IGameRepository,
 } from "../../game.repository.interface";
 import { SubmitCustomWordsDto } from "../../dto/body/submit-custom-words.dto";
-import {
-	GameError,
-	PlayerNotFoundError,
-} from "../../../domain/errors/game.errors";
-import { PLAYERS_UPDATED, type PlayersUpdatedPayload } from "../../game.events";
-import { GameEntity } from "../../../domain/entities/game.entity";
-import { PlayerEntity } from "../../../domain/entities/player.entity";
+import { RoomFifoQueueService } from "../../room-fifo-queue.service";
+import { RoomUseCase } from "../room.use-case";
+import type { GameEngine } from "../../../domain/engine/game-engine";
+import type { GameState } from "../../../domain/state/game.state";
 
 @Injectable()
-export class SubmitCustomWordsUseCase {
+export class SubmitCustomWordsUseCase extends RoomUseCase<
+	SubmitCustomWordsDto,
+	GameState
+> {
+	protected override readonly notify = ["players"] as const;
+
 	constructor(
-		private readonly gameSharedService: GameSharedService,
+		fifoQueue: RoomFifoQueueService,
+		gameSharedService: GameSharedService,
 		@Inject(GAME_REPOSITORY)
-		private readonly gameRepository: IGameRepository,
+		gameRepository: IGameRepository,
+		eventEmitter: EventEmitter2,
 		private readonly dictionaryService: DictionaryService,
-		private readonly eventEmitter: EventEmitter2,
-	) {}
-
-	async execute(dto: SubmitCustomWordsDto, actor: UserDto) {
-		const room = await this.gameSharedService.loadGame(dto.roomId);
-		room.assertGameInLobby();
-
-		if (!room.settings.isHatMode) {
-			throw new GameError("Hat mode is not enabled in this room");
-		}
-
-		if (
-			!room.settings.wordsPerPlayer ||
-			room.settings.wordsPerPlayer <= 0
-		) {
-			throw new GameError(
-				"Please configure the number of words per player",
-			);
-		}
-
-		if (dto.words.length !== room.settings.wordsPerPlayer) {
-			throw new GameError(
-				`You must submit exactly ${room.settings.wordsPerPlayer} words (received ${dto.words.length})`,
-			);
-		}
-
-		const player = room.players.find((p) => p.id === actor.id);
-		if (!player) {
-			throw new PlayerNotFoundError(actor.id);
-		}
-
-		return this.submitWordsForPlayer(room, player, dto.words);
+	) {
+		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
 	}
 
-	private async submitWordsForPlayer(
-		room: GameEntity,
-		player: PlayerEntity,
-		words: string[],
-	) {
-		const roomId = room.id;
-		const playerId = player.id;
+	protected override async handle(
+		room: GameEngine,
+		dto: SubmitCustomWordsDto,
+		actor: UserDto,
+	): Promise<void> {
+		room.dispatch({
+			type: "SUBMIT_CUSTOM_WORDS",
+			actorId: actor.id,
+			payload: { wordsCount: dto.words.length },
+		});
 
 		await this.dictionaryService.setCustomWordsForPlayer(
-			roomId,
-			playerId,
-			words,
+			room.id,
+			actor.id,
+			dto.words,
 		);
-
-		player.setSubmittedWordsCount(words.length);
-
-		await this.gameRepository.saveGame(room);
-
-		const roomPrimitives = room.toPrimitives();
-		const eventPayload: PlayersUpdatedPayload = {
-			roomId: room.id,
-			players: roomPrimitives.players,
-		};
-		this.eventEmitter.emit(PLAYERS_UPDATED, eventPayload);
-
-		return roomPrimitives;
 	}
 }

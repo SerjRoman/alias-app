@@ -55,6 +55,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/user/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh access token using refresh token */
+        post: operations["UserController_refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/user/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout user and invalidate refresh token */
+        post: operations["UserController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/user/me": {
         parameters: {
             query?: never;
@@ -287,7 +321,8 @@ export interface paths {
         /** Get all available word packs */
         get: operations["WordPackController_getPacks"];
         put?: never;
-        post?: never;
+        /** Create a new word pack */
+        post: operations["WordPackController_createPack"];
         delete?: never;
         options?: never;
         head?: never;
@@ -393,6 +428,11 @@ export interface components {
              * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
              */
             accessToken: string;
+            /**
+             * @description Refresh token for registered users (absent for guest users)
+             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+             */
+            refreshToken?: string;
             /** @description User info */
             user: components["schemas"]["UserDto"];
         };
@@ -411,6 +451,13 @@ export interface components {
             username: string;
             /** @example password123 */
             password: string;
+        };
+        RefreshTokenDto: {
+            /**
+             * @description JWT refresh token
+             * @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+             */
+            refreshToken: string;
         };
         MeDtoResponse: {
             /** @example 123e4567-e89b-12d3-a456-426614174000 */
@@ -538,18 +585,21 @@ export interface components {
              * @example true
              */
             isVoiceChatEnabled: boolean;
-
             /**
              * @description Number of custom words each player must submit
              * @example 5
              */
             wordsPerPlayer: number;
             /**
-             * @description The language of the words used in the game
-             * @example ru
-             * @enum {string}
+             * @description Whether hat mode is enabled
+             * @example false
              */
             isHatMode: boolean;
+            /**
+             * @description Whether the in-game shop is enabled
+             * @example false
+             */
+            isShopEnabled?: boolean;
         };
         GameResponseDto: {
             /**
@@ -598,18 +648,24 @@ export interface components {
              *     ]
              */
             wordPackSelections?: components["schemas"]["WordPackSelectionDto"][];
-
             /**
-             * @description Number of custom words each player must submit (only in custom mode)
-             * @default 5
+             * @description Number of custom words each player must submit
+             * @default 0
              * @example 5
              */
             wordsPerPlayer: number;
+            /**
+             * @description Whether hat mode is enabled
+             * @default false
+             * @example false
+             */
+            isHatMode: boolean;
             /** @default true */
             isOnlyOwnerCanNextRound: boolean;
             /** @default true */
             isOnlyOwnerCanChangeScore: boolean;
-            isHatMode?: boolean;
+            /** @default false */
+            isShopEnabled: boolean;
         };
         CreateGameResponseDto: {
             /**
@@ -707,6 +763,39 @@ export interface components {
             /** @example user-123 */
             createdBy: Record<string, never> | null;
         };
+        CreateWordPackDto: {
+            /**
+             * @description The name of the word pack
+             * @example Custom Fun Pack
+             */
+            name: string;
+            /**
+             * @description A description of the word pack
+             * @example A pack containing fun and casual words for friendly parties.
+             */
+            description?: string | null;
+            /**
+             * @description The language of the word pack
+             * @default ru
+             * @example ru
+             */
+            language: string;
+            /**
+             * @description The type of the word pack
+             * @default custom
+             * @example custom
+             */
+            type: string;
+            /**
+             * @description List of words in the pack
+             * @example [
+             *       "apple",
+             *       "banana",
+             *       "cherry"
+             *     ]
+             */
+            words: string[];
+        };
         ParticipantDisplayDataDto: {
             isRegistered: boolean;
             userId: Record<string, never> | null;
@@ -723,7 +812,7 @@ export interface components {
             id: string;
             roundNumber: number;
             teamId: string;
-            guesserParticipantId: string;
+            explainerParticipantId: string;
         };
         GameSummaryTeamDto: {
             id: string;
@@ -757,10 +846,17 @@ export interface components {
              */
             text: string;
             /**
-             * @description The word text
-             * @example Apple
+             * @description Points awarded for the word
+             * @example 1
              */
             score: number;
+            /**
+             * @description Outcome of the word during the round
+             * @enum {string}
+             */
+            outcome?: "guessed" | "skipped" | "neutral";
+            /** @description IDs of active effects applied to this word */
+            appliedEffectIds?: string[];
         };
         ParticipantStatsDto: {
             participantId: string;
@@ -770,7 +866,7 @@ export interface components {
         RoundDetailsResponseDto: {
             roundId: string;
             number: number;
-            guesserId: string;
+            explainerId: string;
             teamId: string;
             /** @description Words for the round */
             words: components["schemas"]["WordResponseDto"][];
@@ -898,6 +994,55 @@ export interface operations {
             };
             /** @description Internal server error. */
             500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenDto"];
+            };
+        };
+        responses: {
+            /** @description New access and refresh tokens. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginResponseDto"];
+                };
+            };
+            /** @description Unauthorized. Invalid or revoked refresh token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    UserController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successfully logged out. */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1317,6 +1462,37 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["WordPackResponseDto"][];
                 };
+            };
+        };
+    };
+    WordPackController_createPack: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWordPackDto"];
+            };
+        };
+        responses: {
+            /** @description The word pack has been successfully created. */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WordPackResponseDto"];
+                };
+            };
+            /** @description Invalid input data. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

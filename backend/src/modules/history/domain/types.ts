@@ -1,5 +1,4 @@
-import { type GameSettings } from "../../game/domain/entities/game.entity";
-import { type WordState } from "../../game/domain/entities/round.entity";
+import { type GameSettings, type WordState } from "../../game/domain";
 
 export interface HistoryRoundParticipantState {
 	id: string;
@@ -26,7 +25,7 @@ export interface HistoryRoundState {
 	id: string;
 	gameId: string;
 	teamId: string;
-	guesserId: string;
+	explainerId: string;
 	words: WordState[];
 	roundNumber: number;
 	participants: HistoryRoundParticipantState[];

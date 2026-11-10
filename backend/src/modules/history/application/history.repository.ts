@@ -13,6 +13,13 @@ export interface IHistoryRepository {
 		gameId: string,
 		status: string,
 		winnerTeamId: string | null,
+		participants?: Array<{
+			id: string;
+			name: string;
+			teamId: string;
+			userId: string | null;
+			finalScore: number;
+		}>,
 	): Promise<void>;
 }
 
