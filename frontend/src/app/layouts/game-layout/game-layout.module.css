@@ -1,11 +1,12 @@
 .gameLayout {
-	width: 100vw;
-	height: 100vh;
+	width: 100%;
+	height: 100dvh;
 	max-width: 100vw;
-	max-height: 100vh;
+	max-height: 100dvh;
 	margin: 0;
 	padding: 0;
 	overflow: hidden;
+	overscroll-behavior: none;
 	background-color: var(--game-bg-root, #0a0c14);
 	color: var(--game-text-primary, #f8fafc);
 	display: flex;

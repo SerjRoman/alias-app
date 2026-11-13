@@ -32,9 +32,13 @@ export class CreateGameUseCase {
 			wordsPerPlayer: createGameDto.isHatMode
 				? createGameDto.wordsPerPlayer || 0
 				: 0,
-			isOnlyOwnerCanNextRound: true,
-			isOnlyOwnerCanChangeScore: true,
+			isOnlyOwnerCanNextRound:
+				createGameDto.isOnlyOwnerCanNextRound ?? true,
+			isOnlyOwnerCanChangeScore:
+				createGameDto.isOnlyOwnerCanChangeScore ?? true,
 			isVoiceChatEnabled: true,
+			isShopEnabled: createGameDto.isShopEnabled ?? false,
+			isBettingEnabled: createGameDto.isBettingEnabled ?? false,
 		};
 		const newRoom = GameEngine.create(uuidv4(), user.id, {
 			status: GameStatus.LOBBY,

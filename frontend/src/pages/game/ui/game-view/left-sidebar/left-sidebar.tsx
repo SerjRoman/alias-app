@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useLayoutEffect, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Users } from "lucide-react";
 import { useAuth } from "@shared/api";
@@ -72,6 +72,87 @@ export function LeftSidebar() {
 		Record<string, boolean>
 	>(() => (activeTurnTeamId ? { [activeTurnTeamId]: true } : {}));
 
+	const [justActivatedTeamId, setJustActivatedTeamId] = useState<
+		string | null
+	>(null);
+	const teamsListRef = useRef<HTMLDivElement | null>(null);
+	const teamSlotRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+	const prevTopsRef = useRef<Map<string, number>>(new Map());
+	const prevActiveTeamIdRef = useRef<string | undefined>(activeTurnTeamId);
+
+	useEffect(() => {
+		const prevId = prevActiveTeamIdRef.current;
+		prevActiveTeamIdRef.current = activeTurnTeamId;
+
+		if (!prevId || !activeTurnTeamId || prevId === activeTurnTeamId) {
+			return;
+		}
+
+		setJustActivatedTeamId(activeTurnTeamId);
+		teamsListRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+
+		const timer = setTimeout(() => {
+			setJustActivatedTeamId((curr) =>
+				curr === activeTurnTeamId ? null : curr,
+			);
+		}, 1200);
+
+		return () => clearTimeout(timer);
+	}, [activeTurnTeamId]);
+
+	useLayoutEffect(() => {
+		const newTops = new Map<string, number>();
+		const animatedEls: HTMLDivElement[] = [];
+
+		for (const team of orderedTeams) {
+			const el = teamSlotRefs.current.get(team.id);
+			if (!el) continue;
+
+			const rect = el.getBoundingClientRect();
+			newTops.set(team.id, rect.top);
+
+			const prevTop = prevTopsRef.current.get(team.id);
+			if (prevTop !== undefined) {
+				const deltaY = prevTop - rect.top;
+				if (Math.abs(deltaY) > 1) {
+					el.style.transition = "none";
+					el.style.transform = `translateY(${deltaY}px)`;
+					el.style.zIndex =
+						team.id === activeTurnTeamId ? "2" : "1";
+					animatedEls.push(el);
+				}
+			}
+		}
+
+		prevTopsRef.current = newTops;
+
+		if (animatedEls.length === 0) return;
+
+		// Force reflow before playing FLIP transform
+		void teamsListRef.current?.offsetHeight;
+
+		let cleanupTimer: ReturnType<typeof setTimeout> | undefined;
+		const rafId = requestAnimationFrame(() => {
+			for (const el of animatedEls) {
+				el.style.transition =
+					"transform 420ms cubic-bezier(0.22, 1, 0.36, 1)";
+				el.style.transform = "translateY(0)";
+			}
+			cleanupTimer = setTimeout(() => {
+				for (const el of animatedEls) {
+					el.style.transition = "";
+					el.style.transform = "";
+					el.style.zIndex = "";
+				}
+			}, 440);
+		});
+
+		return () => {
+			cancelAnimationFrame(rafId);
+			if (cleanupTimer) clearTimeout(cleanupTimer);
+		};
+	}, [orderedTeams, activeTurnTeamId]);
+
 	const toggleTeam = (teamId: string) => {
 		setExpandedTeamIds((prev) => {
 			const currentlyExpanded =
@@ -116,67 +197,89 @@ export function LeftSidebar() {
 				</div>
 			</div>
 
-			<div className={`${styles.teamsList} game-scroll`}>
-				{orderedTeams.map((team, index) => {
+			<div ref={teamsListRef} className={`${styles.teamsList} game-scroll`}>
+				{orderedTeams.map((team) => {
 					const isActiveTurn = team.id === activeTurnTeamId;
 					const isNextTurn = team.id === nextTeamId && !isActiveTurn;
 					const isLeader = team.score === maxScore && maxScore > 0;
 					const isExpanded = expandedTeamIds[team.id] ?? isActiveTurn;
+					const originalIndex = teams.findIndex(
+						(t) => t.id === team.id,
+					);
 
 					const teamColor = getDynamicTeamColor(
 						team as TeamState & { color?: string },
-						index,
+						originalIndex >= 0 ? originalIndex : 0,
 					);
 					const teamPlayers = (team.playerIds ?? [])
 						.map((pId) => playersMap.get(pId))
 						.filter(Boolean) as PlayerState[];
 
+					const isExplainerOnlyEffect =
+						pendingTargetItem?.itemId === "FLIP_WORD" ||
+						pendingTargetItem?.itemId === "FREEZE_NEXT_WORD";
 					const isTargetableTeam =
 						pendingTargetItem?.target === "enemy_team" &&
 						team.id !== myTeamId;
 					const isTargetablePlayers =
 						pendingTargetItem?.target === "enemy_player" &&
-						team.id !== myTeamId;
+						team.id !== myTeamId &&
+						(!isExplainerOnlyEffect ||
+							(isActiveTurn && !isRoundPending));
 
 					return (
-						<TeamCard
+						<div
 							key={team.id}
-							team={team}
-							teamColor={teamColor}
-							isActiveTurn={isActiveTurn}
-							isNextTurn={isNextTurn}
-							isLeader={isLeader}
-							isExpanded={isExpanded}
-							isRoundPending={isRoundPending}
-							isTargetableTeam={isTargetableTeam}
-							isTargetablePlayers={isTargetablePlayers}
-							players={teamPlayers}
-							playersDisplayMap={playersDisplayMap}
-							explainerId={explainerId}
-							activeSpeakerIds={activeSpeakerIds}
-							onToggle={() => toggleTeam(team.id)}
-							onSelectTeam={() => {
-								if (roomId && pendingTargetItem) {
-									activateItem(
-										roomId,
-										pendingTargetItem.inventoryItemId,
-										team.id,
-									);
-									setPendingTargetItem(null);
+							ref={(el) => {
+								if (el) {
+									teamSlotRefs.current.set(team.id, el);
+								} else {
+									teamSlotRefs.current.delete(team.id);
 								}
 							}}
-							onSelectPlayer={(playerId) => {
-								if (roomId && pendingTargetItem) {
-									activateItem(
-										roomId,
-										pendingTargetItem.inventoryItemId,
-										undefined,
-										playerId,
-									);
-									setPendingTargetItem(null);
+							className={styles.teamSlot}
+						>
+							<TeamCard
+								team={team}
+								teamColor={teamColor}
+								isActiveTurn={isActiveTurn}
+								isNextTurn={isNextTurn}
+								isTurnTransitioning={
+									team.id === justActivatedTeamId
 								}
-							}}
-						/>
+								isLeader={isLeader}
+								isExpanded={isExpanded}
+								isRoundPending={isRoundPending}
+								isTargetableTeam={isTargetableTeam}
+								isTargetablePlayers={isTargetablePlayers}
+								players={teamPlayers}
+								playersDisplayMap={playersDisplayMap}
+								explainerId={explainerId}
+								activeSpeakerIds={activeSpeakerIds}
+								onToggle={() => toggleTeam(team.id)}
+								onSelectTeam={() => {
+									if (roomId && pendingTargetItem) {
+										activateItem(
+											roomId,
+											pendingTargetItem.inventoryItemId,
+											team.id,
+										);
+										setPendingTargetItem(null);
+									}
+								}}
+								onSelectPlayer={(playerId) => {
+									if (roomId && pendingTargetItem) {
+										activateItem(
+											roomId,
+											pendingTargetItem.inventoryItemId,
+											undefined,
+											playerId,
+										);
+										setPendingTargetItem(null);
+									}
+								}}
+							/>
+						</div>
 					);
 				})}
 

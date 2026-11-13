@@ -35,4 +35,9 @@ export {
 	type EffectItemId,
 	type EffectTargetType,
 	type PendingTargetItem,
+	useChatSlice,
+	type ChatChannel,
+	type ChatMessage,
+	type SystemLogEntry,
+	type SystemLogType,
 } from "./model";

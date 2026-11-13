@@ -8,8 +8,19 @@
 	background: var(--game-bg-panel);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	position: relative;
 	flex-shrink: 0;
+}
+
+@keyframes dangerPulse {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.03);
+	}
 }
 
 .timerDisplay {
@@ -27,6 +38,22 @@
 
 .timerDisplay.danger {
 	color: var(--game-color-danger);
+	animation: dangerPulse 1s ease-in-out infinite;
+}
+
+.pausedBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 8px;
+	border-radius: 999px;
+	font-family: inherit;
+	font-size: 11px;
+	font-weight: var(--font-weight-extrabold);
+	letter-spacing: 0.06em;
+	background: var(--game-color-warning-bg);
+	color: var(--game-color-warning);
+	border: 1px solid var(--game-color-warning-border);
 }
 
 .timerDisplay.warning {

@@ -5,6 +5,7 @@ import { changeWordOutcome as changeWordOutcomeApi } from "../api/change-word-ou
 import {
 	useGameSlice,
 	usePrivatePlayerSlice,
+	type ChatChannel,
 	type EffectItemId,
 	type PrivatePlayerState,
 	type WordOutcome,
@@ -70,6 +71,13 @@ export function useActiveGameActions() {
 			},
 		);
 	};
+	const sendChatMessage = (
+		roomId: string,
+		channel: ChatChannel,
+		text: string,
+	) => {
+		socketClient.emit("sendChatMessage", { roomId, channel, text });
+	};
 	return {
 		startRound,
 		nextWord,
@@ -79,5 +87,6 @@ export function useActiveGameActions() {
 		finishRound,
 		buyItem,
 		activateItem,
+		sendChatMessage,
 	};
 }

@@ -6,13 +6,90 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	gap: var(--space-xl);
+	gap: var(--space-lg);
 	padding: var(--space-3xl);
 	background: var(--game-bg-panel);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	text-align: center;
 	color: var(--game-text-primary);
+}
+
+.briefingCard {
+	display: flex;
+	align-items: center;
+	gap: var(--space-md);
+	padding: var(--space-md) var(--space-xl);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	border-radius: 16px;
+	box-shadow: var(--game-card-shadow);
+}
+
+.briefingMeta {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 4px;
+}
+
+.briefingLabel {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--game-text-muted);
+}
+
+.briefingWho {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	flex-wrap: wrap;
+}
+
+.explainerName {
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-extrabold);
+	color: var(--game-text-primary);
+}
+
+.teamPill {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	padding: 2px 8px;
+	border-radius: 999px;
+	border: 1px solid transparent;
+}
+
+.title {
+	margin: 0;
+	font-size: var(--font-size-xl);
+	font-weight: var(--font-weight-extrabold);
+}
+
+.readyBlock {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-xs);
+}
+
+.shortcutHint {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted);
+}
+
+.kbdKey {
+	font-family: inherit;
+	font-size: 10px;
+	font-weight: var(--font-weight-bold);
+	padding: 2px 7px;
+	border-radius: 5px;
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-strong);
+	color: var(--game-text-secondary);
 }
 
 .spectatorMessage {
@@ -33,6 +110,7 @@
 	font-weight: var(--font-weight-bold);
 	background: rgba(16, 185, 129, 0.2);
 	border: 1px solid rgba(16, 185, 129, 0.5);
+	border-bottom-width: 3px;
 	color: #34d399;
 	transition: all 0.2s ease;
 }

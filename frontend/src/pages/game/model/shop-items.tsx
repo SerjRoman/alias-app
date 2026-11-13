@@ -3,12 +3,17 @@ import type { TFunction } from "i18next";
 import {
 	Bomb,
 	CloudRain,
+	FlipVertical2,
 	Hourglass,
 	MicOff,
+	RefreshCw,
 	Shield,
+	ShieldCheck,
 	Shuffle,
 	Snowflake,
 	Sparkles,
+	Timer,
+	TimerOff,
 } from "lucide-react";
 import type { EffectTargetType } from "@entities/game";
 
@@ -61,6 +66,26 @@ export const SHOP_ITEMS_META: Record<string, ShopItemMeta> = {
 	VOICE_MUTE: {
 		funnyName: "Обет молчания",
 		icon: <MicOff size={15} />,
+	},
+	CLEANSE: {
+		funnyName: "Антидот",
+		icon: <ShieldCheck size={15} />,
+	},
+	EXTRA_TIME: {
+		funnyName: "+10 секунд",
+		icon: <Timer size={15} />,
+	},
+	TIME_DRAIN: {
+		funnyName: "-5 секунд",
+		icon: <TimerOff size={15} />,
+	},
+	FLIP_WORD: {
+		funnyName: "Перевёртыш",
+		icon: <FlipVertical2 size={15} />,
+	},
+	REROLL_WORD: {
+		funnyName: "Замена слова",
+		icon: <RefreshCw size={15} />,
 	},
 };
 

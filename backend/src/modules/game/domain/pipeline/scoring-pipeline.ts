@@ -86,6 +86,26 @@ export const EFFECT_REGISTRY: Record<string, EffectRule> = {
 		itemId: "VOICE_MUTE",
 		durationType: "seconds",
 	},
+	CLEANSE: {
+		itemId: "CLEANSE",
+		durationType: "instant",
+	},
+	EXTRA_TIME: {
+		itemId: "EXTRA_TIME",
+		durationType: "instant",
+	},
+	TIME_DRAIN: {
+		itemId: "TIME_DRAIN",
+		durationType: "instant",
+	},
+	FLIP_WORD: {
+		itemId: "FLIP_WORD",
+		durationType: "seconds",
+	},
+	REROLL_WORD: {
+		itemId: "REROLL_WORD",
+		durationType: "instant",
+	},
 };
 
 /**

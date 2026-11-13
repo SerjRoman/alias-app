@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
-import { ChevronDown, Crown, FastForward } from "lucide-react";
-import type {
-	TeamState,
-	PlayerState,
-	PlayerDisplayInfo,
+import { ChevronDown, Crown, FastForward, Play } from "lucide-react";
+import {
+	useGameSlice,
+	type TeamState,
+	type PlayerState,
+	type PlayerDisplayInfo,
 } from "@entities/game";
 import { PlayerRow } from "./player-row";
 import styles from "./team-card.module.css";
@@ -14,6 +15,7 @@ interface TeamCardProps {
 	teamColor: string;
 	isActiveTurn: boolean;
 	isNextTurn: boolean;
+	isTurnTransitioning?: boolean;
 	isLeader: boolean;
 	isExpanded: boolean;
 	isRoundPending?: boolean;
@@ -33,6 +35,7 @@ export function TeamCard({
 	teamColor,
 	isActiveTurn,
 	isNextTurn,
+	isTurnTransitioning = false,
 	isLeader,
 	isExpanded,
 	isRoundPending = false,
@@ -47,10 +50,17 @@ export function TeamCard({
 	onSelectPlayer,
 }: Readonly<TeamCardProps>) {
 	const { t } = useTranslation();
+	const pointsToWin = useGameSlice(
+		(state) => state.game?.settings?.pointsToWin ?? 30,
+	);
+	const progressPercent = Math.min(
+		100,
+		Math.max(0, (team.score / Math.max(1, pointsToWin)) * 100),
+	);
 
 	return (
 		<div
-			className={`${styles.teamCard} ${isActiveTurn ? styles.activeTurn : ""} ${isTargetableTeam ? styles.targetableTeam : ""}`}
+			className={`${styles.teamCard} ${isActiveTurn ? styles.activeTurn : ""} ${isTurnTransitioning ? styles.turnTransitioning : ""} ${isTargetableTeam ? styles.targetableTeam : ""}`}
 			style={
 				{
 					"--team-color": teamColor,
@@ -83,6 +93,14 @@ export function TeamCard({
 					{isLeader && (
 						<span title={t("gameView.leaderTooltip")}>
 							<Crown size={15} className={styles.crownIcon} />
+						</span>
+					)}
+
+					{/* Active Turn Badge */}
+					{isActiveTurn && (
+						<span className={styles.activeTurnBadge}>
+							<Play size={10} fill="currentColor" />
+							<span>{t("gameView.playingTurn")}</span>
 						</span>
 					)}
 
@@ -121,6 +139,14 @@ export function TeamCard({
 						/>
 					</button>
 				</div>
+			</div>
+
+			{/* Win Progress Bar */}
+			<div className={styles.winProgressTrack}>
+				<div
+					className={styles.winProgressFill}
+					style={{ width: `${progressPercent}%` }}
+				/>
 			</div>
 
 			{/* Collapsible Players List */}

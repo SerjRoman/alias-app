@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Clock } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Clock, Pause } from "lucide-react";
 import styles from "./arena-timer.module.css";
 
 interface ArenaTimerProps {
@@ -7,6 +8,7 @@ interface ArenaTimerProps {
 	pausedAt?: number | null;
 	remainingMs?: number | null;
 	totalDuration?: number;
+	isActive?: boolean;
 }
 
 function calcRemainingSeconds(
@@ -27,7 +29,9 @@ export function ArenaTimer({
 	pausedAt,
 	remainingMs,
 	totalDuration = 60,
+	isActive = false,
 }: Readonly<ArenaTimerProps>) {
+	const { t } = useTranslation();
 	const [remainingSeconds, setRemainingSeconds] = useState(() =>
 		calcRemainingSeconds(expiresAt, pausedAt, remainingMs),
 	);
@@ -52,10 +56,14 @@ export function ArenaTimer({
 		seconds,
 	).padStart(2, "0")}`;
 
-	const isDanger = displaySeconds <= 10;
-	const isWarning = displaySeconds <= 20 && !isDanger;
+	const isDanger = Boolean(isActive && !pausedAt && displaySeconds <= 10);
+	const isWarning = Boolean(
+		isActive && !pausedAt && displaySeconds <= 20 && !isDanger,
+	);
 	const safeDuration = totalDuration > 0 ? totalDuration : 60;
-	const barPercentage = Math.min((displaySeconds / safeDuration) * 100, 100);
+	const barPercentage = isActive
+		? Math.min((displaySeconds / safeDuration) * 100, 100)
+		: 0;
 
 	return (
 		<div className={styles.timerSection}>
@@ -64,11 +72,14 @@ export function ArenaTimer({
 					isDanger ? styles.danger : isWarning ? styles.warning : ""
 				}`}
 			>
-				<Clock size={28} />
-				<span>
-					{formattedTime}
-					{pausedAt ? " ⏸" : ""}
-				</span>
+				<Clock size={26} />
+				<span>{formattedTime}</span>
+				{pausedAt && (
+					<span className={styles.pausedBadge}>
+						<Pause size={11} fill="currentColor" />
+						<span>{t("gameView.paused")}</span>
+					</span>
+				)}
 			</div>
 
 			<div className={styles.timerBarContainer}>

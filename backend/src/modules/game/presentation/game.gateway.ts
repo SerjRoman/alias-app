@@ -11,7 +11,7 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 } from "@nestjs/websockets";
-import { OnEvent } from "@nestjs/event-emitter";
+import { EventEmitter2, OnEvent } from "@nestjs/event-emitter";
 import {
 	GAME_UPDATED,
 	type GameUpdatedPayload,
@@ -64,6 +64,8 @@ import {
 	UseItemDto,
 	GetExplainerWordDto,
 	GetShopCatalogDto,
+	SendChatMessageDto,
+	GetChatHistoryDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
@@ -75,10 +77,24 @@ import {
 	PrivatePlayerStateResponseDto,
 	ExplainerWordResponseDto,
 	ShopCatalogResponseDto,
+	ChatActionResponseDto,
+	ChatMessageResponseDto,
+	SystemLogEntryResponseDto,
+	ChatHistoryResponseDto,
 } from "../application/dto/response";
 import { ADMIN_EVENTS } from "./socket.events";
 import { SetExplainerDto } from "../application/dto/body/set-explainer.dto";
 import { RoomNotFoundError } from "../domain/errors/game.errors";
+import { GameChatService } from "../application/chat/game-chat.service";
+import {
+	ADMIN_ACTION_EXECUTED,
+	CHAT_MESSAGE_CREATED,
+	SYSTEM_LOG_CREATED,
+	type AdminActionExecutedPayload,
+	type AdminActionLogType,
+	type ChatMessageCreatedPayload,
+	type SystemLogCreatedPayload,
+} from "../application/chat/chat.types";
 
 @WebSocketGateway({
 	cors: {
@@ -97,6 +113,8 @@ export class GameGateway implements OnGatewayDisconnect {
 		private readonly playerFacade: PlayerFacade,
 		private readonly roundFacade: RoundFacade,
 		private readonly teamFacade: TeamFacade,
+		private readonly gameChatService: GameChatService,
+		private readonly eventEmitter: EventEmitter2,
 	) {}
 
 	@SubscribeMessage("toggleGameReady")
@@ -154,6 +172,16 @@ export class GameGateway implements OnGatewayDisconnect {
 		});
 
 		client.emit("gameUpdated", publicState);
+		const chatHistory = await this.gameChatService.getHistoryForPlayer(
+			room.id,
+			client.data.user.id,
+		);
+		client.emit(
+			"chatHistory",
+			plainToInstance(ChatHistoryResponseDto, chatHistory, {
+				excludeExtraneousValues: true,
+			}),
+		);
 		await this.sendPrivateStateToPlayer(room.id, client.data.user.id);
 		if (await this.isExplainer(dto.roomId, client.data.user.id))
 			await this.sendPrivateWordToExplainer(room.id, client.data.user.id);
@@ -308,20 +336,34 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: MoveToTeamDto,
 	) {
 		await this.teamFacade.moveToTeam(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "assignPlayerToTeam", {
+			targetPlayerId: dto.playerId,
+			targetTeamId: dto.teamId,
+		});
 	}
 	@SubscribeMessage(ADMIN_EVENTS.kickPlayer)
 	async kickPlayer(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: KickPlayerDto,
 	) {
+		const targetName = await this.resolvePlayerName(dto.roomId, dto.playerId);
 		await this.playerFacade.kickPlayer(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "kickPlayer", {
+			targetPlayerId: dto.playerId,
+			targetName,
+		});
 	}
 	@SubscribeMessage(ADMIN_EVENTS.banPlayer)
 	async banPlayer(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: BanPlayerDto,
 	) {
+		const targetName = await this.resolvePlayerName(dto.roomId, dto.playerId);
 		await this.playerFacade.banPlayer(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "banPlayer", {
+			targetPlayerId: dto.playerId,
+			targetName,
+		});
 	}
 	@SubscribeMessage(ADMIN_EVENTS.endGame)
 	async endGame(
@@ -329,6 +371,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: EndGameDto,
 	) {
 		await this.gameFacade.endGame(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "endGame");
 	}
 	@SubscribeMessage(ADMIN_EVENTS.setExplainer)
 	async setExplainer(
@@ -337,6 +380,9 @@ export class GameGateway implements OnGatewayDisconnect {
 	) {
 		await this.roundFacade.setExplainer(dto, client.data.user);
 		await this.sendPrivateWordToExplainer(dto.roomId, dto.playerId);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "setExplainer", {
+			targetPlayerId: dto.playerId,
+		});
 	}
 	@SubscribeMessage(ADMIN_EVENTS.shufflePlayers)
 	async shufflePlayers(
@@ -344,6 +390,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: ShufflePlayersDto,
 	) {
 		await this.gameFacade.shufflePlayers(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "shufflePlayers");
 	}
 	@SubscribeMessage(ADMIN_EVENTS.changeRoundTime)
 	async changeRoundTime(
@@ -351,6 +398,9 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: ChangeRoundTimeDto,
 	) {
 		await this.roundFacade.changeRoundTime(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "changeRoundTime", {
+			seconds: dto.seconds,
+		});
 	}
 	@SubscribeMessage(ADMIN_EVENTS.startPointing)
 	async startPointing(
@@ -358,6 +408,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: StartPointingDto,
 	) {
 		await this.roundFacade.startPointing(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "startPointing");
 	}
 	@SubscribeMessage(ADMIN_EVENTS.startRound)
 	async startRoundForced(
@@ -372,6 +423,7 @@ export class GameGateway implements OnGatewayDisconnect {
 			data.roomId,
 			data.round.explainerId,
 		);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "startRound");
 	}
 
 	@SubscribeMessage("pauseGame")
@@ -381,6 +433,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: PauseGameDto,
 	) {
 		await this.gameFacade.pauseGame(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "pauseGame");
 	}
 
 	@SubscribeMessage("resumeGame")
@@ -390,6 +443,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: ResumeGameDto,
 	) {
 		await this.gameFacade.resumeGame(dto, client.data.user);
+		this.emitAdminActionLog(dto.roomId, client.data.user, "resumeGame");
 	}
 
 	@SubscribeMessage("buyItem")
@@ -453,6 +507,67 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: GetShopCatalogDto,
 	): Promise<ShopCatalogResponseDto> {
 		return this.gameFacade.getShopCatalog(dto, client.data.user);
+	}
+
+	@SubscribeMessage("sendChatMessage")
+	async sendChatMessage(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: SendChatMessageDto,
+	): Promise<ChatActionResponseDto> {
+		const res = await this.gameChatService.sendPlayerMessage(
+			client.data.user,
+			dto,
+		);
+		return plainToInstance(ChatActionResponseDto, res, {
+			excludeExtraneousValues: true,
+		});
+	}
+
+	@SubscribeMessage("getChatHistory")
+	async getChatHistory(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: GetChatHistoryDto,
+	): Promise<ChatHistoryResponseDto> {
+		const history = await this.gameChatService.getHistoryForPlayer(
+			dto.roomId,
+			client.data.user.id,
+		);
+		return plainToInstance(ChatHistoryResponseDto, history, {
+			excludeExtraneousValues: true,
+		});
+	}
+
+	private async resolvePlayerName(
+		roomId: string,
+		playerId: string,
+	): Promise<string | undefined> {
+		try {
+			const game = await this.gameFacade.findOne(roomId);
+			return game.players.find((p) => p.id === playerId)?.name;
+		} catch {
+			return undefined;
+		}
+	}
+
+	private emitAdminActionLog(
+		roomId: string,
+		admin: UserDto,
+		action: AdminActionLogType,
+		extra?: Partial<
+			Pick<
+				AdminActionExecutedPayload,
+				"targetPlayerId" | "targetTeamId" | "targetName" | "seconds"
+			>
+		>,
+	): void {
+		const payload: AdminActionExecutedPayload = {
+			roomId,
+			adminId: admin.id,
+			adminName: admin.name,
+			action,
+			...extra,
+		};
+		this.eventEmitter.emit(ADMIN_ACTION_EXECUTED, payload);
 	}
 
 	private async isExplainer(
@@ -688,6 +803,69 @@ export class GameGateway implements OnGatewayDisconnect {
 		} catch (error) {
 			this.logger.error(
 				`Error in handleGameDeleted: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
+	}
+
+	@OnEvent(CHAT_MESSAGE_CREATED)
+	async handleChatMessageCreated(payload: ChatMessageCreatedPayload) {
+		try {
+			const { roomId, message } = payload;
+			const dto = plainToInstance(ChatMessageResponseDto, message, {
+				excludeExtraneousValues: true,
+			});
+			if (message.channel === "all") {
+				this.server.to(roomId).emit("chatMessage", dto);
+				return;
+			}
+
+			if (!message.teamId) return;
+			const game = await this.gameFacade.findOne(roomId);
+			const teamMemberIds = new Set(
+				game.players
+					.filter((p) => p.teamId === message.teamId)
+					.map((p) => p.id),
+			);
+
+			const sockets = await this.server.in(roomId).fetchSockets();
+			for (const socket of sockets) {
+				const authSocket = socket as unknown as AuthenticatedSocket;
+				const userId = authSocket.data?.user?.id;
+				if (userId && teamMemberIds.has(userId)) {
+					authSocket.emit("chatMessage", dto);
+				}
+			}
+		} catch (error) {
+			this.logger.error(
+				`Error in handleChatMessageCreated: ${error}`,
+				error instanceof Error ? error.stack : undefined,
+			);
+		}
+	}
+
+	@OnEvent(SYSTEM_LOG_CREATED)
+	async handleSystemLogCreated(payload: SystemLogCreatedPayload) {
+		try {
+			const { roomId, log } = payload;
+			const dto = plainToInstance(SystemLogEntryResponseDto, log, {
+				excludeExtraneousValues: true,
+			});
+			if (log.isPrivate && log.targetUserId) {
+				const sockets = await this.server.in(roomId).fetchSockets();
+				for (const socket of sockets) {
+					const authSocket = socket as unknown as AuthenticatedSocket;
+					if (authSocket.data?.user?.id === log.targetUserId) {
+						authSocket.emit("systemLog", dto);
+					}
+				}
+				return;
+			}
+
+			this.server.to(roomId).emit("systemLog", dto);
+		} catch (error) {
+			this.logger.error(
+				`Error in handleSystemLogCreated: ${error}`,
 				error instanceof Error ? error.stack : undefined,
 			);
 		}

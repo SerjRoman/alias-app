@@ -327,6 +327,7 @@
 		"spectators": "Глядачі",
 		"leaderTooltip": "Лідер (найбільше балів)",
 		"nextTurnTooltip": "Наступна команда",
+		"playingTurn": "Ходить",
 		"next": "Далі",
 		"pts": "балів",
 		"speakingNow": "Говорить зараз",
@@ -402,10 +403,64 @@
 		"publicRoom": "Публічна",
 		"hatMode": "Режим «Капелюх»",
 		"wordsShort": "слів",
+		"paused": "ПАУЗА",
+		"explainingNow": "Зараз пояснює",
+		"nextUp": "Наступний хід",
+		"roundWordsFeed": "Слова раунду",
+		"noWordsYet": "У цьому раунді ще немає слів.",
+		"skipWord": "Пропуск",
+		"correctWord": "Вгадав",
+		"waitingWord": "ОЧІКУВАННЯ...",
 		"voiceChat": "Голосовий чат",
 		"itemShop": "Магазин предметів",
 		"selectedPacks": "Обрані паки слів",
 		"tacticalItemShop": "Крамниця тактичних предметів",
+		"chat": {
+			"systemEventLog": "Системний журнал",
+			"liveChat": "Чат",
+			"channelAll": "Загальний",
+			"channelTeam": "Команда",
+			"teamTag": "Команда",
+			"placeholderAll": "Написати всім у кімнаті...",
+			"placeholderTeam": "Написати лише команді...",
+			"placeholderExplainerBlocked": "Командний чат закритий під час пояснення",
+			"explainerBlockedHint": "Ви не можете писати в командний чат, поки пояснюєте слова. Перемкніться на Загальний.",
+			"sendMessage": "Надіслати повідомлення",
+			"emptyLogs": "Системних подій поки немає",
+			"emptyMessages": "Повідомлень поки немає",
+			"logTypes": {
+				"info": "інфо",
+				"effect": "ефект",
+				"leader": "лідер",
+				"round": "раунд",
+				"admin": "адмін",
+				"private": "особисто"
+			}
+		},
+		"systemLogs": {
+			"itemUsedPlayer": "{{playerName}} застосував ефект «{{itemName}}» на {{targetName}}",
+			"itemUsedTeam": "{{playerName}} застосував ефект «{{itemName}}» на команду {{targetName}}",
+			"itemUsedSelf": "{{playerName}} використав «{{itemName}}»",
+			"itemPurchasedPrivate": "Ви купили «{{itemName}}» за {{cost}} монет (баланс: {{balance}})",
+			"newLeader": "Команда {{teamName}} виходить у лідери ({{score}} очк.)!",
+			"roundStarted": "Почався раунд {{roundNumber}} ({{teamName}}, пояснює {{explainerName}})",
+			"roundEnded": "Закінчився раунд {{roundNumber}}: команда {{teamName}} заробила {{earnedPoints}} очк.",
+			"explainerTeamChatBlocked": "Ви не можете писати в командний чат під час пояснення слів.",
+			"spectatorTeamChatBlocked": "Глядачі можуть писати лише в загальний чат.",
+			"adminAction": {
+				"kickPlayer": "Адмін {{adminName}} вигнав {{targetName}}",
+				"banPlayer": "Адмін {{adminName}} забанив {{targetName}}",
+				"setExplainer": "Адмін {{adminName}} призначив пояснювачем {{targetName}}",
+				"assignPlayerToTeam": "Адмін {{adminName}} перемістив {{targetName}}",
+				"shufflePlayers": "Адмін {{adminName}} перемішав гравців",
+				"changeRoundTime": "Адмін {{adminName}} змінив час раунду на {{seconds}} сек.",
+				"startRound": "Адмін {{adminName}} примусово запустив раунд",
+				"startPointing": "Адмін {{adminName}} примусово перейшов до розбору слів",
+				"pauseGame": "Адмін {{adminName}} поставив гру на паузу",
+				"resumeGame": "Адмін {{adminName}} відновив гру",
+				"endGame": "Адмін {{adminName}} завершив гру"
+			}
+		},
 		"items": {
 			"TIMER_PLUS_10": "Машина часу (на 10 сек)",
 			"DOUBLE_POINTS": "Подвійний кешбек",
@@ -414,7 +469,12 @@
 			"WORD_SWAP": "Підміна понять",
 			"ENEMY_SKIP_PENALTY": "Кармічний бумеранг",
 			"FOG_WORD": "Їжачок у тумані",
-			"VOICE_MUTE": "Обітниця мовчання"
+			"VOICE_MUTE": "Обітниця мовчання",
+			"CLEANSE": "Свята вода",
+			"EXTRA_TIME": "Гумовий таймер",
+			"TIME_DRAIN": "Хроно-пилосос",
+			"FLIP_WORD": "Австралійський режим",
+			"REROLL_WORD": "Ой, не те слово"
 		},
 		"itemDescriptions": {
 			"TIMER_PLUS_10": "Додає +10 секунд до таймера активного раунду",
@@ -424,7 +484,12 @@
 			"WORD_SWAP": "Замінює поточне слово на нове",
 			"ENEMY_SKIP_PENALTY": "Штрафує команду суперника на −2 бали за кожен пропуск слова",
 			"FOG_WORD": "Ховає поточне слово в тумані",
-			"VOICE_MUTE": "Вимикає мікрофон гравцю суперника на 5 секунд"
+			"VOICE_MUTE": "Вимикає мікрофон гравцю суперника на 5 секунд",
+			"CLEANSE": "Знімає всі активні негативні ефекти зі своєї команди та її гравців",
+			"EXTRA_TIME": "Додає 10 секунд до таймера поточного раунду своєї команди",
+			"TIME_DRAIN": "Віднімає 5 секунд від таймера поточного раунду команди суперника",
+			"FLIP_WORD": "Перевертає слово на екрані пояснюючого суперника на 8 секунд",
+			"REROLL_WORD": "Змінює поточне слово на нове зі словника без штрафу і без запису в пропуск"
 		}
 	},
 	"teamNames": {

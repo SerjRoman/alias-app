@@ -130,7 +130,6 @@
 	background: rgba(16, 185, 129, 0.28);
 	border-color: rgba(16, 185, 129, 0.65);
 	color: #6ee7b7;
-	transform: translateY(-1px);
 }
 
 /* Shop Catalog Grid */
@@ -156,7 +155,6 @@
 .shopCard:hover {
 	border-color: var(--game-color-info);
 	background: var(--game-bg-card-hover);
-	transform: translateY(-1px);
 }
 
 .shopCardInfo {

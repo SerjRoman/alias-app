@@ -25,3 +25,10 @@ export {
 	type EffectTargetType,
 	type PendingTargetItem,
 } from "./player-state.slice";
+export {
+	useChatSlice,
+	type ChatChannel,
+	type ChatMessage,
+	type SystemLogEntry,
+	type SystemLogType,
+} from "./chat.slice";

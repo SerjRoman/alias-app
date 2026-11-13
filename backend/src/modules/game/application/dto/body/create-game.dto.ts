@@ -114,4 +114,9 @@ export class CreateGameDto {
 	@IsBoolean()
 	@IsOptional()
 	isShopEnabled?: boolean = false;
+
+	@ApiProperty({ type: Boolean, default: false, required: false })
+	@IsBoolean()
+	@IsOptional()
+	isBettingEnabled?: boolean = false;
 }

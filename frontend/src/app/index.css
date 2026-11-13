@@ -206,6 +206,19 @@
 	}
 }
 
+html,
+body {
+	overscroll-behavior: none;
+}
+
+html.game-scroll-lock,
+body.game-scroll-lock {
+	overflow: hidden;
+	height: 100dvh;
+	max-height: 100dvh;
+	overscroll-behavior: none;
+}
+
 body {
 	font-family:
 		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",

@@ -1,13 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import {
-	Sliders,
-	ShoppingBag,
-	Coins,
-	Volume2,
-	BookOpen,
-	Settings2,
-} from "lucide-react";
+import { ShoppingBag, Coins, BookOpen, Settings2 } from "lucide-react";
 import { useGameSlice } from "@entities/game";
 import { useQuery } from "@shared/api";
 import { Button } from "@shared/ui";
@@ -45,8 +38,6 @@ export function SettingsTab({
 	onBuyItem,
 }: Readonly<SettingsTabProps>) {
 	const { t } = useTranslation();
-	const [volume, setVolume] = useState(80);
-	const [micSensitivity, setMicSensitivity] = useState(65);
 
 	const settings = useGameSlice((state) => state.game?.settings);
 	const hasPackSelections = Boolean(settings?.wordPackSelections?.length);
@@ -70,41 +61,6 @@ export function SettingsTab({
 
 	return (
 		<div className={`${styles.settingsContainer} game-scroll`}>
-			{/* Audio Settings */}
-			<div className={styles.settingGroup}>
-				<div className={styles.settingHeader}>
-					<Volume2 size={15} color="#38bdf8" />
-					<span>
-						{t("gameView.sfxVolume")} ({volume}%)
-					</span>
-				</div>
-				<input
-					type="range"
-					min="0"
-					max="100"
-					value={volume}
-					onChange={(e) => setVolume(Number(e.target.value))}
-					className={styles.settingInput}
-				/>
-			</div>
-
-			<div className={styles.settingGroup}>
-				<div className={styles.settingHeader}>
-					<Sliders size={15} color="#10b981" />
-					<span>
-						{t("gameView.micThreshold")} ({micSensitivity}%)
-					</span>
-				</div>
-				<input
-					type="range"
-					min="0"
-					max="100"
-					value={micSensitivity}
-					onChange={(e) => setMicSensitivity(Number(e.target.value))}
-					className={styles.settingInput}
-				/>
-			</div>
-
 			{/* Current Game Settings */}
 			{settings && (
 				<div className={styles.shopSectionContainer}>
@@ -169,6 +125,18 @@ export function SettingsTab({
 							</span>
 							<span className={styles.gameSettingValue}>
 								{settings.isShopEnabled
+									? t("gameView.enabled")
+									: t("gameView.disabled")}
+							</span>
+						</div>
+						<div className={styles.gameSettingRow}>
+							<span className={styles.gameSettingLabel}>
+								{t("gameView.betting", {
+									defaultValue: "Ставки",
+								})}
+							</span>
+							<span className={styles.gameSettingValue}>
+								{settings.isBettingEnabled
 									? t("gameView.enabled")
 									: t("gameView.disabled")}
 							</span>

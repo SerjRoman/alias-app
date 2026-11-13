@@ -3,7 +3,14 @@ import { GameError } from "../errors/game.errors";
 import { GameErrorCode } from "../errors/error-codes";
 
 export type ShopItemTarget = "self_team" | "enemy_team" | "enemy_player";
-export type ShopItemDurationType = "round" | "charges" | "seconds";
+export type ShopItemDurationType = "round" | "charges" | "seconds" | "instant";
+
+export const DEBUFF_EFFECT_IDS: ReadonlySet<EffectItemId> = new Set([
+	"ENEMY_SKIP_PENALTY",
+	"FREEZE_NEXT_WORD",
+	"VOICE_MUTE",
+	"FLIP_WORD",
+]);
 
 export interface ShopCatalogItem {
 	readonly id: EffectItemId;
@@ -66,6 +73,52 @@ export const SHOP_CATALOG: readonly ShopCatalogItem[] = Object.freeze([
 		durationType: "seconds",
 		durationSeconds: 5,
 		requiresSetting: "isVoiceChatEnabled",
+	},
+	{
+		id: "CLEANSE",
+		name: "Антидот",
+		description:
+			"Снимает все активные негативные эффекты со своей команды и её игроков",
+		price: 10,
+		target: "self_team",
+		durationType: "instant",
+	},
+	{
+		id: "EXTRA_TIME",
+		name: "+10 секунд",
+		description:
+			"Добавляет 10 секунд к таймеру текущего раунда своей команды",
+		price: 12,
+		target: "self_team",
+		durationType: "instant",
+	},
+	{
+		id: "TIME_DRAIN",
+		name: "-5 секунд",
+		description:
+			"Отнимает 5 секунд от таймера текущего раунда команды соперника",
+		price: 12,
+		target: "enemy_team",
+		durationType: "instant",
+	},
+	{
+		id: "FLIP_WORD",
+		name: "Перевёртыш",
+		description:
+			"Переворачивает слово на экране объясняющего соперника на 8 секунд",
+		price: 10,
+		target: "enemy_player",
+		durationType: "seconds",
+		durationSeconds: 8,
+	},
+	{
+		id: "REROLL_WORD",
+		name: "Замена слова",
+		description:
+			"Меняет текущее слово на новое из словаря без штрафа и без записи в пропуск",
+		price: 8,
+		target: "self_team",
+		durationType: "instant",
 	},
 ]);
 

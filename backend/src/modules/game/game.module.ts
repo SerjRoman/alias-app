@@ -62,6 +62,9 @@ import { WordPackModule } from "../word-pack/word-pack.module";
 import { WORD_PACK_CLIENT } from "./application/word-pack-client.interface";
 import { LocalWordPackClient } from "./infrastructure/local-word-pack-client";
 import { RoomFifoQueueService } from "./application/room-fifo-queue.service";
+import { RedisChatRepository } from "./infrastructure/redis-chat.repository";
+import { GameChatService } from "./application/chat/game-chat.service";
+import { ChatSystemEventsListener } from "./application/chat/chat-system-events.listener";
 
 @Module({
 	imports: [WordPackModule],
@@ -74,6 +77,9 @@ import { RoomFifoQueueService } from "./application/room-fifo-queue.service";
 		VoiceService,
 		CleanupGameResourcesHandler,
 		EffectExpiredHandler,
+		RedisChatRepository,
+		GameChatService,
+		ChatSystemEventsListener,
 		GameFacade,
 		PlayerFacade,
 		RoundFacade,

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Check, X } from "lucide-react";
 import type { WordState } from "@entities/game";
 import { Button } from "@shared/ui";
@@ -6,6 +7,8 @@ import styles from "./explainer-view.module.css";
 interface ExplainerViewProps {
 	currentWordText: string;
 	guessedWords: WordState[];
+	isWordFlipped?: boolean;
+	isFrozen?: boolean;
 	onCorrect: () => void;
 	onSkip: () => void;
 }
@@ -13,9 +16,12 @@ interface ExplainerViewProps {
 export function ExplainerView({
 	currentWordText,
 	guessedWords,
+	isWordFlipped = false,
+	isFrozen = false,
 	onCorrect,
 	onSkip,
 }: Readonly<ExplainerViewProps>) {
+	const { t } = useTranslation();
 	const roundPoints = guessedWords.reduce(
 		(acc, w) => acc + (w.score || 0),
 		0,
@@ -23,9 +29,18 @@ export function ExplainerView({
 
 	return (
 		<div className={styles.stageGrid}>
-			<div className={styles.wordCard}>
-				<div className={styles.targetWord}>
-					{currentWordText || "WAITING..."}
+			<div
+				className={`${styles.wordCard} ${isFrozen ? styles.frozenCard : ""}`}
+			>
+				<div
+					key={currentWordText || "waiting"}
+					className={styles.wordPopWrapper}
+				>
+					<div
+						className={`${styles.targetWord} ${isWordFlipped ? styles.flippedWord : ""}`}
+					>
+						{currentWordText || t("gameView.waitingWord")}
+					</div>
 				</div>
 
 				<div className={styles.actionButtons}>
@@ -33,38 +48,45 @@ export function ExplainerView({
 						type="button"
 						variant="primary"
 						size="large"
+						disabled={isFrozen}
 						className={`${styles.btnAction} ${styles.btnSkip}`}
 						onClick={onSkip}
-						title="Skip word"
+						title={`${t("gameView.skipWord")} (E)`}
 					>
 						<X size={20} />
-						<span>Skip</span>
+						<span>{t("gameView.skipWord")}</span>
+						<kbd className={styles.kbdHint}>E</kbd>
 					</Button>
 
 					<Button
 						type="button"
 						variant="primary"
 						size="large"
+						disabled={isFrozen}
 						className={`${styles.btnAction} ${styles.btnCorrect}`}
 						onClick={onCorrect}
-						title="Word guessed correctly"
+						title={`${t("gameView.correctWord")} (Q)`}
 					>
 						<Check size={20} />
-						<span>Correct</span>
+						<span>{t("gameView.correctWord")}</span>
+						<kbd className={styles.kbdHint}>Q</kbd>
 					</Button>
 				</div>
 			</div>
 
 			<div className={styles.feedCard}>
 				<div className={styles.feedHeader}>
-					<span className={styles.feedTitle}>Round Words Feed</span>
+					<span className={styles.feedTitle}>
+						{t("gameView.roundWordsFeed")}
+					</span>
 
 					<div className={styles.feedHeaderActions}>
 						<span
 							className={`${styles.roundScoreTotal} ${roundPoints >= 0 ? styles.positive : styles.negative}`}
 						>
 							{roundPoints >= 0 ? `+${roundPoints}` : roundPoints}{" "}
-							pts ({guessedWords.length} words)
+							{t("gameView.pts")} ({guessedWords.length}{" "}
+							{t("gameView.wordsShort")})
 						</span>
 					</div>
 				</div>
@@ -79,7 +101,7 @@ export function ExplainerView({
 								fontSize: "12px",
 							}}
 						>
-							No words scored yet this turn. Explain the word!
+							{t("gameView.noWordsYet")}
 						</div>
 					) : (
 						guessedWords.map((item) => {

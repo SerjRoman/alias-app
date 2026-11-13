@@ -2,9 +2,10 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background: var(--game-bg-panel);
+	background: color-mix(in srgb, var(--game-bg-panel) 94%, transparent);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	overflow: hidden;
 }
 
@@ -104,12 +105,24 @@
 	font-size: var(--font-size-sm);
 }
 
+@keyframes chatFadeSlideIn {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
 .logItem {
 	display: flex;
 	align-items: flex-start;
 	gap: var(--space-sm);
 	line-height: var(--line-height-snug);
 	color: var(--game-text-secondary);
+	animation: chatFadeSlideIn 0.18s ease-out;
 }
 
 .logTime {
@@ -151,6 +164,68 @@
 .logTypeInfo {
 	background: var(--game-color-info-bg);
 	color: var(--game-color-info-hover);
+}
+
+.logTypeEffect {
+	background: rgba(168, 85, 247, 0.16);
+	color: #c084fc;
+}
+
+.logTypeLeader {
+	background: rgba(250, 204, 21, 0.16);
+	color: #facc15;
+}
+
+.logTypeRound {
+	background: rgba(56, 189, 248, 0.16);
+	color: #38bdf8;
+}
+
+.logTypeAdmin {
+	background: rgba(249, 115, 22, 0.18);
+	color: #fb923c;
+}
+
+.logTypePrivate {
+	background: rgba(244, 63, 94, 0.16);
+	color: #fb7185;
+}
+
+.logItemPrivate {
+	background: rgba(244, 63, 94, 0.08);
+	border-left: 2px solid #fb7185;
+	padding: 2px 6px;
+	border-radius: var(--radius-xs);
+}
+
+.unreadBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 16px;
+	height: 16px;
+	padding: 0 4px;
+	border-radius: 999px;
+	background: var(--game-color-info);
+	color: var(--color-text-light);
+	font-size: 10px;
+	font-weight: var(--font-weight-extrabold);
+}
+
+.emptyHint {
+	color: var(--game-text-dim);
+	font-size: var(--font-size-xs);
+	text-align: center;
+	padding: var(--space-md) 0;
+}
+
+.explainerNotice {
+	padding: 4px var(--space-md);
+	font-size: var(--font-size-xs);
+	color: var(--game-color-warning);
+	background: var(--game-color-warning-bg);
+	border-top: 1px solid var(--game-border-subtle);
+	text-align: center;
 }
 
 .chatSection {
@@ -203,6 +278,7 @@
 	border: 1px solid var(--game-border-subtle);
 	padding: var(--space-xs) var(--space-md);
 	border-radius: var(--radius-md);
+	animation: chatFadeSlideIn 0.18s ease-out;
 }
 
 .messageMeta {
@@ -384,32 +460,6 @@
 	gap: var(--space-xl);
 	overflow-y: auto;
 	height: 100%;
-}
-
-.settingGroup {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-xs);
-}
-
-.settingLabel {
-	font-size: var(--font-size-base);
-	font-weight: var(--font-weight-bold);
-	color: var(--game-text-primary);
-}
-
-.settingInput {
-	width: 100%;
-	accent-color: var(--game-color-info);
-}
-
-.settingHeader {
-	display: flex;
-	align-items: center;
-	gap: var(--space-xs);
-	font-size: var(--font-size-sm);
-	font-weight: var(--font-weight-bold);
-	color: var(--game-text-primary);
 }
 
 .gameSettingsCard {

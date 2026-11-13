@@ -31,3 +31,9 @@ export {
 	PlayerShopAddonDto,
 	PlayerAddonsStateDto,
 } from "./game-addons.dto";
+export {
+	ChatActionResponseDto,
+	ChatMessageResponseDto,
+	SystemLogEntryResponseDto,
+	ChatHistoryResponseDto,
+} from "./chat-response.dto";

@@ -2,11 +2,13 @@
 	display: flex;
 	flex-direction: column;
 	height: 100%;
-	background: var(--game-bg-stage);
+	background: color-mix(in srgb, var(--game-bg-stage) 90%, transparent);
+	backdrop-filter: blur(8px);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	padding: var(--space-2xl);
-	gap: var(--space-2xl);
+	gap: var(--space-xl);
 	overflow: hidden;
 	position: relative;
 }
@@ -32,6 +34,35 @@
 	gap: var(--space-sm);
 }
 
+.effectsHud {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: var(--space-xs);
+	flex-shrink: 0;
+}
+
+.effectHudPill {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 10px;
+	border-radius: 999px;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	background: rgba(168, 85, 247, 0.16);
+	border: 1px solid rgba(168, 85, 247, 0.4);
+	color: #d8b4fe;
+}
+
+.effectCharges {
+	padding: 1px 5px;
+	border-radius: 999px;
+	background: rgba(168, 85, 247, 0.3);
+	font-size: 10px;
+}
+
 /* Expanded Lower Dock: Shop & Betting Tabs Container */
 .expandedDock {
 	height: var(--space-dock-height);
@@ -45,6 +76,11 @@
 	flex-shrink: 0;
 }
 
+.expandedDock.collapsed {
+	height: auto;
+	min-height: 0;
+}
+
 .dockNav {
 	display: flex;
 	align-items: center;
@@ -53,6 +89,10 @@
 	background: var(--game-bg-header);
 	border-bottom: 1px solid var(--game-border-default);
 	flex-shrink: 0;
+}
+
+.expandedDock.collapsed .dockNav {
+	border-bottom: none;
 }
 
 .dockTabs {
@@ -87,6 +127,12 @@
 	color: var(--game-color-cyan-active);
 }
 
+.dockRightActions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+}
+
 .dockWalletInfo {
 	display: flex;
 	align-items: center;
@@ -98,4 +144,28 @@
 	border: 1px solid var(--game-color-warning-border);
 	padding: var(--space-3xs) var(--space-sm);
 	border-radius: var(--radius-md);
+}
+
+.dockToggleBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-md);
+	color: var(--game-text-muted);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease,
+		border-color 0.15s ease;
+}
+
+.dockToggleBtn:hover {
+	color: var(--game-text-primary);
+	background: var(--game-bg-elevated, rgba(255, 255, 255, 0.06));
+	border-color: var(--game-border-hover, var(--game-border-default));
 }

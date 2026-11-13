@@ -2,33 +2,37 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { MessageSquare, Target, Settings } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@shared/ui";
-import { useQuery } from "@shared/api";
+import { useAuth, useQuery } from "@shared/api";
 import {
+	RoundStatus,
+	useChatSlice,
 	useGameSlice,
 	usePrivatePlayerSlice,
+	type ChatChannel,
 	type EffectItemId,
 } from "@entities/game";
 import { useActiveGameActions } from "../../../api/use-active-game-actions";
-import type {
-	ChatMessage,
-	SystemLogEntry,
-	GameQuest,
-} from "../../../api/game-stubs";
+import type { GameQuest } from "../../../api/game-stubs";
 import { ChatLogTab } from "./chat-log-tab";
 import { QuestsTab } from "./quests-tab";
 import { SettingsTab } from "./settings-tab";
 import styles from "./right-sidebar.module.css";
 
-const EMPTY_MESSAGES: ChatMessage[] = [];
-const EMPTY_LOGS: SystemLogEntry[] = [];
 const EMPTY_QUESTS: GameQuest[] = [];
 
 export function RightSidebar() {
 	const { t } = useTranslation();
+	const { user } = useAuth();
 	const roomId = useGameSlice((state) => state.game?.id ?? "");
+	const currentRound = useGameSlice((state) => state.game?.currentRound);
+	const teams = useGameSlice((state) => state.game?.teams ?? []);
 	const walletBalance = usePrivatePlayerSlice((state) => state.balance);
-	const { buyItem } = useActiveGameActions();
-	const [channel, setChannel] = useState<"all" | "team">("all");
+	const messages = useChatSlice((state) => state.messages);
+	const logs = useChatSlice((state) => state.logs);
+	const unreadCount = useChatSlice((state) => state.unreadCount);
+	const setChatTabActive = useChatSlice((state) => state.setChatTabActive);
+	const { buyItem, sendChatMessage } = useActiveGameActions();
+	const [channel, setChannel] = useState<ChatChannel>("all");
 
 	const { data: shopCatalog } = useQuery(
 		"get",
@@ -43,13 +47,19 @@ export function RightSidebar() {
 		},
 	);
 
-	const isChatLogEnabled = false;
-	const messages = EMPTY_MESSAGES;
-	const logs = EMPTY_LOGS;
+	const hasTeam = Boolean(
+		user?.id && teams.some((team) => team.playerIds?.includes(user.id)),
+	);
+	const isActiveExplainer = Boolean(
+		user?.id &&
+			currentRound?.status === RoundStatus.IN_PROGRESS &&
+			currentRound.explainerId === user.id,
+	);
 	const quests = EMPTY_QUESTS;
 
-	const handleSendMessage = () => {
-		// TODO: wire chat slice/socket when ready
+	const handleSendMessage = (text: string) => {
+		if (!roomId) return;
+		sendChatMessage(roomId, channel, text);
 	};
 
 	const handleClaimQuest = () => {
@@ -64,15 +74,21 @@ export function RightSidebar() {
 
 	return (
 		<aside className={styles.sidebar}>
-			<Tabs defaultValue={isChatLogEnabled ? "chat" : "quests"}>
+			<Tabs
+				defaultValue="chat"
+				onValueChange={(value) => setChatTabActive(value === "chat")}
+			>
 				{/* Top Tab Switcher */}
 				<TabsList variant="default">
-					{isChatLogEnabled && (
-						<TabsTrigger value="chat" variant="default">
-							<MessageSquare size={14} />
-							<span>{t("gameView.chatLogTab")}</span>
-						</TabsTrigger>
-					)}
+					<TabsTrigger value="chat" variant="default">
+						<MessageSquare size={14} />
+						<span>{t("gameView.chatLogTab")}</span>
+						{unreadCount > 0 && (
+							<span className={styles.unreadBadge}>
+								{unreadCount > 99 ? "99+" : unreadCount}
+							</span>
+						)}
+					</TabsTrigger>
 
 					<TabsTrigger value="quests" variant="default">
 						<Target size={14} />
@@ -86,17 +102,17 @@ export function RightSidebar() {
 				</TabsList>
 
 				{/* Tab Content */}
-				{isChatLogEnabled && (
-					<TabsContent value="chat" className={styles.tabContent}>
-						<ChatLogTab
-							messages={messages}
-							logs={logs}
-							channel={channel}
-							onChannelChange={setChannel}
-							onSendMessage={handleSendMessage}
-						/>
-					</TabsContent>
-				)}
+				<TabsContent value="chat" className={styles.tabContent}>
+					<ChatLogTab
+						messages={messages}
+						logs={logs}
+						channel={channel}
+						hasTeam={hasTeam}
+						isActiveExplainer={isActiveExplainer}
+						onChannelChange={setChannel}
+						onSendMessage={handleSendMessage}
+					/>
+				</TabsContent>
 
 				<TabsContent value="quests" className={styles.tabContent}>
 					<QuestsTab quests={quests} onClaim={handleClaimQuest} />

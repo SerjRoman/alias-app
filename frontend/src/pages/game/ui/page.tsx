@@ -51,7 +51,7 @@ export function GamePage() {
 		},
 		{
 			enabled:
-				!!game?.settings.isVoiceChatEnabled && !!(game?.id || roomId),
+				!!game?.settings?.isVoiceChatEnabled && !!(game?.id || roomId),
 		},
 	);
 	const liveKitUrl = import.meta.env.VITE_LIVEKIT_URL;
@@ -91,7 +91,7 @@ export function GamePage() {
 	}, []);
 
 	useEffect(() => {
-		if (!game?.settings.isVoiceChatEnabled) {
+		if (!game?.settings?.isVoiceChatEnabled) {
 			clearVoiceToken();
 			return;
 		}
@@ -102,7 +102,7 @@ export function GamePage() {
 		data,
 		setVoiceToken,
 		voiceToken,
-		game?.settings.isVoiceChatEnabled,
+		game?.settings?.isVoiceChatEnabled,
 		clearVoiceToken,
 	]);
 
@@ -117,7 +117,7 @@ export function GamePage() {
 	const { isAssistantDisabled } = useUserSettings();
 	const assistantMessage = useGameAssistant(game, user?.id || "");
 	const assistantState = useAssistant(assistantMessage);
-	const hasVoice = !!(voiceToken && game?.settings.isVoiceChatEnabled);
+	const hasVoice = !!(voiceToken && game?.settings?.isVoiceChatEnabled);
 
 	const prevVoiceConnectedRef = useRef(false);
 	useEffect(() => {
@@ -242,7 +242,7 @@ export function GamePage() {
 			)}
 
 			<div className={styles.container}>
-				<h1 className={styles.title}>{game.settings.name}</h1>
+				<h1 className={styles.title}>{game.settings?.name}</h1>
 				{currentView}
 			</div>
 

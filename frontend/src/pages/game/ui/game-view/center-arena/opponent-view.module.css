@@ -3,8 +3,85 @@
 	flex: 1;
 	display: flex;
 	flex-direction: column;
+	gap: var(--space-md);
 	min-height: 0;
 	width: 100%;
+}
+
+.liveTurnBanner {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-md);
+	padding: var(--space-sm) var(--space-lg);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--game-card-shadow);
+	flex-shrink: 0;
+}
+
+.liveTurnLeft {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+}
+
+@keyframes liveDotPulse {
+	0%,
+	100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.45;
+		transform: scale(0.82);
+	}
+}
+
+.livePulseDot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: #10b981;
+	box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+	animation: liveDotPulse 1.5s ease-in-out infinite;
+	flex-shrink: 0;
+}
+
+.liveTurnText {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.2;
+}
+
+.liveTurnLabel {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: var(--font-weight-bold);
+}
+
+.liveTurnName {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-extrabold);
+	color: var(--game-text-primary);
+}
+
+.liveTeamBadge {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	padding: 3px 10px;
+	border-radius: 999px;
+	border: 1px solid transparent;
+}
+
+.emptyFeed {
+	text-align: center;
+	padding: 28px 12px;
+	color: var(--game-text-muted);
+	font-size: var(--font-size-sm);
 }
 
 /* Guessed Words Feed */
@@ -14,8 +91,10 @@
 	background: var(--game-bg-panel);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	overflow: hidden;
-	height: 100%;
+	flex: 1;
+	min-height: 0;
 }
 
 .feedHeader {

@@ -1,9 +1,12 @@
 import {
 	useGameSlice,
 	usePrivatePlayerSlice,
+	useChatSlice,
 	RoundStatus,
 	type PrivatePlayerState,
 	type WordState,
+	type ChatMessage,
+	type SystemLogEntry,
 } from "@entities/game";
 import { socketClient, useAuth } from "@shared/api";
 import { useEffect } from "react";
@@ -21,6 +24,10 @@ export function useActiveGameSync() {
 	const setPlayerState = usePrivatePlayerSlice(
 		(state) => state.setPlayerState,
 	);
+	const setChatHistory = useChatSlice((state) => state.setHistory);
+	const addChatMessage = useChatSlice((state) => state.addMessage);
+	const addSystemLog = useChatSlice((state) => state.addLog);
+	const resetChat = useChatSlice((state) => state.resetChat);
 	const { user } = useAuth();
 
 	useEffect(() => {
@@ -30,18 +37,45 @@ export function useActiveGameSync() {
 		function handlePrivateState(state: PrivatePlayerState) {
 			setPlayerState(state);
 		}
+		function handleChatHistory(data: {
+			messages: ChatMessage[];
+			logs: SystemLogEntry[];
+		}) {
+			setChatHistory(data.messages, data.logs);
+		}
+		function handleChatMessage(msg: ChatMessage) {
+			addChatMessage(msg);
+		}
+		function handleSystemLog(log: SystemLogEntry) {
+			addSystemLog(log);
+		}
 
 		socketClient.on("explainerWord", handleWord);
 		socketClient.on("privateStateUpdated", handlePrivateState);
+		socketClient.on("chatHistory", handleChatHistory);
+		socketClient.on("chatMessage", handleChatMessage);
+		socketClient.on("systemLog", handleSystemLog);
 
 		return () => {
 			socketClient.off("explainerWord", handleWord);
 			socketClient.off("privateStateUpdated", handlePrivateState);
+			socketClient.off("chatHistory", handleChatHistory);
+			socketClient.off("chatMessage", handleChatMessage);
+			socketClient.off("systemLog", handleSystemLog);
 		};
-	}, [setCurrentWord, setPlayerState]);
+	}, [
+		setCurrentWord,
+		setPlayerState,
+		setChatHistory,
+		addChatMessage,
+		addSystemLog,
+	]);
 
 	useEffect(() => {
-		if (!roomId) return;
+		if (!roomId) {
+			resetChat();
+			return;
+		}
 		socketClient.emit(
 			"getPrivateState",
 			{ roomId },
@@ -51,7 +85,16 @@ export function useActiveGameSync() {
 				}
 			},
 		);
-	}, [roomId, setPlayerState]);
+		socketClient.emit(
+			"getChatHistory",
+			{ roomId },
+			(history: { messages: ChatMessage[]; logs: SystemLogEntry[] } | null) => {
+				if (history) {
+					setChatHistory(history.messages, history.logs);
+				}
+			},
+		);
+	}, [roomId, setPlayerState, setChatHistory, resetChat]);
 
 	useEffect(() => {
 		if (

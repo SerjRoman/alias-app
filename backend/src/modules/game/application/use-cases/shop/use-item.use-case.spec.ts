@@ -4,6 +4,7 @@ import type { UseItemDto } from "../../dto/body";
 import type { GameSharedService } from "../../game-shared.service";
 import type { IGameRepository } from "../../game.repository.interface";
 import type { RoundScheduler } from "../../round-scheduler.service";
+import type { DictionaryService } from "../../dictionary.service";
 import { RoomFifoQueueService } from "../../room-fifo-queue.service";
 import { UseItemUseCase } from "./use-item.use-case";
 import { GameEngine } from "../../../domain/engine/game-engine";
@@ -22,6 +23,7 @@ describe("UseItemUseCase - Strict TDD", () => {
 	let gameRepository: jest.Mocked<IGameRepository>;
 	let eventEmitter: jest.Mocked<EventEmitter2>;
 	let roundScheduler: jest.Mocked<RoundScheduler>;
+	let dictionaryService: jest.Mocked<DictionaryService>;
 
 	const roomId = "room-use-item-123";
 	const playerId = "player-1";
@@ -105,7 +107,13 @@ describe("UseItemUseCase - Strict TDD", () => {
 
 		roundScheduler = {
 			scheduleEffectTimeout: jest.fn(),
+			clearEffectTimeout: jest.fn(),
+			changeRoundTime: jest.fn(),
 		} as unknown as jest.Mocked<RoundScheduler>;
+
+		dictionaryService = {
+			popWordForGame: jest.fn().mockResolvedValue("GALAXY"),
+		} as unknown as jest.Mocked<DictionaryService>;
 
 		useCase = new UseItemUseCase(
 			fifoQueue,
@@ -113,6 +121,7 @@ describe("UseItemUseCase - Strict TDD", () => {
 			gameRepository,
 			eventEmitter,
 			roundScheduler,
+			dictionaryService,
 		);
 	});
 
@@ -222,5 +231,74 @@ describe("UseItemUseCase - Strict TDD", () => {
 		await expect(useCase.execute(dto, actor)).rejects.toThrow(
 			ItemNotInInventoryError,
 		);
+	});
+
+	it("uses EXTRA_TIME and reschedules round timer via RoundScheduler.changeRoundTime", async () => {
+		const engine = createTestEngine();
+		ShopService.addItem(engine.getState(), playerId, {
+			id: "inv-extra-1",
+			itemId: "EXTRA_TIME",
+			purchasedAt: Date.now(),
+		});
+		gameSharedService.loadGame.mockResolvedValue(engine);
+
+		await useCase.execute(
+			{ roomId, inventoryItemId: "inv-extra-1" },
+			actor,
+		);
+
+		expect(roundScheduler.changeRoundTime).toHaveBeenCalledWith(
+			roomId,
+			10_000,
+		);
+	});
+
+	it("uses CLEANSE and clears scheduled effect timeouts for cleansed debuffs", async () => {
+		const engine = createTestEngine({
+			activeEffects: [
+				{
+					id: "eff-flip-1",
+					itemId: "FLIP_WORD",
+					sourcePlayerId: enemyId,
+					targetPlayerId: playerId,
+					status: "ACTIVE",
+					expiresAt: Date.now() + 8_000,
+				},
+			],
+		});
+		ShopService.addItem(engine.getState(), playerId, {
+			id: "inv-cleanse-1",
+			itemId: "CLEANSE",
+			purchasedAt: Date.now(),
+		});
+		gameSharedService.loadGame.mockResolvedValue(engine);
+
+		await useCase.execute(
+			{ roomId, inventoryItemId: "inv-cleanse-1" },
+			actor,
+		);
+
+		expect(roundScheduler.clearEffectTimeout).toHaveBeenCalledWith(
+			roomId,
+			"eff-flip-1",
+		);
+	});
+
+	it("uses REROLL_WORD, pops new word from DictionaryService, and replaces currentWord", async () => {
+		const engine = createTestEngine();
+		ShopService.addItem(engine.getState(), playerId, {
+			id: "inv-reroll-1",
+			itemId: "REROLL_WORD",
+			purchasedAt: Date.now(),
+		});
+		gameSharedService.loadGame.mockResolvedValue(engine);
+
+		const result = await useCase.execute(
+			{ roomId, inventoryItemId: "inv-reroll-1" },
+			actor,
+		);
+
+		expect(dictionaryService.popWordForGame).toHaveBeenCalledWith(roomId);
+		expect(result.currentRound?.currentWord?.text).toBe("GALAXY");
 	});
 });

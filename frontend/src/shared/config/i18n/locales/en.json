@@ -342,6 +342,7 @@
 		"spectators": "Spectators",
 		"leaderTooltip": "Leader (highest score)",
 		"nextTurnTooltip": "Next team to play",
+		"playingTurn": "Playing",
 		"next": "Next",
 		"pts": "pts",
 		"speakingNow": "Speaking now",
@@ -404,6 +405,52 @@
 		"waitingForHostNextRound": "Waiting for the host to start the next round",
 		"noWordsInRound": "No words were played in this round",
 		"chatLogTab": "Chat & Log",
+		"chat": {
+			"systemEventLog": "System Event Log",
+			"liveChat": "Live Chat",
+			"channelAll": "All",
+			"channelTeam": "Team",
+			"teamTag": "Team",
+			"placeholderAll": "Send message to room...",
+			"placeholderTeam": "Send to team only...",
+			"placeholderExplainerBlocked": "Team chat disabled while explaining",
+			"explainerBlockedHint": "You cannot write in Team chat while explaining words. Switch to All.",
+			"sendMessage": "Send message",
+			"emptyLogs": "No system events yet",
+			"emptyMessages": "No messages yet",
+			"logTypes": {
+				"info": "info",
+				"effect": "effect",
+				"leader": "leader",
+				"round": "round",
+				"admin": "admin",
+				"private": "private"
+			}
+		},
+		"systemLogs": {
+			"itemUsedPlayer": "{{playerName}} applied «{{itemName}}» on {{targetName}}",
+			"itemUsedTeam": "{{playerName}} applied «{{itemName}}» on team {{targetName}}",
+			"itemUsedSelf": "{{playerName}} used «{{itemName}}»",
+			"itemPurchasedPrivate": "You purchased «{{itemName}}» for {{cost}} coins (balance: {{balance}})",
+			"newLeader": "Team {{teamName}} takes the lead with {{score}} pts!",
+			"roundStarted": "Round {{roundNumber}} started ({{teamName}}, explainer: {{explainerName}})",
+			"roundEnded": "Round {{roundNumber}} ended: {{teamName}} earned {{earnedPoints}} pts",
+			"explainerTeamChatBlocked": "You cannot send messages to Team chat while explaining words.",
+			"spectatorTeamChatBlocked": "Spectators can only write in All chat.",
+			"adminAction": {
+				"kickPlayer": "Admin {{adminName}} kicked {{targetName}}",
+				"banPlayer": "Admin {{adminName}} banned {{targetName}}",
+				"setExplainer": "Admin {{adminName}} set explainer to {{targetName}}",
+				"assignPlayerToTeam": "Admin {{adminName}} moved {{targetName}}",
+				"shufflePlayers": "Admin {{adminName}} shuffled the teams",
+				"changeRoundTime": "Admin {{adminName}} set round time to {{seconds}}s",
+				"startRound": "Admin {{adminName}} force-started the round",
+				"startPointing": "Admin {{adminName}} force-started pointing",
+				"pauseGame": "Admin {{adminName}} paused the game",
+				"resumeGame": "Admin {{adminName}} resumed the game",
+				"endGame": "Admin {{adminName}} ended the game"
+			}
+		},
 		"questsTab": "Quests",
 		"settingsStoreTab": "Settings / Store",
 		"sfxVolume": "Game SFX Volume",
@@ -417,6 +464,14 @@
 		"publicRoom": "Public",
 		"hatMode": "Hat Mode",
 		"wordsShort": "words",
+		"paused": "PAUSED",
+		"explainingNow": "Explaining now",
+		"nextUp": "Up next",
+		"roundWordsFeed": "Round Words Feed",
+		"noWordsYet": "No words scored yet this round.",
+		"skipWord": "Skip",
+		"correctWord": "Correct",
+		"waitingWord": "WAITING...",
 		"voiceChat": "Voice Chat",
 		"itemShop": "Item Shop",
 		"selectedPacks": "Selected Word Packs",
@@ -429,7 +484,12 @@
 			"WORD_SWAP": "Word Swaparoony",
 			"ENEMY_SKIP_PENALTY": "Karma Boomerang",
 			"FOG_WORD": "Hedgehog in the Fog",
-			"VOICE_MUTE": "Vow of Silence"
+			"VOICE_MUTE": "Vow of Silence",
+			"CLEANSE": "Holy Water",
+			"EXTRA_TIME": "Rubber Timer (+10s)",
+			"TIME_DRAIN": "Time Vacuum (-5s)",
+			"FLIP_WORD": "Australian Mode",
+			"REROLL_WORD": "Oops, Wrong Word"
 		},
 		"itemDescriptions": {
 			"TIMER_PLUS_10": "Adds 10 seconds to the active round timer",
@@ -439,7 +499,12 @@
 			"WORD_SWAP": "Replaces the current word with a new one",
 			"ENEMY_SKIP_PENALTY": "Penalizes the enemy team by -2 points for each skipped word",
 			"FOG_WORD": "Hides the current word behind fog",
-			"VOICE_MUTE": "Mutes an enemy player's microphone for 5 seconds"
+			"VOICE_MUTE": "Mutes an enemy player's microphone for 5 seconds",
+			"CLEANSE": "Removes all active debuffs from your team and its players",
+			"EXTRA_TIME": "Adds 10 seconds to your team's current round timer",
+			"TIME_DRAIN": "Subtracts 5 seconds from the enemy team's current round timer",
+			"FLIP_WORD": "Flips the word upside down on the enemy explainer's screen for 8 seconds",
+			"REROLL_WORD": "Replaces the current word with a new one without penalty or skip record"
 		}
 	},
 	"teamNames": {

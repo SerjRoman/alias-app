@@ -103,12 +103,21 @@ export class GameSettingsDto implements GameSettings {
 	@Expose()
 	isHatMode: boolean;
 
-	@ApiPropertyOptional({
+	@ApiProperty({
 		description: "Whether the in-game shop is enabled",
 		example: false,
+		default: false,
 	})
 	@Expose()
-	isShopEnabled?: boolean;
+	isShopEnabled: boolean;
+
+	@ApiProperty({
+		description: "Whether in-game betting is enabled",
+		example: false,
+		default: false,
+	})
+	@Expose()
+	isBettingEnabled: boolean;
 }
 export class BaseGameResponseDto {
 	@ApiProperty({

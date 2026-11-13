@@ -1,15 +1,17 @@
 .gamePageLayout {
-	width: 100vw;
-	height: 100vh;
+	width: 100%;
+	height: 100dvh;
 	max-width: 100vw;
-	max-height: 100vh;
+	max-height: 100dvh;
 	padding: 0;
 	overflow: hidden;
+	overscroll-behavior: none;
 	background-color: var(--game-bg-root);
 	color: var(--game-text-primary);
 	display: grid;
 	grid-template-rows: auto 1fr;
 	box-sizing: border-box;
+	position: relative;
 
 	/* Override generic surface/hover tokens for shared Button inside dark game view */
 	--color-surface: var(--game-bg-card);
@@ -18,11 +20,70 @@
 	--color-border: var(--game-border-default);
 }
 
+/* Variant 1: Deep Tabletop (warm obsidian, soft elevation, subtle team glow) */
+.gamePageLayout[data-game-theme="tabletop"] {
+	--game-bg-root: #0d1016;
+	--game-bg-header: #12161f;
+	--game-bg-stage: #11151d;
+	--game-bg-panel: #161b25;
+	--game-bg-card: #1d2432;
+	--game-bg-card-hover: #242c3d;
+	--game-bg-surface-elevated: #273042;
+	--game-bg-input: #0e121a;
+	--game-border-subtle: rgba(255, 255, 255, 0.06);
+	--game-border-default: rgba(255, 255, 255, 0.09);
+	--game-border-strong: rgba(255, 255, 255, 0.16);
+	--game-card-shadow:
+		0 10px 30px -10px rgba(0, 0, 0, 0.55),
+		inset 0 1px 0 rgba(255, 255, 255, 0.06);
+	--game-word-card-bg: linear-gradient(165deg, #212838 0%, #171c28 100%);
+	--game-word-card-text: #f8fafc;
+	--game-word-card-border: rgba(255, 255, 255, 0.12);
+	background-image: radial-gradient(
+		ellipse 65% 55% at 50% 18%,
+		color-mix(in srgb, var(--active-team-color, #6366f1) 13%, transparent),
+		transparent 70%
+	);
+}
+
+/* Variant 2: Party Night (Jackbox / Codenames inspired indigo + physical cream word card) */
+.gamePageLayout[data-game-theme="party"] {
+	--game-bg-root: #140f26;
+	--game-bg-header: #1c1535;
+	--game-bg-stage: #191230;
+	--game-bg-panel: #21193e;
+	--game-bg-card: #2a204d;
+	--game-bg-card-hover: #352960;
+	--game-bg-surface-elevated: #3b2e6b;
+	--game-bg-input: #140e27;
+	--game-border-subtle: rgba(255, 255, 255, 0.09);
+	--game-border-default: rgba(216, 180, 254, 0.16);
+	--game-border-strong: rgba(216, 180, 254, 0.28);
+	--game-color-cyan-active: #fbbf24;
+	--game-card-shadow:
+		0 14px 34px -10px rgba(10, 4, 28, 0.7),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+	--game-word-card-bg: linear-gradient(175deg, #fffdf7 0%, #f5efe1 100%);
+	--game-word-card-text: #1c1917;
+	--game-word-card-border: #e7dec8;
+	background-image:
+		radial-gradient(
+			ellipse 70% 55% at 50% 20%,
+			color-mix(in srgb, var(--active-team-color, #a855f7) 20%, transparent),
+			transparent 68%
+		),
+		radial-gradient(
+			circle at 12% 85%,
+			rgba(251, 191, 36, 0.08),
+			transparent 45%
+		);
+}
+
 .mainStage {
 	display: grid;
 	grid-template-columns: var(--space-sidebar-left-width) 1fr var(--space-sidebar-right-width);
-	gap: var(--space-2xl);
-	padding: var(--space-2xl);
+	gap: var(--space-xl);
+	padding: var(--space-xl);
 	overflow: hidden;
 	height: 100%;
 	min-height: 0;
@@ -31,16 +92,26 @@
 
 @media (max-width: 1200px) {
 	.mainStage {
-		grid-template-columns: 290px 1fr 300px;
-		gap: var(--space-lg);
-		padding: var(--space-lg);
+		grid-template-columns: 270px 1fr 290px;
+		gap: var(--space-md);
+		padding: var(--space-md);
 	}
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
+	.gamePageLayout {
+		height: auto;
+		min-height: 100vh;
+		max-height: none;
+		overflow-y: auto;
+	}
+
 	.mainStage {
-		grid-template-columns: 260px 1fr 260px;
-		gap: var(--space-sm);
-		padding: var(--space-sm);
+		grid-template-columns: 1fr;
+		grid-template-rows: auto minmax(480px, auto) 420px;
+		height: auto;
+		overflow: visible;
+		gap: var(--space-md);
+		padding: var(--space-md);
 	}
 }

@@ -26,6 +26,8 @@ import type {
 	UseItemDto,
 	GetExplainerWordDto,
 	GetShopCatalogDto,
+	SendChatMessageDto,
+	GetChatHistoryDto,
 } from "../application/dto/body";
 import type {
 	GameResponseDetailsDto,
@@ -38,6 +40,10 @@ import type {
 	PrivatePlayerStateResponseDto,
 	ExplainerWordResponseDto,
 	ShopCatalogResponseDto,
+	ChatActionResponseDto,
+	ChatMessageResponseDto,
+	SystemLogEntryResponseDto,
+	ChatHistoryResponseDto,
 } from "../application/dto/response";
 import type { AuthenticatedUser } from "@common/types/authenticated-user";
 import type { ADMIN_EVENTS } from "./socket.events";
@@ -54,6 +60,9 @@ interface ServerToClientEvents {
 	privateStateUpdated: (dto: PrivatePlayerStateResponseDto) => void;
 	gameFinished: () => void;
 	gameDeleted: (data: { roomId: string }) => void;
+	chatMessage: (data: ChatMessageResponseDto) => void;
+	systemLog: (data: SystemLogEntryResponseDto) => void;
+	chatHistory: (data: ChatHistoryResponseDto) => void;
 }
 
 interface ClientToServerEvents {
@@ -87,6 +96,8 @@ interface ClientToServerEvents {
 	getShopCatalog?: (
 		dto: GetShopCatalogDto,
 	) => Promise<ShopCatalogResponseDto>;
+	sendChatMessage: (dto: SendChatMessageDto) => Promise<ChatActionResponseDto>;
+	getChatHistory: (dto: GetChatHistoryDto) => Promise<ChatHistoryResponseDto>;
 	[ADMIN_EVENTS.assignPlayerToTeam]: (dto: MoveToTeamDto) => void;
 	[ADMIN_EVENTS.kickPlayer]: (dto: KickPlayerDto) => void;
 	[ADMIN_EVENTS.banPlayer]: (dto: BanPlayerDto) => void;

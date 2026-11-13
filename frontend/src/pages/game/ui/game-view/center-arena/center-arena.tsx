@@ -1,6 +1,14 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ShoppingBag, TrendingUp, Coins, Crosshair, X } from "lucide-react";
+import {
+	ShoppingBag,
+	TrendingUp,
+	Coins,
+	Crosshair,
+	X,
+	ChevronDown,
+	ChevronUp,
+} from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent, Button } from "@shared/ui";
 import { useAuth, useQuery } from "@shared/api";
 import {
@@ -44,7 +52,7 @@ export function CenterArena() {
 		(state) => state.game?.players ?? EMPTY_PLAYERS,
 	);
 	const roundTimeSeconds = useGameSlice(
-		(state) => state.game?.settings.roundTimeSeconds ?? 60,
+		(state) => state.game?.settings?.roundTimeSeconds ?? 60,
 	);
 	const currentRound = useGameSlice((state) => state.game?.currentRound);
 	const storeCurrentWord = useGameSlice((state) => state.currentWord);
@@ -73,9 +81,12 @@ export function CenterArena() {
 		},
 	);
 
+	const settingsIsShopEnabled = useGameSlice(
+		(state) => state.game?.settings?.isShopEnabled ?? false,
+	);
 	const maxInventorySize =
 		shopCatalog?.maxInventorySize ?? MAX_INVENTORY_SLOTS;
-	const isShopEnabled = shopCatalog?.isShopEnabled ?? true;
+	const isShopEnabled = shopCatalog?.isShopEnabled ?? settingsIsShopEnabled;
 
 	const shopItems: ArenaShopItem[] = useMemo(
 		() =>
@@ -134,32 +145,76 @@ export function CenterArena() {
 	const currentWordText = currentWord?.text || "";
 	const wordsFeed = currentRound?.words || [];
 
-	const isBettingEnabled = false;
+	const isBettingEnabled = useGameSlice(
+		(state) => state.game?.settings?.isBettingEnabled ?? false,
+	);
+	const activeEffects = useGameSlice(
+		(state) => state.game?.activeEffects,
+	);
+	const isWordFlipped = Boolean(
+		user &&
+			activeEffects?.some(
+				(e) =>
+					e.itemId === "FLIP_WORD" &&
+					e.status === "ACTIVE" &&
+					e.targetPlayerId === user.id,
+			),
+	);
+	const isWordFrozen = Boolean(
+		user &&
+			activeEffects?.some(
+				(e) =>
+					e.itemId === "FREEZE_NEXT_WORD" &&
+					e.status === "ACTIVE" &&
+					e.targetPlayerId === user.id,
+			),
+	);
 	const activeBetsList = EMPTY_ACTIVE_BETS;
 
 	const [activeDockTab, setActiveDockTab] = useState<"shop" | "betting">(
 		"shop",
 	);
+	const [isDockCollapsed, setIsDockCollapsed] = useState(false);
+
+	useEffect(() => {
+		if (roundStatus === RoundStatus.IN_PROGRESS && isExplainer) {
+			setIsDockCollapsed(true);
+		}
+	}, [roundStatus, isExplainer]);
+
+	const hasDock = isShopEnabled || isBettingEnabled;
+	const resolvedDockTab =
+		activeDockTab === "shop" && !isShopEnabled && isBettingEnabled
+			? "betting"
+			: activeDockTab === "betting" && !isBettingEnabled && isShopEnabled
+				? "shop"
+				: activeDockTab;
 
 	const handleCorrect = () => {
-		if (roomId && currentWord) {
+		if (roomId && currentWord && !isWordFrozen) {
 			nextWord(roomId, false);
 		}
 	};
 
 	const handleSkip = () => {
-		if (roomId && currentWord) {
+		if (roomId && currentWord && !isWordFrozen) {
 			nextWord(roomId, true);
 		}
 	};
 
 	useGameShortcuts({
 		onNextWord:
-			roundStatus === RoundStatus.IN_PROGRESS && isExplainer && roomId
+			roundStatus === RoundStatus.IN_PROGRESS &&
+			isExplainer &&
+			roomId &&
+			!isWordFrozen
 				? () => nextWord(roomId, false)
 				: undefined,
 		onSkipWord:
-			roundStatus === RoundStatus.IN_PROGRESS && isExplainer && roomId
+			roundStatus === RoundStatus.IN_PROGRESS &&
+			isExplainer &&
+			roomId &&
+			!isWordFrozen
 				? () => nextWord(roomId, true)
 				: undefined,
 	});
@@ -185,6 +240,27 @@ export function CenterArena() {
 		}
 
 		const shopItem = shopItems.find((item) => item.id === invItem.itemId);
+		if (
+			shopItem?.id === "FLIP_WORD" ||
+			shopItem?.id === "FREEZE_NEXT_WORD"
+		) {
+			const canTargetEnemyExplainer =
+				roundStatus === RoundStatus.IN_PROGRESS &&
+				!isMyTeamPlaying &&
+				Boolean(currentRound?.explainerId);
+			if (!canTargetEnemyExplainer || !currentRound?.explainerId) {
+				setPendingTargetItem(null);
+				return;
+			}
+			setPendingTargetItem(null);
+			activateItem(
+				roomId,
+				invItem.id,
+				undefined,
+				currentRound.explainerId,
+			);
+			return;
+		}
 		if (
 			shopItem?.target === "enemy_team" ||
 			shopItem?.target === "enemy_player"
@@ -223,7 +299,34 @@ export function CenterArena() {
 				pausedAt={currentRound?.pausedAt}
 				remainingMs={currentRound?.remainingMs}
 				totalDuration={roundTimeSeconds}
+				isActive={roundStatus === RoundStatus.IN_PROGRESS}
 			/>
+
+			{roundStatus === RoundStatus.IN_PROGRESS &&
+				activeEffects &&
+				activeEffects.some((e) => e.status === "ACTIVE") && (
+					<div className={styles.effectsHud}>
+						{activeEffects
+							.filter((e) => e.status === "ACTIVE")
+							.map((eff) => (
+								<span
+									key={eff.id}
+									className={styles.effectHudPill}
+								>
+									<span>
+										{t(`gameView.items.${eff.itemId}`, {
+											defaultValue: eff.itemId,
+										})}
+									</span>
+									{eff.charges != null && eff.charges > 0 && (
+										<span className={styles.effectCharges}>
+											×{eff.charges}
+										</span>
+									)}
+								</span>
+							))}
+					</div>
+				)}
 
 			{pendingTargetItem && (
 				<div className={styles.targetingBanner}>
@@ -265,6 +368,8 @@ export function CenterArena() {
 					<ExplainerView
 						currentWordText={currentWordText}
 						guessedWords={wordsFeed}
+						isWordFlipped={isWordFlipped}
+						isFrozen={isWordFrozen}
 						onCorrect={handleCorrect}
 						onSkip={handleSkip}
 					/>
@@ -289,70 +394,116 @@ export function CenterArena() {
 			)}
 
 			{/* Expanded Lower Dock: Shop & Betting Tabs */}
-			<div className={styles.expandedDock}>
-				<Tabs
-					value={activeDockTab}
-					onValueChange={(val) =>
-						setActiveDockTab(val as "shop" | "betting")
-					}
+			{hasDock && (
+				<div
+					className={`${styles.expandedDock} ${isDockCollapsed ? styles.collapsed : ""}`}
 				>
-					{/* Dock Header with Tabs & Wallet */}
-					<nav className={styles.dockNav}>
-						<TabsList variant="dock">
-							{isShopEnabled && (
-								<TabsTrigger value="shop" variant="dock">
-									<ShoppingBag size={14} />
-									<span>
-										{t("gameView.shopTab")} (
-										{occupiedSlotsCount}/{maxInventorySize})
-									</span>
-								</TabsTrigger>
-							)}
+					<Tabs
+						value={resolvedDockTab}
+						onValueChange={(val) => {
+							setActiveDockTab(val as "shop" | "betting");
+							if (isDockCollapsed) {
+								setIsDockCollapsed(false);
+							}
+						}}
+					>
+						{/* Dock Header with Tabs & Wallet */}
+						<nav className={styles.dockNav}>
+							<TabsList variant="dock">
+								{isShopEnabled && (
+									<TabsTrigger
+										value="shop"
+										variant="dock"
+										onClick={() => {
+											if (
+												isDockCollapsed &&
+												resolvedDockTab === "shop"
+											) {
+												setIsDockCollapsed(false);
+											}
+										}}
+									>
+										<ShoppingBag size={14} />
+										<span>
+											{t("gameView.shopTab")} (
+											{occupiedSlotsCount}/
+											{maxInventorySize})
+										</span>
+									</TabsTrigger>
+								)}
 
-							{isBettingEnabled && (
-								<TabsTrigger value="betting" variant="dock">
-									<TrendingUp size={14} />
-									<span>
-										{t("gameView.bettingTab")} (
-										{activeBetsList.length})
-									</span>
-								</TabsTrigger>
-							)}
-						</TabsList>
+								{isBettingEnabled && (
+									<TabsTrigger
+										value="betting"
+										variant="dock"
+										onClick={() => {
+											if (
+												isDockCollapsed &&
+												resolvedDockTab === "betting"
+											) {
+												setIsDockCollapsed(false);
+											}
+										}}
+									>
+										<TrendingUp size={14} />
+										<span>
+											{t("gameView.bettingTab")} (
+											{activeBetsList.length})
+										</span>
+									</TabsTrigger>
+								)}
+							</TabsList>
 
-						<div className={styles.dockWalletInfo}>
-							<Coins size={13} />
-							<span>{walletBalance}</span>
-						</div>
-					</nav>
+							<div className={styles.dockRightActions}>
+								<div className={styles.dockWalletInfo}>
+									<Coins size={13} />
+									<span>{walletBalance}</span>
+								</div>
+								<button
+									type="button"
+									className={styles.dockToggleBtn}
+									onClick={() =>
+										setIsDockCollapsed((prev) => !prev)
+									}
+									aria-expanded={!isDockCollapsed}
+								>
+									{isDockCollapsed ? (
+										<ChevronUp size={16} />
+									) : (
+										<ChevronDown size={16} />
+									)}
+								</button>
+							</div>
+						</nav>
 
-					{/* Dock Tab Content 1: Shop & Inventory Component */}
-					{isShopEnabled && (
-						<TabsContent value="shop">
-							<ArenaShopTab
-								items={shopItems}
-								inventory={inventory}
-								walletBalance={walletBalance}
-								maxInventorySize={maxInventorySize}
-								onActivateSlot={handleActivateSlot}
-								onBuyItem={handleBuyItem}
-							/>
-						</TabsContent>
-					)}
+						{/* Dock Tab Content 1: Shop & Inventory Component */}
+						{!isDockCollapsed && isShopEnabled && (
+							<TabsContent value="shop">
+								<ArenaShopTab
+									items={shopItems}
+									inventory={inventory}
+									walletBalance={walletBalance}
+									maxInventorySize={maxInventorySize}
+									onActivateSlot={handleActivateSlot}
+									onBuyItem={handleBuyItem}
+								/>
+							</TabsContent>
+						)}
 
-					{/* Dock Tab Content 2: Live Betting Component */}
-					{isBettingEnabled && (
-						<TabsContent value="betting">
-							<ArenaBettingTab
-								activeBets={activeBetsList}
-								wordsFeed={wordsFeed}
-								walletBalance={walletBalance}
-								onPlaceBet={handlePlaceQuickBet}
-							/>
-						</TabsContent>
-					)}
-				</Tabs>
-			</div>
+						{/* Dock Tab Content 2: Live Betting Component */}
+						{!isDockCollapsed && isBettingEnabled && (
+							<TabsContent value="betting">
+								<ArenaBettingTab
+									activeBets={activeBetsList}
+									wordsFeed={wordsFeed}
+									walletBalance={walletBalance}
+									onPlaceBet={handlePlaceQuickBet}
+								/>
+							</TabsContent>
+						)}
+					</Tabs>
+				</div>
+			)}
 		</main>
 	);
 }

@@ -62,6 +62,7 @@ export interface GameSettings {
     wordPackSelections?: { packId: string; count: number }[];
     isVoiceChatEnabled?: boolean;
     isShopEnabled?: boolean;
+    isBettingEnabled?: boolean;
     isOnlyOwnerCanNextRound?: boolean;
     isOnlyOwnerCanChangeScore?: boolean;
 }
@@ -82,6 +83,20 @@ export interface GameState {
     playersCount: number;
 }
 
+export interface ActiveEffectState {
+    id: string;
+    itemId: string;
+    sourcePlayerId: string;
+    targetTeamId?: string;
+    targetPlayerId?: string;
+    status: string;
+    charges?: number;
+    expiresAt?: number;
+    durationMs?: number;
+    pausedAt?: number | null;
+    remainingMs?: number | null;
+}
+
 export interface GameStateDetails extends GameState {
     teams: TeamState[];
     currentRound: RoundState | null;
@@ -93,6 +108,7 @@ export interface GameStateDetails extends GameState {
     spectators?: string[];
     leftPlayers?: LeftPlayerState[];
     ownerOfflineSince?: number | null;
+    activeEffects?: ActiveEffectState[];
     addons?: GameAddons;
 }
 

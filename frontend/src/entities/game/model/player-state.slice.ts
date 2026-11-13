@@ -5,7 +5,12 @@ export type EffectItemId =
 	| "ENEMY_SKIP_PENALTY"
 	| "FREE_SKIP_SHIELD"
 	| "FREEZE_NEXT_WORD"
-	| "VOICE_MUTE";
+	| "VOICE_MUTE"
+	| "CLEANSE"
+	| "EXTRA_TIME"
+	| "TIME_DRAIN"
+	| "FLIP_WORD"
+	| "REROLL_WORD";
 
 export type EffectTargetType = "self_team" | "enemy_team" | "enemy_player";
 

@@ -33,3 +33,5 @@ export { BuyItemDto } from "./buy-item.dto";
 export { UseItemDto } from "./use-item.dto";
 export { GetExplainerWordDto } from "./get-explainer-word.dto";
 export { GetShopCatalogDto } from "./get-shop-catalog.dto";
+export { SendChatMessageDto } from "./send-chat-message.dto";
+export { GetChatHistoryDto } from "./get-chat-history.dto";

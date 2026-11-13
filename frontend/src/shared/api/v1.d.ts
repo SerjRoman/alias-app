@@ -634,6 +634,11 @@ export interface components {
              * @example false
              */
             isShopEnabled?: boolean;
+            /**
+             * @description Whether in-game betting is enabled
+             * @example false
+             */
+            isBettingEnabled?: boolean;
         };
         GameResponseDto: {
             /**
@@ -700,6 +705,8 @@ export interface components {
             isOnlyOwnerCanChangeScore: boolean;
             /** @default false */
             isShopEnabled: boolean;
+            /** @default false */
+            isBettingEnabled: boolean;
         };
         CreateGameResponseDto: {
             /**

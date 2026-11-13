@@ -28,7 +28,12 @@ export type EffectItemId =
 	| "ENEMY_SKIP_PENALTY"
 	| "FREE_SKIP_SHIELD"
 	| "FREEZE_NEXT_WORD"
-	| "VOICE_MUTE";
+	| "VOICE_MUTE"
+	| "CLEANSE"
+	| "EXTRA_TIME"
+	| "TIME_DRAIN"
+	| "FLIP_WORD"
+	| "REROLL_WORD";
 
 export type EffectDurationType = "round" | "charges" | "seconds" | "instant";
 
@@ -125,7 +130,8 @@ export interface GameSettings {
 	isOnlyOwnerCanNextRound: boolean;
 	isOnlyOwnerCanChangeScore: boolean;
 	isVoiceChatEnabled: boolean;
-	isShopEnabled?: boolean;
+	isShopEnabled: boolean;
+	isBettingEnabled: boolean;
 }
 
 export interface GameSettingsState {
@@ -143,6 +149,7 @@ export interface GameSettingsState {
 	isOnlyOwnerCanChangeScore?: boolean;
 	isVoiceChatEnabled?: boolean;
 	isShopEnabled?: boolean;
+	isBettingEnabled?: boolean;
 	wordPackSelections?: WordPackSelection[];
 }
 

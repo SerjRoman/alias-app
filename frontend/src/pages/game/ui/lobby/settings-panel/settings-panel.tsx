@@ -26,6 +26,8 @@ export function SettingsPanel({
 	const voiceChatCheckboxRef = useRef<HTMLInputElement | null>(null);
 	const wordsPerPlayerInputRef = useRef<HTMLInputElement | null>(null);
 	const hatModeCheckboxRef = useRef<HTMLInputElement | null>(null);
+	const shopCheckboxRef = useRef<HTMLInputElement | null>(null);
+	const bettingCheckboxRef = useRef<HTMLInputElement | null>(null);
 
 	const [isCopied, setIsCopied] = useState(false);
 	const [wordPackSelections, setWordPackSelections] = useState<{ packId: string; count: number }[]>(
@@ -59,6 +61,14 @@ export function SettingsPanel({
 			hatModeCheckboxRef.current.checked =
 				game.settings.isHatMode ?? false;
 		}
+		if (shopCheckboxRef.current) {
+			shopCheckboxRef.current.checked =
+				game.settings.isShopEnabled ?? false;
+		}
+		if (bettingCheckboxRef.current) {
+			bettingCheckboxRef.current.checked =
+				game.settings.isBettingEnabled ?? false;
+		}
 	}, [game.settings]);
 
 	useEffect(() => {
@@ -73,6 +83,8 @@ export function SettingsPanel({
 		overrideVoiceChat?: boolean,
 		overrideWordPackSelections?: { packId: string; count: number }[],
 		overrideHatMode?: boolean,
+		overrideShop?: boolean,
+		overrideBetting?: boolean,
 	) => {
 		const points = Number(
 			pointsInputRef.current?.value ?? game.settings.pointsToWin,
@@ -91,6 +103,16 @@ export function SettingsPanel({
 			hatModeCheckboxRef.current?.checked ??
 			game.settings.isHatMode ??
 			false;
+		const isShopEnabled =
+			overrideShop ??
+			shopCheckboxRef.current?.checked ??
+			game.settings.isShopEnabled ??
+			false;
+		const isBettingEnabled =
+			overrideBetting ??
+			bettingCheckboxRef.current?.checked ??
+			game.settings.isBettingEnabled ??
+			false;
 		const perPlayer = isHatMode
 			? Number(
 					wordsPerPlayerInputRef.current?.value ??
@@ -106,6 +128,8 @@ export function SettingsPanel({
 			isVoiceChatEnabled,
 			wordPackSelections: selections,
 			isHatMode,
+			isShopEnabled,
+			isBettingEnabled,
 			wordsPerPlayer: perPlayer,
 		});
 	};
@@ -263,6 +287,55 @@ export function SettingsPanel({
 						disabled={!isOwner}
 					/>
 					<span>{t("gameSettings.voiceChat")}</span>
+				</label>
+
+				<label className={styles.labelCheckbox}>
+					<input
+						ref={shopCheckboxRef}
+						className={styles.checkboxInput}
+						type="checkbox"
+						defaultChecked={game.settings.isShopEnabled ?? false}
+						onChange={(e) =>
+							emitCurrentSettings(
+								undefined,
+								undefined,
+								undefined,
+								e.target.checked,
+							)
+						}
+						disabled={!isOwner}
+					/>
+					<span>
+						{t("gameSettings.shop", {
+							defaultValue: "Магазин предметов",
+						})}
+					</span>
+				</label>
+
+				<label className={styles.labelCheckbox}>
+					<input
+						ref={bettingCheckboxRef}
+						className={styles.checkboxInput}
+						type="checkbox"
+						defaultChecked={
+							game.settings.isBettingEnabled ?? false
+						}
+						onChange={(e) =>
+							emitCurrentSettings(
+								undefined,
+								undefined,
+								undefined,
+								undefined,
+								e.target.checked,
+							)
+						}
+						disabled={!isOwner}
+					/>
+					<span>
+						{t("gameSettings.betting", {
+							defaultValue: "Ставки",
+						})}
+					</span>
 				</label>
 			</div>
 			<WordPackModal ModalComponent={WordPacksModal} />

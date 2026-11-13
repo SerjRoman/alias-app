@@ -65,11 +65,11 @@ describe("ShopService", () => {
 			expect(catalog).toEqual([]);
 		});
 
-		it("returns all 5 items when isVoiceChatEnabled is true (or undefined)", () => {
+		it("returns all 10 items when isVoiceChatEnabled is true (or undefined)", () => {
 			const catalog = ShopService.getAvailableCatalog({
 				isVoiceChatEnabled: true,
 			});
-			expect(catalog).toHaveLength(5);
+			expect(catalog).toHaveLength(10);
 			expect(catalog.some((i) => i.id === "VOICE_MUTE")).toBe(true);
 		});
 
@@ -77,7 +77,7 @@ describe("ShopService", () => {
 			const catalog = ShopService.getAvailableCatalog({
 				isVoiceChatEnabled: false,
 			});
-			expect(catalog).toHaveLength(4);
+			expect(catalog).toHaveLength(9);
 			expect(catalog.some((i) => i.id === "VOICE_MUTE")).toBe(false);
 		});
 	});

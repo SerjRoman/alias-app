@@ -99,4 +99,22 @@ export class UpdateGameSettingsDto {
 	@IsBoolean()
 	@IsOptional()
 	isHatMode?: boolean;
+
+	@ApiProperty({
+		description: "Whether the in-game shop is enabled",
+		example: false,
+		default: false,
+	})
+	@IsBoolean()
+	@IsOptional()
+	isShopEnabled?: boolean;
+
+	@ApiProperty({
+		description: "Whether in-game betting is enabled",
+		example: false,
+		default: false,
+	})
+	@IsBoolean()
+	@IsOptional()
+	isBettingEnabled?: boolean;
 }

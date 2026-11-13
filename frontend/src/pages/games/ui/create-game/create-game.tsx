@@ -26,6 +26,8 @@ const createGameSchema = z.object({
 		.max(1000, "Points to win must be at most 1000"),
 	isPrivate: z.enum(["true", "false"]),
 	isHatMode: z.boolean(),
+	isShopEnabled: z.boolean(),
+	isBettingEnabled: z.boolean(),
 	wordsPerPlayer: z
 		.number()
 		.int()
@@ -86,6 +88,8 @@ export function CreateGameForm({
 			pointsToWin: 30,
 			isPrivate: "false",
 			isHatMode: false,
+			isShopEnabled: false,
+			isBettingEnabled: false,
 			wordsPerPlayer: 0,
 			wordPackSelections: [],
 		},
@@ -106,7 +110,8 @@ export function CreateGameForm({
 					wordPackSelections: data.wordPackSelections || [],
 					isOnlyOwnerCanNextRound: true,
 					isOnlyOwnerCanChangeScore: true,
-					isShopEnabled: false,
+					isShopEnabled: data.isShopEnabled,
+					isBettingEnabled: data.isBettingEnabled,
 				},
 				headers: { Authorization: `Bearer ${token}` },
 			},
@@ -209,6 +214,34 @@ export function CreateGameForm({
 							{...register("isHatMode")}
 						/>{" "}
 						{t("games.enableHatMode") || "Включить"}
+					</label>
+				</div>
+
+				<div className={styles.privateBlock}>
+					<span className={styles.labelTitle}>
+						{t("gameView.itemShop", { defaultValue: "Магазин" })}:
+					</span>
+					<label className={styles.radioLabel}>
+						<input
+							className={styles.radioInput}
+							type="checkbox"
+							{...register("isShopEnabled")}
+						/>{" "}
+						{t("games.enableShop", { defaultValue: "Включить" })}
+					</label>
+				</div>
+
+				<div className={styles.privateBlock}>
+					<span className={styles.labelTitle}>
+						{t("gameView.betting", { defaultValue: "Ставки" })}:
+					</span>
+					<label className={styles.radioLabel}>
+						<input
+							className={styles.radioInput}
+							type="checkbox"
+							{...register("isBettingEnabled")}
+						/>{" "}
+						{t("games.enableBetting", { defaultValue: "Включить" })}
 					</label>
 				</div>
 

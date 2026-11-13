@@ -13,12 +13,24 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-3xl);
-	background: var(--game-bg-card);
-	border: 1px solid var(--game-border-default);
-	border-radius: var(--radius-xl);
+	background: var(--game-word-card-bg, var(--game-bg-card));
+	border: 1px solid var(--game-word-card-border, var(--game-border-default));
+	border-radius: 20px;
+	box-shadow: var(--game-card-shadow);
 	padding: var(--space-5xl);
 	position: relative;
 	text-align: center;
+}
+
+@keyframes wordPopIn {
+	0% {
+		opacity: 0;
+		transform: translateY(8px) scale(0.96);
+	}
+	100% {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
 }
 
 .wordBadge {
@@ -33,20 +45,28 @@
 	color: var(--game-color-info-hover);
 }
 
+.wordPopWrapper {
+	animation: wordPopIn 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .targetWord {
 	font-size: var(--font-size-word);
 	font-weight: var(--font-weight-black);
-	letter-spacing: 0.04em;
-	color: var(--game-text-primary);
-	word-break: break-all;
+	letter-spacing: 0.03em;
+	color: var(--game-word-card-text, var(--game-text-primary));
+	word-break: break-word;
 	line-height: var(--line-height-tight);
+}
+
+.flippedWord {
+	transform: rotate(180deg);
 }
 
 .actionButtons {
 	display: flex;
-	gap: var(--space-2xl);
+	gap: var(--space-xl);
 	width: 100%;
-	max-width: 380px;
+	max-width: 400px;
 }
 
 .btnAction {
@@ -55,49 +75,85 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-sm);
-	padding: var(--space-xl) var(--space-3xl);
-	border-radius: var(--radius-lg);
-	font-size: var(--font-size-xl);
-	font-weight: var(--font-weight-bold);
+	padding: var(--space-lg) var(--space-2xl);
+	border-radius: 14px;
+	font-size: var(--font-size-lg);
+	font-weight: var(--font-weight-extrabold);
 	cursor: pointer;
 	border: 1px solid transparent;
+	border-bottom-width: 4px;
 	user-select: none;
+	transition:
+		transform 0.1s ease,
+		background 0.15s ease,
+		border-color 0.15s ease;
 }
 
-/* Light & Pleasant Soft Colors for Correct & Skip with Smooth Hover/Active */
+.btnAction:active:not(:disabled) {
+	transform: translateY(2px);
+	border-bottom-width: 2px;
+}
+
+.btnAction:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	filter: grayscale(0.4);
+}
+
+.frozenCard {
+	border-color: rgba(56, 189, 248, 0.7);
+	box-shadow:
+		0 0 24px rgba(56, 189, 248, 0.2),
+		var(--game-card-shadow);
+}
+
+.kbdHint {
+	font-family: inherit;
+	font-size: 10px;
+	font-weight: var(--font-weight-bold);
+	padding: 2px 6px;
+	border-radius: 5px;
+	background: rgba(0, 0, 0, 0.22);
+	border: 1px solid rgba(255, 255, 255, 0.18);
+	opacity: 0.85;
+}
+
+/* Tactile Solid-Feel Colors for Correct & Skip */
 .btnCorrect {
-	background: rgba(16, 185, 129, 0.14);
-	color: #34d399;
-	border: 1px solid rgba(16, 185, 129, 0.38);
+	background: #10b981;
+	color: #052e16;
+	border-color: #059669;
+	border-bottom-color: #047857;
 }
 
 .btnCorrect:hover {
-	background: rgba(16, 185, 129, 0.24);
-	border-color: rgba(16, 185, 129, 0.7);
-	color: #6ee7b7;
+	background: #34d399;
+	border-color: #10b981;
+	border-bottom-color: #059669;
+	color: #052e16;
 }
 
 .btnCorrect:active {
-	background: rgba(16, 185, 129, 0.32);
-	border-color: #10b981;
-	color: #a7f3d0;
+	background: #059669;
+	color: #ecfdf5;
 }
 
 .btnSkip {
-	background: rgba(244, 63, 94, 0.12);
-	color: #fda4af;
-	border: 1px solid rgba(244, 63, 94, 0.32);
+	background: #f43f5e;
+	color: #fff1f2;
+	border-color: #e11d48;
+	border-bottom-color: #be123c;
 }
 
 .btnSkip:hover {
-	background: rgba(244, 63, 94, 0.22);
-	border-color: rgba(244, 63, 94, 0.65);
-	color: #fecdd3;
+	background: #fb7185;
+	border-color: #f43f5e;
+	border-bottom-color: #e11d48;
+	color: #ffffff;
 }
 
 .btnSkip:active {
-	background: rgba(244, 63, 94, 0.3);
-	border-color: #f43f5e;
+	background: #e11d48;
 	color: #ffe4e6;
 }
 

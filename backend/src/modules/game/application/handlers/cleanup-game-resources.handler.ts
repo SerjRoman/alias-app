@@ -8,6 +8,7 @@ import {
 import { VoiceService } from "../voice.service";
 import { DictionaryService } from "../dictionary.service";
 import { RoundScheduler } from "../round-scheduler.service";
+import { RedisChatRepository } from "../../infrastructure/redis-chat.repository";
 
 @Injectable()
 export class CleanupGameResourcesHandler {
@@ -19,6 +20,7 @@ export class CleanupGameResourcesHandler {
 		private readonly voiceService: VoiceService,
 		private readonly dictionaryService: DictionaryService,
 		private readonly roundScheduler: RoundScheduler,
+		private readonly redisChatRepository: RedisChatRepository,
 	) {}
 
 	@OnEvent(GameDeletedEvent.eventName)
@@ -73,6 +75,17 @@ export class CleanupGameResourcesHandler {
 		} catch (error) {
 			this.logger.error(
 				`Failed to clear dictionary words and custom words for game ${event.roomId}: ${error}`,
+			);
+		}
+
+		try {
+			await this.redisChatRepository.clearRoomChat(event.roomId);
+			this.logger.log(
+				`Successfully cleared chat history for game ${event.roomId}`,
+			);
+		} catch (error) {
+			this.logger.error(
+				`Failed to clear chat history for game ${event.roomId}: ${error}`,
 			);
 		}
 	}

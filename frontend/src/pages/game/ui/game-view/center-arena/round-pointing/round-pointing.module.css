@@ -15,6 +15,7 @@
 	background: var(--game-bg-panel);
 	border: 1px solid var(--game-border-default);
 	border-radius: var(--radius-xl);
+	box-shadow: var(--game-card-shadow);
 	overflow: hidden;
 }
 

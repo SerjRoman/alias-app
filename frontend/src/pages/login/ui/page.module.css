@@ -43,13 +43,16 @@
 	color: rgba(51, 51, 51, 0.72);
 }
 
-.tabs {
+.tabs.tabs {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 10px;
+	background: transparent;
+	border-bottom: none;
+	padding: 0;
 }
 
-.tab {
+.tab.tab {
 	padding: var(--spacing-medium);
 	background-color: transparent;
 	color: var(--color-text);
@@ -64,11 +67,17 @@
 		border-color 0.2s;
 }
 
-.tabActive,
-.tab[data-state="active"] {
+.tab.tab:hover:not([data-state="active"]) {
+	background-color: var(--color-hover, rgba(0, 0, 0, 0.04));
+	color: var(--color-text);
+}
+
+.tabActive.tabActive,
+.tab.tab[data-state="active"] {
 	background-color: var(--color-primary);
 	color: var(--color-text-light);
 	border-color: var(--color-primary);
+	box-shadow: none;
 }
 
 .form {

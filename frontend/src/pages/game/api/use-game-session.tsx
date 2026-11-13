@@ -20,12 +20,16 @@ export function useGameSession(roomId: string | null, code: string | null) {
 			return;
 		}
 
-		if (roomId) {
-			setIsLoading(true);
+		if (!roomId) return;
+
+		setIsLoading(true);
+		if (socketClient.connected) {
 			joinGame(roomId, code, (gameData) => {
 				setGameState(gameData);
 				setIsLoading(false);
 			});
+		} else {
+			socketClient.connect();
 		}
 	}, [roomId, code, game, setGameState]);
 
@@ -33,9 +37,10 @@ export function useGameSession(roomId: string | null, code: string | null) {
 		if (!roomId) return;
 
 		const handleConnect = () => {
-			console.log("Socket reconnected. Rejoining room:", roomId);
+			console.log("Socket connected. Joining room:", roomId);
 			joinGame(roomId, code, (gameData) => {
 				setGameState(gameData);
+				setIsLoading(false);
 			});
 		};
 
@@ -47,9 +52,7 @@ export function useGameSession(roomId: string | null, code: string | null) {
 
 	useEffect(() => {
 		return () => {
-			const activeId = gameIdRef.current;
-			if (activeId) {
-				socketClient.disconnect();
+			if (gameIdRef.current) {
 				clearGame();
 			}
 		};

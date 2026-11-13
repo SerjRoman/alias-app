@@ -46,7 +46,7 @@ export class ShopCatalogItemDto {
 
 	@ApiProperty({
 		example: "round",
-		enum: ["round", "charges", "seconds"],
+		enum: ["round", "charges", "seconds", "instant"],
 		description: "Duration type of the item effect",
 	})
 	@Expose()

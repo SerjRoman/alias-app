@@ -342,6 +342,7 @@
 		"spectators": "Зрители",
 		"leaderTooltip": "Лидер (больше всего очков)",
 		"nextTurnTooltip": "Следующая команда",
+		"playingTurn": "Ходит",
 		"next": "Далее",
 		"pts": "очк.",
 		"speakingNow": "Говорит сейчас",
@@ -404,6 +405,52 @@
 		"waitingForHostNextRound": "Ждём, пока хост запустит следующий раунд",
 		"noWordsInRound": "В этом раунде не было слов",
 		"chatLogTab": "Чат и лог",
+		"chat": {
+			"systemEventLog": "Системный журнал",
+			"liveChat": "Чат",
+			"channelAll": "Общий",
+			"channelTeam": "Команда",
+			"teamTag": "Команда",
+			"placeholderAll": "Написать всем в комнате...",
+			"placeholderTeam": "Написать только команде...",
+			"placeholderExplainerBlocked": "Командный чат закрыт во время объяснения",
+			"explainerBlockedHint": "Вы не можете писать в командный чат, пока объясняете слова. Переключитесь на Общий.",
+			"sendMessage": "Отправить сообщение",
+			"emptyLogs": "Системных событий пока нет",
+			"emptyMessages": "Сообщений пока нет",
+			"logTypes": {
+				"info": "инфо",
+				"effect": "эффект",
+				"leader": "лидер",
+				"round": "раунд",
+				"admin": "админ",
+				"private": "лично"
+			}
+		},
+		"systemLogs": {
+			"itemUsedPlayer": "{{playerName}} применил эффект «{{itemName}}» на {{targetName}}",
+			"itemUsedTeam": "{{playerName}} применил эффект «{{itemName}}» на команду {{targetName}}",
+			"itemUsedSelf": "{{playerName}} использовал «{{itemName}}»",
+			"itemPurchasedPrivate": "Вы купили «{{itemName}}» за {{cost}} монет (баланс: {{balance}})",
+			"newLeader": "Команда {{teamName}} выходит в лидеры ({{score}} очк.)!",
+			"roundStarted": "Начался раунд {{roundNumber}} ({{teamName}}, объясняет {{explainerName}})",
+			"roundEnded": "Закончился раунд {{roundNumber}}: команда {{teamName}} заработала {{earnedPoints}} очк.",
+			"explainerTeamChatBlocked": "Вы не можете писать в командный чат во время объяснения слов.",
+			"spectatorTeamChatBlocked": "Зрители могут писать только в общий чат.",
+			"adminAction": {
+				"kickPlayer": "Админ {{adminName}} кикнул {{targetName}}",
+				"banPlayer": "Админ {{adminName}} забанил {{targetName}}",
+				"setExplainer": "Админ {{adminName}} назначил объясняющим {{targetName}}",
+				"assignPlayerToTeam": "Админ {{adminName}} переместил {{targetName}}",
+				"shufflePlayers": "Админ {{adminName}} перемешал игроков",
+				"changeRoundTime": "Админ {{adminName}} изменил время раунда на {{seconds}} сек.",
+				"startRound": "Админ {{adminName}} принудительно запустил раунд",
+				"startPointing": "Админ {{adminName}} принудительно перешёл к разбору слов",
+				"pauseGame": "Админ {{adminName}} поставил игру на паузу",
+				"resumeGame": "Админ {{adminName}} возобновил игру",
+				"endGame": "Админ {{adminName}} завершил игру"
+			}
+		},
 		"questsTab": "Задания",
 		"settingsStoreTab": "Настройки / Магазин",
 		"sfxVolume": "Громкость эффектов",
@@ -417,6 +464,14 @@
 		"publicRoom": "Публичная",
 		"hatMode": "Режим «Шляпа»",
 		"wordsShort": "слов",
+		"paused": "ПАУЗА",
+		"explainingNow": "Сейчас объясняет",
+		"nextUp": "Следующий ход",
+		"roundWordsFeed": "Слова раунда",
+		"noWordsYet": "В этом раунде ещё нет слов.",
+		"skipWord": "Пропуск",
+		"correctWord": "Угадал",
+		"waitingWord": "ОЖИДАНИЕ...",
 		"voiceChat": "Голосовой чат",
 		"itemShop": "Магазин предметов",
 		"selectedPacks": "Выбранные паки слов",
@@ -429,7 +484,12 @@
 			"WORD_SWAP": "Подмена понятий",
 			"ENEMY_SKIP_PENALTY": "Кармический бумеранг",
 			"FOG_WORD": "Ёжик в тумане",
-			"VOICE_MUTE": "Обет молчания"
+			"VOICE_MUTE": "Обет молчания",
+			"CLEANSE": "Святая вода",
+			"EXTRA_TIME": "Резиновый таймер",
+			"TIME_DRAIN": "Хроно-пылесос",
+			"FLIP_WORD": "Австралийский режим",
+			"REROLL_WORD": "Ой, не то слово"
 		},
 		"itemDescriptions": {
 			"TIMER_PLUS_10": "Добавляет +10 секунд к таймеру активного раунда",
@@ -439,7 +499,12 @@
 			"WORD_SWAP": "Заменяет текущее слово на новое",
 			"ENEMY_SKIP_PENALTY": "Штрафует команду соперника на −2 очка за каждый пропуск слова",
 			"FOG_WORD": "Скрывает текущее слово в тумане",
-			"VOICE_MUTE": "Отключает микрофон игроку соперника на 5 секунд"
+			"VOICE_MUTE": "Отключает микрофон игроку соперника на 5 секунд",
+			"CLEANSE": "Снимает все активные негативные эффекты со своей команды и её игроков",
+			"EXTRA_TIME": "Добавляет 10 секунд к таймеру текущего раунда своей команды",
+			"TIME_DRAIN": "Отнимает 5 секунд от таймера текущего раунда команды соперника",
+			"FLIP_WORD": "Переворачивает слово на экране объясняющего соперника на 8 секунд",
+			"REROLL_WORD": "Меняет текущее слово на новое из словаря без штрафа и без записи в пропуск"
 		}
 	},
 	"teamNames": {

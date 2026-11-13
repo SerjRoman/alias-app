@@ -41,13 +41,69 @@
 	border-color: var(--game-color-danger-border);
 }
 
-.gameTitleBadge {
+.roomMetaPill {
 	display: flex;
 	align-items: center;
+	gap: var(--space-md);
 	padding: var(--space-xs) var(--space-lg);
 	background: var(--game-bg-card);
 	border: 1px solid var(--game-border-default);
-	border-radius: var(--radius-md);
+	border-radius: 999px;
+	box-shadow: var(--game-card-shadow);
+}
+
+.metaDivider {
+	width: 1px;
+	height: 14px;
+	background: var(--game-border-strong);
+}
+
+.roundPill {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-color-cyan-active);
+	letter-spacing: 0.02em;
+	white-space: nowrap;
+}
+
+.themeSwitcher {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border-radius: 999px;
+	background: var(--game-bg-input);
+	border: 1px solid var(--game-border-default);
+}
+
+.themeIcon {
+	margin: 0 6px 0 8px;
+	color: var(--game-text-muted);
+}
+
+.themeBtn {
+	border: none;
+	background: transparent;
+	color: var(--game-text-secondary);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	padding: 4px 10px;
+	border-radius: 999px;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.themeBtn:hover:not(.themeBtnActive) {
+	color: var(--game-text-primary);
+}
+
+.themeBtnActive {
+	background: var(--game-bg-card-hover);
+	color: var(--game-text-primary);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .gameTitleText {

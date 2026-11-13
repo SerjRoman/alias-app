@@ -123,6 +123,7 @@ export interface UseItemAction {
 		inventoryItemId: string;
 		targetTeamId?: string;
 		targetPlayerId?: string;
+		nextWordText?: string;
 		clientRequestId?: string;
 	};
 }

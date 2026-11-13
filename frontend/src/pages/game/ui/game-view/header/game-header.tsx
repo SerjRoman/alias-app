@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LogOut, Radio } from "lucide-react";
+import { LogOut, Palette, Radio } from "lucide-react";
 import { useGameSlice, useGameVoice } from "@entities/game";
 import { Button } from "@shared/ui";
 import { useAuth } from "@shared/api";
@@ -9,13 +9,23 @@ import { Avatar } from "../avatar";
 import { VoiceControls } from "./voice-controls";
 import styles from "./game-header.module.css";
 
-export function GameHeader() {
+export type GameVisualTheme = "tabletop" | "party";
+
+interface GameHeaderProps {
+	theme: GameVisualTheme;
+	onThemeChange: (theme: GameVisualTheme) => void;
+}
+
+export function GameHeader({
+	theme,
+	onThemeChange,
+}: Readonly<GameHeaderProps>) {
 	const gameId = useGameSlice((state) => state.game?.id ?? "");
 	const gameName = useGameSlice(
-		(state) => state.game?.settings.name || "Alias Game",
+		(state) => state.game?.settings?.name || "Alias Game",
 	);
 	const isVoiceChatEnabled = useGameSlice(
-		(state) => state.game?.settings.isVoiceChatEnabled ?? false,
+		(state) => state.game?.settings?.isVoiceChatEnabled ?? false,
 	);
 	const currentRoundNumber = useGameSlice(
 		(state) => state.game?.currentRound?.roundNumber ?? 4,
@@ -49,19 +59,40 @@ export function GameHeader() {
 					<span>{t("gameView.leave")}</span>
 				</Button>
 
-				<div className={styles.gameTitleBadge} title={gameName}>
+				<div className={styles.roomMetaPill} title={gameName}>
 					<span className={styles.gameTitleText}>{gameName}</span>
-				</div>
-
-				<div className={styles.roundBadge}>
-					<span className={styles.roundDot} />
-					<span>
-						{t("gameView.round")} {currentRoundNumber}
+					<span className={styles.metaDivider} />
+					<span className={styles.roundPill}>
+						<span className={styles.roundDot} />
+						<span>
+							{t("gameView.round")} {currentRoundNumber}
+						</span>
 					</span>
 				</div>
 			</div>
 
 			<div className={styles.rightSection}>
+				<div
+					className={styles.themeSwitcher}
+					role="group"
+					aria-label="Theme"
+				>
+					<Palette size={13} className={styles.themeIcon} />
+					<button
+						type="button"
+						className={`${styles.themeBtn} ${theme === "tabletop" ? styles.themeBtnActive : ""}`}
+						onClick={() => onThemeChange("tabletop")}
+					>
+						Tabletop
+					</button>
+					<button
+						type="button"
+						className={`${styles.themeBtn} ${theme === "party" ? styles.themeBtnActive : ""}`}
+						onClick={() => onThemeChange("party")}
+					>
+						Party
+					</button>
+				</div>
 				{isVoiceChatEnabled &&
 					(voiceToken ? (
 						<VoiceControls />

@@ -3,12 +3,43 @@
 	border-radius: var(--radius-lg);
 	background: var(--game-bg-card);
 	border: 1px solid var(--game-border-default);
+	box-shadow: var(--game-card-shadow);
 	overflow: hidden;
 	transition: all 0.2s ease;
 }
 
+.winProgressTrack {
+	width: 100%;
+	height: 3px;
+	background: var(--game-border-subtle);
+	overflow: hidden;
+}
+
+.winProgressFill {
+	height: 100%;
+	background: var(--team-color, var(--game-color-cyan-active));
+	border-radius: 0 2px 2px 0;
+	transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 .teamCard.activeTurn {
 	border-color: var(--team-color, var(--game-color-danger));
+	box-shadow: 0 0 0 1px var(--team-glow, rgba(239, 68, 68, 0.25));
+}
+
+.teamCard.turnTransitioning {
+	animation: activeTurnPulse 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes activeTurnPulse {
+	0% {
+		box-shadow:
+			0 0 0 0 var(--team-color, var(--game-color-danger)),
+			0 0 24px 4px var(--team-glow, rgba(239, 68, 68, 0.45));
+	}
+	100% {
+		box-shadow: 0 0 0 1px var(--team-glow, rgba(239, 68, 68, 0.25));
+	}
 }
 
 .teamCard.targetableTeam {
@@ -87,6 +118,21 @@
 
 .crownIcon {
 	color: var(--game-accent-gold);
+	flex-shrink: 0;
+}
+
+.activeTurnBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-extrabold);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	padding: 2px var(--space-xs);
+	border-radius: var(--radius-sm);
+	color: #ffffff;
+	background: var(--team-color, var(--game-color-danger));
 	flex-shrink: 0;
 }
 
