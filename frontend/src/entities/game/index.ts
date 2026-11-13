@@ -1,6 +1,7 @@
 export type {
 	GameState,
 	WordState,
+	WordOutcome,
 	RoundState,
 	GameSettings,
 	GameStateDetails,
@@ -29,4 +30,9 @@ export {
 	RoundStatus,
 	GameStatus,
 	useGameVoice,
+	usePrivatePlayerSlice,
+	type PrivatePlayerState,
+	type EffectItemId,
+	type EffectTargetType,
+	type PendingTargetItem,
 } from "./model";

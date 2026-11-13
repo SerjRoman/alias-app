@@ -294,6 +294,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/games/shop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get global shop catalog */
+        get: operations["GameController_getGlobalShopCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/games/{id}/shop": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get shop catalog and settings for a game room */
+        get: operations["GameController_getRoomShopCatalog"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/games/{id}/voice-token": {
         parameters: {
             query?: never;
@@ -739,6 +773,74 @@ export interface components {
         };
         ValidateCodeResponseDto: {
             valid: boolean;
+        };
+        ShopCatalogItemDto: {
+            /**
+             * @description Unique item identifier
+             * @example DOUBLE_POINTS
+             */
+            id: string;
+            /**
+             * @description Localized item name
+             * @example ×2 Очки
+             */
+            name: string;
+            /**
+             * @description Item effect description
+             * @example Удваивает очки за угаданные слова в текущем/следующем раунде своей команды
+             */
+            description: string;
+            /**
+             * @description Price in game currency coins
+             * @example 10
+             */
+            price: number;
+            /**
+             * @description Target entity type of the item
+             * @example self_team
+             * @enum {string}
+             */
+            target: "self_team" | "enemy_team" | "enemy_player";
+            /**
+             * @description Duration type of the item effect
+             * @example round
+             * @enum {string}
+             */
+            durationType: "round" | "charges" | "seconds";
+            /**
+             * @description Number of charges if durationType is charges
+             * @example 1
+             */
+            charges?: number;
+            /**
+             * @description Duration in seconds if durationType is seconds
+             * @example 5
+             */
+            durationSeconds?: number;
+            /**
+             * @description Required game setting for item to be active
+             * @example isVoiceChatEnabled
+             */
+            requiresSetting?: string;
+            /**
+             * @description Whether this item is currently available for purchase in this room
+             * @example true
+             */
+            isAvailable: boolean;
+        };
+        ShopCatalogResponseDto: {
+            /** @description List of items in the shop catalog with availability status */
+            items: components["schemas"]["ShopCatalogItemDto"][];
+            /**
+             * @description Maximum number of items allowed in player inventory
+             * @example 3
+             */
+            maxInventorySize: number;
+            /**
+             * @description Whether shop is enabled in this room
+             * @example true
+             */
+            isShopEnabled: boolean;
         };
         GetVoiceTokenResponseDto: {
             /**
@@ -1404,6 +1506,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ValidateCodeResponseDto"];
+                };
+            };
+            /** @description The game room with the specified ID was not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    GameController_getGlobalShopCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns the global shop catalog items and default shop configuration. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopCatalogResponseDto"];
+                };
+            };
+        };
+    };
+    GameController_getRoomShopCatalog: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The unique identifier of the game room. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Returns shop catalog items and room shop configuration. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShopCatalogResponseDto"];
                 };
             };
             /** @description The game room with the specified ID was not found. */

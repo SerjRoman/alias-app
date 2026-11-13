@@ -14,7 +14,7 @@ export {
 export { StartRoundDto } from "./start-round.dto";
 export { NextRoundDto } from "./next-round.dto";
 export { NextWordDto } from "./next-word.dto";
-export { ChangeWordScoreDto } from "./change-word-score.dto";
+export { ChangeWordOutcomeDto } from "./change-word-outcome.dto";
 export { DeleteGameDto } from "./delete-game.dto";
 export { ValidateCodeDto } from "./validate-code.dto";
 export { EndPointingDto } from "./end-pointing.dto";
@@ -31,3 +31,5 @@ export { PauseGameDto } from "./pause-game.dto";
 export { ResumeGameDto } from "./resume-game.dto";
 export { BuyItemDto } from "./buy-item.dto";
 export { UseItemDto } from "./use-item.dto";
+export { GetExplainerWordDto } from "./get-explainer-word.dto";
+export { GetShopCatalogDto } from "./get-shop-catalog.dto";

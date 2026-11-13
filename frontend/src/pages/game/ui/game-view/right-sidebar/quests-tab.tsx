@@ -1,26 +1,17 @@
 import { Target, Coins, CheckCircle2 } from "lucide-react";
+import { Button } from "@shared/ui";
 import type { GameQuest } from "../../../api/game-stubs";
 import styles from "./right-sidebar.module.css";
 
 interface QuestsTabProps {
 	quests: GameQuest[];
-	onClaim: (questId: string) => void;
+	onClaim?: (questId: string) => void;
 }
 
 export function QuestsTab({ quests, onClaim }: Readonly<QuestsTabProps>) {
 	return (
 		<div className={`${styles.questsContainer} game-scroll`}>
-			<div
-				style={{
-					fontSize: "12px",
-					fontWeight: 600,
-					color: "var(--game-text-secondary, #94a3b8)",
-					marginBottom: "4px",
-					display: "flex",
-					alignItems: "center",
-					gap: "6px",
-				}}
-			>
+			<div className={styles.questsHeader}>
 				<Target size={14} color="#38bdf8" />
 				<span>Active Match Quests</span>
 			</div>
@@ -71,13 +62,15 @@ export function QuestsTab({ quests, onClaim }: Readonly<QuestsTabProps>) {
 									<span>Claimed</span>
 								</span>
 							) : isReadyToClaim ? (
-								<button
+								<Button
 									type="button"
+									variant="primary"
+									size="small"
 									className={styles.btnClaim}
-									onClick={() => onClaim(quest.id)}
+									onClick={() => onClaim?.(quest.id)}
 								>
 									Claim Reward
-								</button>
+								</Button>
 							) : (
 								<span style={{ fontSize: "10px" }}>
 									In Progress

@@ -45,7 +45,8 @@ export class LedgerRecordDto implements LedgerRecord {
 
 	@ApiProperty({
 		example: 1794318000000,
-		description: "Unix epoch timestamp (ms) when the transaction took place",
+		description:
+			"Unix epoch timestamp (ms) when the transaction took place",
 	})
 	@Expose()
 	timestamp: number;

@@ -35,6 +35,7 @@ import { GameDeletedEvent } from "../domain";
 
 import type { GameServer, GameSocket } from "./game.socket-types";
 import { AuthenticatedSocket } from "../../../common/types/socket";
+import { UserDto } from "@common/dto/user.dto";
 import { WsExceptionsFilter } from "./filters/ws-exceptions.filter";
 import {
 	JoinGameDto,
@@ -48,7 +49,7 @@ import {
 	NextWordDto,
 	NextRoundDto,
 	StartRoundDto,
-	ChangeWordScoreDto,
+	ChangeWordOutcomeDto,
 	DeleteGameDto,
 	EndPointingDto,
 	EndGameDto,
@@ -61,16 +62,19 @@ import {
 	ResumeGameDto,
 	BuyItemDto,
 	UseItemDto,
+	GetExplainerWordDto,
+	GetShopCatalogDto,
 } from "../application/dto/body";
 import {
 	GameResponseDetailsDto,
 	GameUpdateResponseDto,
-	WordResponseDto,
 	TeamResponseDto,
 	PlayerResponseDto,
 	RoundResponseDto,
 	GameSettingsDto,
 	PrivatePlayerStateResponseDto,
+	ExplainerWordResponseDto,
+	ShopCatalogResponseDto,
 } from "../application/dto/response";
 import { ADMIN_EVENTS } from "./socket.events";
 import { SetExplainerDto } from "../application/dto/body/set-explainer.dto";
@@ -140,11 +144,11 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.logger.log(
 				`User ${client.data.user.name} is switching from room ${currentRoomId} to ${dto.roomId}`,
 			);
-			await client.leave(currentRoomId);
+			await Promise.resolve(client.leave(currentRoomId));
 		}
 
 		const room = await this.gameFacade.joinGame(dto, client.data.user);
-		await client.join(dto.roomId);
+		await Promise.resolve(client.join(dto.roomId));
 		const publicState = plainToInstance(GameResponseDetailsDto, room, {
 			excludeExtraneousValues: true,
 		});
@@ -242,7 +246,8 @@ export class GameGateway implements OnGatewayDisconnect {
 		@MessageBody() dto: NextWordDto,
 	) {
 		const data = await this.gameFacade.nextWord(dto, client.data.user);
-		return plainToInstance(WordResponseDto, data.newWord, {
+		await this.sendPrivateWordToExplainer(dto.roomId, client.data.user.id);
+		return plainToInstance(ExplainerWordResponseDto, data.newWord, {
 			excludeExtraneousValues: true,
 		});
 	}
@@ -282,12 +287,12 @@ export class GameGateway implements OnGatewayDisconnect {
 		}
 	}
 
-	@SubscribeMessage("changeWordScore")
-	async changeWordScore(
+	@SubscribeMessage("changeWordOutcome")
+	async changeWordOutcome(
 		@ConnectedSocket() client: GameSocket,
-		@MessageBody() dto: ChangeWordScoreDto,
+		@MessageBody() dto: ChangeWordOutcomeDto,
 	) {
-		await this.gameFacade.changeWordScore(dto, client.data.user);
+		await this.gameFacade.changeWordOutcome(dto, client.data.user);
 	}
 	@SubscribeMessage("deleteGame")
 	async deleteGame(
@@ -391,18 +396,32 @@ export class GameGateway implements OnGatewayDisconnect {
 	async buyItem(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: BuyItemDto,
-	) {
+	): Promise<PrivatePlayerStateResponseDto | null> {
 		await this.gameFacade.buyItem(dto, client.data.user);
-		await this.sendPrivateStateToPlayer(dto.roomId, client.data.user.id);
+		const privateState = await this.gameFacade.getPrivatePlayerState(
+			dto.roomId,
+			client.data.user.id,
+		);
+		if (!privateState) return null;
+		return plainToInstance(PrivatePlayerStateResponseDto, privateState, {
+			excludeExtraneousValues: true,
+		});
 	}
 
 	@SubscribeMessage("useItem")
 	async useItem(
 		@ConnectedSocket() client: GameSocket,
 		@MessageBody() dto: UseItemDto,
-	) {
+	): Promise<PrivatePlayerStateResponseDto | null> {
 		await this.gameFacade.useItem(dto, client.data.user);
-		await this.sendPrivateStateToPlayer(dto.roomId, client.data.user.id);
+		const privateState = await this.gameFacade.getPrivatePlayerState(
+			dto.roomId,
+			client.data.user.id,
+		);
+		if (!privateState) return null;
+		return plainToInstance(PrivatePlayerStateResponseDto, privateState, {
+			excludeExtraneousValues: true,
+		});
 	}
 
 	@SubscribeMessage("getPrivateState")
@@ -420,38 +439,53 @@ export class GameGateway implements OnGatewayDisconnect {
 		});
 	}
 
+	@SubscribeMessage("getExplainerWord")
+	async getExplainerWord(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: GetExplainerWordDto,
+	): Promise<ExplainerWordResponseDto | null> {
+		return this.roundFacade.getExplainerWord(dto, client.data.user);
+	}
+
+	@SubscribeMessage("getShopCatalog")
+	async getShopCatalog(
+		@ConnectedSocket() client: GameSocket,
+		@MessageBody() dto: GetShopCatalogDto,
+	): Promise<ShopCatalogResponseDto> {
+		return this.gameFacade.getShopCatalog(dto, client.data.user);
+	}
+
 	private async isExplainer(
 		roomId: string,
 		userId: string,
 	): Promise<boolean> {
-		const privateState = await this.gameFacade.getPrivatePlayerState(
-			roomId,
-			userId,
+		const wordDto = await this.roundFacade.getExplainerWord(
+			{ roomId },
+			plainToInstance(UserDto, { id: userId }),
 		);
-		return Boolean(privateState?.word) || false;
+		return Boolean(wordDto);
 	}
+
 	private async sendPrivateWordToExplainer(
 		roomId: string,
 		explainerId: string,
 	) {
-		let privateState: Awaited<
-			ReturnType<GameFacade["getPrivatePlayerState"]>
-		>;
+		let wordDto: ExplainerWordResponseDto | null;
 		try {
-			privateState = await this.gameFacade.getPrivatePlayerState(
-				roomId,
-				explainerId,
+			wordDto = await this.roundFacade.getExplainerWord(
+				{ roomId },
+				plainToInstance(UserDto, { id: explainerId }),
 			);
 		} catch (error) {
 			if (error instanceof RoomNotFoundError) {
 				this.logger.warn(
-					`Skipped private word send because room ${roomId} was not found`,
+					`Skipped explainer word send because room ${roomId} was not found`,
 				);
 				return;
 			}
 			throw error;
 		}
-		if (privateState?.word) {
+		if (wordDto) {
 			const sockets = await this.server.in(roomId).fetchSockets();
 			const targetSocket = sockets.find(
 				(socket) =>
@@ -459,23 +493,15 @@ export class GameGateway implements OnGatewayDisconnect {
 					explainerId,
 			) as unknown as AuthenticatedSocket;
 			if (targetSocket) {
-				targetSocket.emit(
-					"privateWord",
-					plainToInstance(WordResponseDto, privateState.word, {
-						excludeExtraneousValues: true,
-					}),
-				);
+				targetSocket.emit("explainerWord", wordDto);
 				this.logger.log(
-					`Sent private word to explainer ${targetSocket.data.user.name}`,
+					`Sent explainer word to explainer ${targetSocket.data.user.name}`,
 				);
 			}
 		}
 	}
 
-	private async sendPrivateStateToPlayer(
-		roomId: string,
-		userId: string,
-	) {
+	private async sendPrivateStateToPlayer(roomId: string, userId: string) {
 		try {
 			const privateState = await this.gameFacade.getPrivatePlayerState(
 				roomId,
@@ -486,17 +512,19 @@ export class GameGateway implements OnGatewayDisconnect {
 			const sockets = await this.server.in(roomId).fetchSockets();
 			const targetSocket = sockets.find(
 				(socket) =>
-					(socket as unknown as AuthenticatedSocket).data?.user?.id ===
-					userId,
+					(socket as unknown as AuthenticatedSocket).data?.user
+						?.id === userId,
 			) as unknown as AuthenticatedSocket;
 
 			if (targetSocket) {
-				targetSocket.emit(
-					"privateStateUpdated",
-					plainToInstance(PrivatePlayerStateResponseDto, privateState, {
+				const dto = plainToInstance(
+					PrivatePlayerStateResponseDto,
+					privateState,
+					{
 						excludeExtraneousValues: true,
-					}),
+					},
 				);
+				targetSocket.emit("privateStateUpdated", dto);
 			}
 		} catch (error) {
 			if (error instanceof RoomNotFoundError) {
@@ -596,7 +624,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	handleGameSettingsUpdate(payload: GameSettingsUpdatedPayload) {
 		try {
 			this.server.to(payload.roomId).emit(
-				"game-settings-updated",
+				"gameSettingsUpdated",
 				plainToInstance(GameSettingsDto, payload.settings, {
 					excludeExtraneousValues: true,
 				}),

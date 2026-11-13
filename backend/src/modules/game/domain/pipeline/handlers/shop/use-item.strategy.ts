@@ -17,6 +17,7 @@ import {
 	GameNotInProgressError,
 	PlayerNotFoundError,
 } from "../../../errors/game.errors";
+import { RoundIsNotInProgress } from "../../../errors/round.errors";
 import { ItemUsedDomainEvent } from "../../../events/game.events";
 import {
 	RoundStatus,
@@ -43,6 +44,15 @@ export class UseItemStrategy implements ActionStrategy<UseItemAction> {
 			player.id,
 			action.payload.inventoryItemId,
 		);
+
+		if (
+			catalogItem.durationType === "seconds" &&
+			state.currentRound?.status !== RoundStatus.IN_PROGRESS
+		) {
+			throw new RoundIsNotInProgress(
+				"Timed effects can only be used while a round is in progress",
+			);
+		}
 
 		const { targetTeamId, targetPlayerId } = this.resolveTarget(
 			catalogItem,

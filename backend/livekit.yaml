@@ -6,7 +6,6 @@ rtc:
     use_external_ip: true
     enable_loopback_candidate: false
 
-
 keys:
     devkey: ${LIVEKIT_SECRET_KEY}
 

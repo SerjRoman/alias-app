@@ -13,11 +13,14 @@ export enum RoundStatus {
     FINISHED = "FINISHED",
 }
 export type GameWordsLevel = "easy" | "medium" | "hard";
+export type WordOutcome = "guessed" | "skipped" | "neutral";
 
 export interface WordState {
     id: string;
     text: string;
     score: number;
+    outcome?: WordOutcome;
+    appliedEffectIds?: string[];
 }
 export interface TeamState {
     id: string;

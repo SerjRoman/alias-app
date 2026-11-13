@@ -8,6 +8,9 @@ interface BaseReadyButtonProps {
 	disabled?: boolean;
 	labelReady?: string;
 	labelNotReady?: string;
+	className?: string;
+	readyClassName?: string;
+	notReadyClassName?: string;
 }
 
 export function BaseReadyButton({
@@ -16,8 +19,16 @@ export function BaseReadyButton({
 	disabled,
 	labelReady = "Ready!",
 	labelNotReady = "I'm Ready",
+	className,
+	readyClassName,
+	notReadyClassName,
 }: Readonly<BaseReadyButtonProps>) {
-	const buttonClass = isReady ? styles.ready : styles.notReady;
+	const buttonClass = [
+		isReady ? readyClassName ?? styles.ready : notReadyClassName ?? styles.notReady,
+		className,
+	]
+		.filter(Boolean)
+		.join(" ");
 
 	return (
 		<Button className={buttonClass} onClick={onClick} disabled={disabled}>

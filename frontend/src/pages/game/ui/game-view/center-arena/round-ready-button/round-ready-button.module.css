@@ -1,0 +1,38 @@
+.readyBtn {
+	min-height: 44px;
+	min-width: 240px;
+	padding: var(--space-sm) var(--space-xl);
+	border-radius: var(--radius-lg);
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-sm);
+	transition: all 0.2s ease;
+	box-shadow: none;
+}
+
+.notReady {
+	background: var(--game-color-info-bg, rgba(59, 130, 246, 0.15));
+	border: 1px solid var(--game-color-info-border, rgba(59, 130, 246, 0.4));
+	color: var(--game-color-info-hover, #60a5fa);
+}
+
+.notReady:hover:not(:disabled) {
+	background: rgba(59, 130, 246, 0.25);
+	border-color: var(--game-color-info, #3b82f6);
+	color: #93c5fd;
+}
+
+.ready {
+	background: rgba(16, 185, 129, 0.18);
+	border: 1px solid rgba(16, 185, 129, 0.5);
+	color: #34d399;
+}
+
+.ready:hover:not(:disabled) {
+	background: rgba(16, 185, 129, 0.28);
+	border-color: rgba(16, 185, 129, 0.75);
+	color: #6ee7b7;
+}

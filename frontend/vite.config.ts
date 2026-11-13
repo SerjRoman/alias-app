@@ -13,6 +13,9 @@ export default defineConfig({
 			brotliSize: true,
 		}),
 	],
+	optimizeDeps: {
+		exclude: ["@livekit/krisp-noise-filter"],
+	},
 	server: {
 		allowedHosts: true,
 	},

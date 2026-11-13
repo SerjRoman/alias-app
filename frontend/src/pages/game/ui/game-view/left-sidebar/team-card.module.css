@@ -1,0 +1,137 @@
+.teamCard {
+	flex-shrink: 0;
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	overflow: hidden;
+	transition: all 0.2s ease;
+}
+
+.teamCard.activeTurn {
+	border-color: var(--team-color, var(--game-color-danger));
+}
+
+.teamCard.targetableTeam {
+	border-color: var(--game-color-warning, #f59e0b);
+	box-shadow: 0 0 0 1px var(--game-color-warning, #f59e0b);
+}
+
+.targetableHeader {
+	cursor: crosshair;
+}
+
+.targetableHeader:hover {
+	background: var(--game-color-warning-bg, rgba(245, 158, 11, 0.14));
+}
+
+.expandBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px;
+	border: none;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.expandBtn:hover {
+	background: var(--game-border-subtle);
+}
+
+.teamHeader {
+	width: 100%;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-md) var(--space-lg);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: inherit;
+	text-align: left;
+	transition: background 0.2s ease;
+	flex-shrink: 0;
+}
+
+.teamHeader:hover {
+	background: var(--game-border-subtle);
+}
+
+.teamIdentity {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-width: 0;
+	flex: 1;
+}
+
+.teamColorBar {
+	width: var(--space-2xs);
+	height: var(--space-3xl);
+	border-radius: var(--radius-2xs);
+	background: var(--team-color, var(--game-color-info));
+	flex-shrink: 0;
+}
+
+.teamName {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.crownIcon {
+	color: var(--game-accent-gold);
+	flex-shrink: 0;
+}
+
+.nextTurnBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-3xs);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	padding: var(--space-3xs) var(--space-xs);
+	border-radius: var(--radius-sm);
+	color: var(--game-color-cyan-active);
+	background: var(--game-color-cyan-bg);
+	border: 1px solid var(--game-color-cyan-border);
+	flex-shrink: 0;
+}
+
+.teamMetrics {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	flex-shrink: 0;
+}
+
+.teamScoreBadge {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-extrabold);
+	color: var(--game-text-primary);
+	background: var(--game-bg-stage);
+	padding: var(--space-3xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	border: 1px solid var(--game-border-default);
+	flex-shrink: 0;
+}
+
+.chevron {
+	color: var(--game-text-muted);
+	flex-shrink: 0;
+}
+
+.playersList {
+	padding: var(--space-md) var(--space-md) var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+	border-top: 1px solid var(--game-border-subtle);
+	flex-shrink: 0;
+}

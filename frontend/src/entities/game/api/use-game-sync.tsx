@@ -1,19 +1,25 @@
 import { useEffect } from "react";
 import { useGameSlice } from "../model/game.slice";
+import { GameStatus } from "../model/game.types";
 import { socketClient, setWsErrorResolver } from "@shared/api";
 import { i18n } from "@shared/config";
 
 export function useGameSync() {
 	const updatePlayers = useGameSlice((state) => state.updatePlayers);
 	const updateTeams = useGameSlice((state) => state.updateTeams);
-	const updateGameSettings = useGameSlice((state) => state.updateGameSettings);
+	const updateGameSettings = useGameSlice(
+		(state) => state.updateGameSettings,
+	);
 	const setGameState = useGameSlice((state) => state.setGameState);
 	const updateRound = useGameSlice((state) => state.updateRound);
+	const clearGame = useGameSlice((state) => state.clearGame);
 
 	useEffect(() => {
 		setWsErrorResolver((payload) => {
 			const game = useGameSlice.getState().game;
-			const details: Record<string, unknown> = { ...(payload.details || {}) };
+			const details: Record<string, unknown> = {
+				...(payload.details || {}),
+			};
 
 			// Enrich teamId and teamName
 			let teamId = (details.teamId as string) || payload.teamId;
@@ -69,7 +75,8 @@ export function useGameSync() {
 				payload.name === "TeamHasNoOnlinePlayersError" ||
 				payload.message?.includes("has no online players")
 			) {
-				const teamNameOrId = (details.teamName as string) || teamId || "";
+				const teamNameOrId =
+					(details.teamName as string) || teamId || "";
 				return i18n.t("gameErrors.TEAM_HAS_NO_ONLINE_PLAYERS", {
 					teamName: teamNameOrId,
 					defaultValue: `У команды "${teamNameOrId}" нет игроков онлайн`,
@@ -80,7 +87,8 @@ export function useGameSync() {
 				payload.name === "TeamIsPlayingError" ||
 				payload.message?.includes("currently playing")
 			) {
-				const teamNameOrId = (details.teamName as string) || teamId || "";
+				const teamNameOrId =
+					(details.teamName as string) || teamId || "";
 				return i18n.t("gameErrors.TEAM_IS_PLAYING", {
 					teamName: teamNameOrId,
 					defaultValue: `Нельзя удалить команду "${teamNameOrId}": она сейчас играет в активном раунде`,
@@ -90,21 +98,46 @@ export function useGameSync() {
 			return null;
 		});
 
+		function handleGameFinished() {
+			const game = useGameSlice.getState().game;
+			if (game) {
+				setGameState({ ...game, status: GameStatus.FINISHED });
+			}
+		}
+
+		function handleGameDeleted(data?: { roomId?: string }) {
+			const game = useGameSlice.getState().game;
+			if (!data?.roomId || data.roomId === game?.id) {
+				clearGame();
+			}
+		}
+
 		socketClient.on("playersUpdated", updatePlayers);
 		socketClient.on("teamsUpdated", updateTeams);
-		socketClient.on("game-settings-updated", updateGameSettings);
+		socketClient.on("gameSettingsUpdated", updateGameSettings);
 		socketClient.on("gameUpdated", setGameState);
 		socketClient.on("roundUpdated", updateRound);
 		socketClient.on("gameStarted", setGameState);
+		socketClient.on("gameFinished", handleGameFinished);
+		socketClient.on("gameDeleted", handleGameDeleted);
 
 		return () => {
 			setWsErrorResolver(null);
 			socketClient.off("playersUpdated", updatePlayers);
 			socketClient.off("teamsUpdated", updateTeams);
-			socketClient.off("game-settings-updated", updateGameSettings);
+			socketClient.off("gameSettingsUpdated", updateGameSettings);
 			socketClient.off("gameUpdated", setGameState);
 			socketClient.off("gameStarted", setGameState);
 			socketClient.off("roundUpdated", updateRound);
+			socketClient.off("gameFinished", handleGameFinished);
+			socketClient.off("gameDeleted", handleGameDeleted);
 		};
-	}, [updatePlayers, updateTeams, updateGameSettings, setGameState, updateRound]);
+	}, [
+		updatePlayers,
+		updateTeams,
+		updateGameSettings,
+		setGameState,
+		updateRound,
+		clearGame,
+	]);
 }

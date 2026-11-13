@@ -1,3 +1,4 @@
+export { ExplainerWordResponseDto } from "./explainer-word-response.dto";
 export { PlayerResponseDto } from "./player.dto";
 export {
 	GameResponseDto,
@@ -15,6 +16,10 @@ export { WordResponseDto } from "./word-response.dto";
 export { ValidateCodeResponseDto } from "./validate-code-response.dto";
 export { GetVoiceTokenResponseDto } from "./get-voice-token.dto";
 export { PrivatePlayerStateResponseDto } from "./private-player-state-response.dto";
+export {
+	ShopCatalogResponseDto,
+	ShopCatalogItemDto,
+} from "./shop-catalog-response.dto";
 export {
 	ShopInventoryItemDto,
 	LedgerRecordDto,

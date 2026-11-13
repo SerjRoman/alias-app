@@ -188,27 +188,27 @@ describe("Staged Scoring Pipeline, Effect Snapshots & Command Guards", () => {
 			const birdWord = words[2];
 
 			engine.dispatch({
-				type: "CHANGE_WORD_SCORE",
+				type: "CHANGE_WORD_OUTCOME",
 				actorId: ownerId,
-				payload: { wordId: dogWord.id, delta: 1 },
+				payload: { wordId: dogWord.id, outcome: "neutral" },
 			});
 			expect(dogWord.outcome).toBe("neutral");
 			expect(dogWord.score).toBe(0);
 			expect(engine.getState().teams[0].score).toBe(11);
 
 			engine.dispatch({
-				type: "CHANGE_WORD_SCORE",
+				type: "CHANGE_WORD_OUTCOME",
 				actorId: ownerId,
-				payload: { wordId: dogWord.id, delta: 1 },
+				payload: { wordId: dogWord.id, outcome: "guessed" },
 			});
 			expect(dogWord.outcome).toBe("guessed");
 			expect(dogWord.score).toBe(2);
 			expect(engine.getState().teams[0].score).toBe(13);
 
 			engine.dispatch({
-				type: "CHANGE_WORD_SCORE",
+				type: "CHANGE_WORD_OUTCOME",
 				actorId: ownerId,
-				payload: { wordId: birdWord.id, delta: -1 },
+				payload: { wordId: birdWord.id, outcome: "neutral" },
 			});
 			expect(birdWord.outcome).toBe("neutral");
 			expect(birdWord.score).toBe(0);

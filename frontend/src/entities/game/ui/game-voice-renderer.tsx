@@ -1,14 +1,40 @@
-import { useTracks, AudioTrack } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { useEffect } from "react";
+import {
+	useTracks,
+	AudioTrack,
+	useRoomContext,
+} from "@livekit/components-react";
+import { RoomEvent, Track, type Participant } from "livekit-client";
 import { useGameSlice } from "../model/game.slice";
+import { useGameVoice } from "../model/game-voice.slice";
 import { useAuth } from "@shared/api";
 import { GameStatus, RoundStatus } from "../model/game.types";
 import { getVoiceParticipantUserId } from "../lib/voice";
 
 export function GameVoiceRenderer() {
 	const { game } = useGameSlice();
+	const isDeafened = useGameVoice((state) => state.isDeafened);
+	const speakerVolume = useGameVoice((state) => state.speakerVolume);
+	const setActiveSpeakerIds = useGameVoice(
+		(state) => state.setActiveSpeakerIds,
+	);
+	const room = useRoomContext();
 	const { user } = useAuth();
 	const tracks = useTracks([Track.Source.Microphone]);
+
+	useEffect(() => {
+		const updateSpeakers = (speakers: Participant[]) => {
+			setActiveSpeakerIds(
+				speakers.map((s) => getVoiceParticipantUserId(s.identity)),
+			);
+		};
+		updateSpeakers(room.activeSpeakers);
+		room.on(RoomEvent.ActiveSpeakersChanged, updateSpeakers);
+		return () => {
+			room.off(RoomEvent.ActiveSpeakersChanged, updateSpeakers);
+			setActiveSpeakerIds([]);
+		};
+	}, [room, setActiveSpeakerIds]);
 
 	if (!game || !user) return null;
 
@@ -49,11 +75,15 @@ export function GameVoiceRenderer() {
 				.filter((trackRef) => !trackRef.participant.isLocal)
 				.map((trackRef) => {
 					const canHear = shouldHearTrack(trackRef);
+					if (!canHear || isDeafened) {
+						return null;
+					}
 					return (
 						<AudioTrack
 							key={`${trackRef.participant.identity}-${trackRef.source}`}
 							trackRef={trackRef}
-							muted={!canHear}
+							muted={false}
+							volume={speakerVolume}
 						/>
 					);
 				})}

@@ -1,0 +1,33 @@
+import { BaseReadyButton } from "@shared/ui/base-ready-button";
+import { readyApi } from "../../../../api/ready-api";
+import { useTranslation } from "react-i18next";
+import { Tooltip } from "@shared/ui";
+import styles from "./round-ready-button.module.css";
+
+interface ToggleReadyProps {
+	roomId: string;
+	isReady: boolean;
+	disabled?: boolean;
+}
+
+export function ToggleRoundReadyButton({
+	roomId,
+	isReady,
+	disabled,
+}: Readonly<ToggleReadyProps>) {
+	const { t } = useTranslation();
+	return (
+		<Tooltip text={t("tooltips.ready")} position="top">
+			<BaseReadyButton
+				isReady={isReady}
+				disabled={disabled}
+				onClick={() => readyApi.toggleRoundReady(roomId)}
+				labelNotReady={t("activeGame.readyForNextRound")}
+				labelReady={t("lobby.ready")}
+				className={styles.readyBtn}
+				readyClassName={styles.ready}
+				notReadyClassName={styles.notReady}
+			/>
+		</Tooltip>
+	);
+}

@@ -1,0 +1,140 @@
+.tabsRoot {
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	height: 100%;
+	min-height: 0;
+}
+
+/* TabsList Variants */
+.tabsList {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+/* 1. Default (Sidebar & General Panel Tabs) */
+.default {
+	background: rgba(15, 20, 32, 0.85);
+	border-bottom: 1px solid var(--game-border-default, #232b3e);
+	padding: 6px;
+	gap: 4px;
+}
+
+/* 2. Dock (Lower Arena Dock) */
+.dock {
+	background: transparent;
+	padding: 0;
+	gap: 6px;
+}
+
+/* 3. Pills (e.g. Betting Categories / Sub-selectors) */
+.pills {
+	background: rgba(15, 20, 32, 0.7);
+	padding: 3px;
+	border-radius: 6px;
+	border: 1px solid var(--game-border-default, #232b3e);
+	gap: 4px;
+}
+
+/* TabsTrigger Base */
+.tabsTrigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	border-radius: 6px;
+	font-weight: 700;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	user-select: none;
+	white-space: nowrap;
+	outline: none;
+}
+
+.tabsTrigger:focus-visible {
+	box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4);
+}
+
+.tabsTrigger[data-disabled] {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+/* Trigger Variant: Default */
+.trigger_default {
+	flex: 1;
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--game-text-secondary, #94a3b8);
+	padding: 7px 10px;
+	font-size: 12px;
+}
+
+.trigger_default:hover:not([data-state="active"]) {
+	background: rgba(255, 255, 255, 0.04);
+	color: var(--game-text-primary, #f8fafc);
+}
+
+.trigger_default[data-state="active"] {
+	background: var(--game-bg-card, #181d2d);
+	color: #38bdf8;
+	border-color: var(--game-border-default, #232b3e);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Trigger Variant: Dock */
+.trigger_dock {
+	background: transparent;
+	border: 1px solid transparent;
+	color: var(--game-text-secondary, #94a3b8);
+	padding: 5px 12px;
+	font-size: 12px;
+}
+
+.trigger_dock:hover:not([data-state="active"]) {
+	background: rgba(255, 255, 255, 0.04);
+	color: var(--game-text-primary, #f8fafc);
+}
+
+.trigger_dock[data-state="active"] {
+	background: var(--game-bg-card, #181d2d);
+	border-color: var(--game-border-default, #232b3e);
+	color: #38bdf8;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Trigger Variant: Pills */
+.trigger_pills {
+	flex: 1;
+	background: transparent;
+	border: none;
+	color: var(--game-text-secondary, #94a3b8);
+	padding: 5px 6px;
+	font-size: 10px;
+	border-radius: 4px;
+}
+
+.trigger_pills:hover:not([data-state="active"]) {
+	color: var(--game-text-primary, #f8fafc);
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.trigger_pills[data-state="active"] {
+	background: #3b82f6;
+	color: #ffffff;
+	box-shadow: 0 1px 6px rgba(59, 130, 246, 0.4);
+}
+
+/* TabsContent */
+.tabsContent {
+	flex: 1;
+	min-height: 0;
+	outline: none;
+	display: flex;
+	flex-direction: column;
+}
+
+.tabsContent[data-state="inactive"] {
+	display: none;
+}

@@ -288,7 +288,10 @@ export class RoundScheduler {
 		const paused = this.pausedTimers.get(roomId);
 		const pausedTimer = paused?.find((p) => p.id === "round");
 		if (paused && pausedTimer) {
-			const newRemaining = Math.max(0, pausedTimer.remainingMs + timeDeltaMs);
+			const newRemaining = Math.max(
+				0,
+				pausedTimer.remainingMs + timeDeltaMs,
+			);
 			const idx = paused.indexOf(pausedTimer);
 			paused[idx] = {
 				id: pausedTimer.id,

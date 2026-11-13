@@ -150,13 +150,12 @@ export interface StartPointingAction {
 	actorId?: string;
 }
 
-export interface ChangeWordScoreAction {
-	type: "CHANGE_WORD_SCORE";
+export interface ChangeWordOutcomeAction {
+	type: "CHANGE_WORD_OUTCOME";
 	actorId?: string;
 	payload: {
 		wordId: string;
-		delta: number;
-		outcome?: WordOutcome;
+		outcome: WordOutcome;
 	};
 }
 
@@ -244,7 +243,7 @@ export type GameAction =
 	| ExpireEffectAction
 	| StartRoundAction
 	| StartPointingAction
-	| ChangeWordScoreAction
+	| ChangeWordOutcomeAction
 	| EndPointingAction
 	| NextRoundAction
 	| SetExplainerAction

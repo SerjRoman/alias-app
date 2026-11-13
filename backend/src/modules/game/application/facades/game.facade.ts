@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { ChangeWordScoreUseCase } from "../use-cases/game/change-word-score.use-case";
+import { ChangeWordOutcomeUseCase } from "../use-cases/round/change-word-outcome.use-case";
 import { CreateGameUseCase } from "../use-cases/game/create-game.use-case";
 import { DeleteFinishedGameUseCase } from "../use-cases/game/delete-finished-game.use-case";
 import { DeleteGameUseCase } from "../use-cases/game/delete-game.use-case";
@@ -8,11 +8,11 @@ import { FindAllGamesUseCase } from "../use-cases/game/find-all-games.use-case";
 import { FindOneGameUseCase } from "../use-cases/game/find-one.use-case";
 import { EndGameUseCase } from "../use-cases/game/end-game.use-case";
 import { GetGameCodeUseCase } from "../use-cases/game/get-game-code.use-case";
-import { GetPrivatePlayerStateUseCase } from "../use-cases/game/get-private-player-state.use-case";
+import { GetPrivatePlayerStateUseCase } from "../use-cases/player/get-private-player-state.use-case";
 import { JoinGameUseCase } from "../use-cases/game/join-game.use-case";
 import { LeaveGameUseCase } from "../use-cases/game/leave-game.use-case";
-import { NextRoundUseCase } from "../use-cases/game/next-round.use-case";
-import { NextWordUseCase } from "../use-cases/game/next-word.use-case";
+import { NextRoundUseCase } from "../use-cases/round/next-round.use-case";
+import { NextWordUseCase } from "../use-cases/round/next-word.use-case";
 import { StartGameUseCase } from "../use-cases/game/start-game.use-case";
 import { ToggleReadyUseCase } from "../use-cases/game/toggle-game-ready.use-case";
 import { UpdateGameSettingsUseCase } from "../use-cases/game/update-game-settings.use-case";
@@ -24,7 +24,7 @@ import {
 	JoinGameDto,
 	NextRoundDto,
 	NextWordDto,
-	ChangeWordScoreDto,
+	ChangeWordOutcomeDto,
 	UpdateGameSettingsDto,
 	GetRoomCodeDto,
 	EndGameDto,
@@ -33,12 +33,17 @@ import {
 	UseItemDto,
 	PauseGameDto,
 	ResumeGameDto,
+	GetShopCatalogDto,
 } from "../dto/body";
+import { ShopCatalogResponseDto, ShopCatalogItemDto } from "../dto/response";
 import { ShufflePlayersUseCase } from "../use-cases/game/shuffle-players.use-case";
 import { BuyItemUseCase } from "../use-cases/shop/buy-item.use-case";
 import { UseItemUseCase } from "../use-cases/shop/use-item.use-case";
+import { GetShopCatalogUseCase } from "../use-cases/shop/get-shop-catalog.use-case";
 import { PauseRoundUseCase } from "../use-cases/round/pause-round.use-case";
 import { ResumeRoundUseCase } from "../use-cases/round/resume-round.use-case";
+import { SHOP_CATALOG, MAX_INVENTORY_SIZE } from "../../domain/shop/shop.types";
+import { plainToInstance } from "class-transformer";
 
 @Injectable()
 export class GameFacade {
@@ -53,7 +58,7 @@ export class GameFacade {
 		private readonly leaveGameUseCase: LeaveGameUseCase,
 		private readonly nextRoundUseCase: NextRoundUseCase,
 		private readonly nextWordUseCase: NextWordUseCase,
-		private readonly changeWordScoreUseCase: ChangeWordScoreUseCase,
+		private readonly changeWordOutcomeUseCase: ChangeWordOutcomeUseCase,
 		private readonly startGameUseCase: StartGameUseCase,
 		private readonly toggleReadyUseCase: ToggleReadyUseCase,
 		private readonly updateGameSettingsUseCase: UpdateGameSettingsUseCase,
@@ -63,6 +68,7 @@ export class GameFacade {
 		private readonly shufflePlayersUseCase: ShufflePlayersUseCase,
 		private readonly buyItemUseCase: BuyItemUseCase,
 		private readonly useItemUseCase: UseItemUseCase,
+		private readonly getShopCatalogUseCase: GetShopCatalogUseCase,
 		private readonly pauseRoundUseCase: PauseRoundUseCase,
 		private readonly resumeRoundUseCase: ResumeRoundUseCase,
 	) {}
@@ -115,8 +121,8 @@ export class GameFacade {
 		return this.nextWordUseCase.execute(dto, actor);
 	}
 
-	async changeWordScore(dto: ChangeWordScoreDto, actor: UserDto) {
-		return this.changeWordScoreUseCase.execute(dto, actor);
+	async changeWordOutcome(dto: ChangeWordOutcomeDto, actor: UserDto) {
+		return this.changeWordOutcomeUseCase.execute(dto, actor);
 	}
 
 	async updateGameSettings(dto: UpdateGameSettingsDto, actor: UserDto) {
@@ -153,5 +159,40 @@ export class GameFacade {
 
 	async resumeGame(dto: ResumeGameDto, actor: UserDto) {
 		return this.resumeRoundUseCase.execute(dto, actor);
+	}
+
+	async getShopCatalog(
+		dto: Partial<GetShopCatalogDto>,
+		actor?: UserDto,
+	): Promise<ShopCatalogResponseDto> {
+		if (dto.roomId && actor) {
+			return this.getShopCatalogUseCase.execute(
+				{ roomId: dto.roomId },
+				actor,
+			);
+		}
+
+		const items: ShopCatalogItemDto[] = SHOP_CATALOG.map((item) => ({
+			id: item.id,
+			name: item.name,
+			description: item.description,
+			price: item.price,
+			target: item.target,
+			durationType: item.durationType,
+			charges: item.charges,
+			durationSeconds: item.durationSeconds,
+			requiresSetting: item.requiresSetting,
+			isAvailable: true,
+		}));
+
+		return plainToInstance(
+			ShopCatalogResponseDto,
+			{
+				items,
+				maxInventorySize: MAX_INVENTORY_SIZE,
+				isShopEnabled: true,
+			},
+			{ excludeExtraneousValues: true },
+		);
 	}
 }

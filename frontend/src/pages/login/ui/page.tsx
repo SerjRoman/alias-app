@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import styles from "./page.module.css";
-import { Button, Input } from "@shared/ui";
+import { Button, Input, Tabs, TabsList, TabsTrigger, TabsContent } from "@shared/ui";
 import { useMutation, translateApiError, useAuth, type User } from "@shared/api";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -97,132 +97,136 @@ export function LoginPage() {
 					</p>
 				</div>
 
-				<div
-					className={styles.tabs}
-					role="tablist"
-					aria-label="Authentication mode"
+				<Tabs
+					value={activeTab}
+					onValueChange={(val) => setActiveTab(val as AuthTab)}
 				>
-					<Button
-						type="button"
-						className={`${styles.tab} ${activeTab === "login" ? styles.tabActive : ""}`}
-						onClick={() => setActiveTab("login")}
+					<TabsList
+						className={styles.tabs}
+						aria-label="Authentication mode"
 					>
-						{t("login.login")}
-					</Button>
-					<Button
-						type="button"
-						className={`${styles.tab} ${activeTab === "register" ? styles.tabActive : ""}`}
-						onClick={() => setActiveTab("register")}
-					>
-						{t("register.register")}
-					</Button>
-				</div>
-
-				{activeTab === "login" ? (
-					<form
-						key="login-form"
-						className={styles.form}
-						onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
-					>
-						<Input
-							type="email"
-							label={t("login.email")}
-							error={loginForm.formState.errors.email?.message}
-							autoComplete="email"
-							{...loginForm.register("email")}
-						/>
-
-						<Input.Password
-							label={t("login.password")}
-							error={loginForm.formState.errors.password?.message}
-							autoComplete="current-password"
-							{...loginForm.register("password")}
-						/>
-
-						<Button
-							className={styles.button}
-							type="submit"
-							disabled={loginMutation.isPending}
+						<TabsTrigger
+							value="login"
+							className={`${styles.tab} ${activeTab === "login" ? styles.tabActive : ""}`}
 						>
-							{loginMutation.isPending
-								? t("common.loading")
-								: t("login.submit")}
-						</Button>
-
-						{loginMutation.isError && (
-							<div className={styles.serverError}>
-								{translateApiError(
-									t,
-									loginMutation.error,
-									LOGIN_ERROR_MESSAGES,
-								)}
-							</div>
-						)}
-					</form>
-				) : (
-					<form
-						key="register-form"
-						className={styles.form}
-						onSubmit={registerForm.handleSubmit(
-							handleRegisterSubmit,
-						)}
-					>
-						<Input
-							type="text"
-							label={t("register.name")}
-							error={registerForm.formState.errors.name?.message}
-							autoComplete="name"
-							{...registerForm.register("name")}
-						/>
-
-						<Input
-							type="text"
-							label={t("register.username")}
-							error={
-								registerForm.formState.errors.username?.message
-							}
-							autoComplete="username"
-							{...registerForm.register("username")}
-						/>
-
-						<Input
-							type="email"
-							label={t("register.email")}
-							error={registerForm.formState.errors.email?.message}
-							autoComplete="email"
-							{...registerForm.register("email")}
-						/>
-
-						<Input.Password
-							label={t("register.password")}
-							error={
-								registerForm.formState.errors.password?.message
-							}
-							autoComplete="new-password"
-							{...registerForm.register("password")}
-						/>
-
-						<Button
-							className={styles.button}
-							type="submit"
-							disabled={registerMutation.isPending}
+							{t("login.login")}
+						</TabsTrigger>
+						<TabsTrigger
+							value="register"
+							className={`${styles.tab} ${activeTab === "register" ? styles.tabActive : ""}`}
 						>
-							{registerMutation.isPending
-								? t("common.loading")
-								: t("register.submit")}
-						</Button>
+							{t("register.register")}
+						</TabsTrigger>
+					</TabsList>
 
-						{registerMutation.isError && (
-							<div className={styles.serverError}>
-								{translateApiError(
-									t,
-									registerMutation.error,
-									REGISTER_ERROR_MESSAGES,
-								)}
-							</div>
-						)}
-					</form>
-				)}
+					<TabsContent value="login">
+						<form
+							key="login-form"
+							className={styles.form}
+							onSubmit={loginForm.handleSubmit(handleLoginSubmit)}
+						>
+							<Input
+								type="email"
+								label={t("login.email")}
+								error={loginForm.formState.errors.email?.message}
+								autoComplete="email"
+								{...loginForm.register("email")}
+							/>
+
+							<Input.Password
+								label={t("login.password")}
+								error={loginForm.formState.errors.password?.message}
+								autoComplete="current-password"
+								{...loginForm.register("password")}
+							/>
+
+							<Button
+								className={styles.button}
+								type="submit"
+								disabled={loginMutation.isPending}
+							>
+								{loginMutation.isPending
+									? t("common.loading")
+									: t("login.submit")}
+							</Button>
+
+							{loginMutation.isError && (
+								<div className={styles.serverError}>
+									{translateApiError(
+										t,
+										loginMutation.error,
+										LOGIN_ERROR_MESSAGES,
+									)}
+								</div>
+							)}
+						</form>
+					</TabsContent>
+
+					<TabsContent value="register">
+						<form
+							key="register-form"
+							className={styles.form}
+							onSubmit={registerForm.handleSubmit(
+								handleRegisterSubmit,
+							)}
+						>
+							<Input
+								type="text"
+								label={t("register.name")}
+								error={registerForm.formState.errors.name?.message}
+								autoComplete="name"
+								{...registerForm.register("name")}
+							/>
+
+							<Input
+								type="text"
+								label={t("register.username")}
+								error={
+									registerForm.formState.errors.username?.message
+								}
+								autoComplete="username"
+								{...registerForm.register("username")}
+							/>
+
+							<Input
+								type="email"
+								label={t("register.email")}
+								error={registerForm.formState.errors.email?.message}
+								autoComplete="email"
+								{...registerForm.register("email")}
+							/>
+
+							<Input.Password
+								label={t("register.password")}
+								error={
+									registerForm.formState.errors.password?.message
+								}
+								autoComplete="new-password"
+								{...registerForm.register("password")}
+							/>
+
+							<Button
+								className={styles.button}
+								type="submit"
+								disabled={registerMutation.isPending}
+							>
+								{registerMutation.isPending
+									? t("common.loading")
+									: t("register.submit")}
+							</Button>
+
+							{registerMutation.isError && (
+								<div className={styles.serverError}>
+									{translateApiError(
+										t,
+										registerMutation.error,
+										REGISTER_ERROR_MESSAGES,
+									)}
+								</div>
+							)}
+						</form>
+					</TabsContent>
+				</Tabs>
 
 				<Link className={styles.secondaryLink} to="/login/anonymous">
 					{t("login.asGuest")}

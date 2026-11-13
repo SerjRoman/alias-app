@@ -11,7 +11,7 @@ import {
 	useGameVoice,
 	usePlayersDisplayMap,
 } from "@entities/game";
-import { ActiveGameView } from "@pages/game/ui/active-game";
+import { GameView } from "@pages/game/ui/game-view";
 import { GameFinished } from "@pages/game/ui/game-finished";
 import { useEffect, useState, useRef } from "react";
 import { AdminPanel } from "./admin-panel/admin-panel";
@@ -162,7 +162,7 @@ export function GamePage() {
 			case "LOBBY":
 				return <LobbyView playersDisplayMap={playersDisplayMap} />;
 			case "IN_PROGRESS":
-				return <ActiveGameView playersDisplayMap={playersDisplayMap} />;
+				return <GameView />;
 			case "FINISHED":
 				return <GameFinished />;
 			default:
@@ -171,7 +171,45 @@ export function GamePage() {
 	};
 	const currentView = renderCurrentView();
 
-	const mainContent = (
+	const isInProgress = game.status === "IN_PROGRESS";
+
+	const mainContent = isInProgress ? (
+		<>
+			{isAdmin && (
+				<>
+					{!isOpen && (
+						<Tooltip
+							text={t("tooltips.settingsToggle")}
+							position="left"
+							className={styles.adminToggleContainer}
+						>
+							<Button
+								className={`${styles.adminToggle}`}
+								onClick={() => (isOpen ? close() : open())}
+							>
+								<Settings />
+							</Button>
+						</Tooltip>
+					)}
+
+					<AdminPanelWrapper doCloseOnClickOutside={true}>
+						<div className={`${styles.sideMenu}`}>
+							<div className={styles.sideMenuContent}>
+								<AdminPanel
+									game={game}
+									onClose={() => (isOpen ? close() : open())}
+								/>
+							</div>
+						</div>
+					</AdminPanelWrapper>
+				</>
+			)}
+
+			<GameView />
+
+			{!isAssistantDisabled && <Assistant {...assistantState} />}
+		</>
+	) : (
 		<div className={`${styles.page} ${hasVoice ? styles.hasVoice : ""}`}>
 			{isAdmin && (
 				<>

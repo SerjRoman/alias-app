@@ -39,6 +39,7 @@ import {
 	CurrentGameResponseDto,
 	ValidateCodeResponseDto,
 	GetVoiceTokenResponseDto,
+	ShopCatalogResponseDto,
 } from "../application/dto/response";
 import { VoiceService } from "../application/voice.service";
 import { GameHttpExceptionFilter } from "./filters/game-exception.filter";
@@ -286,6 +287,58 @@ export class GameController {
 			{ excludeExtraneousValues: true },
 		);
 	}
+
+	@Get("shop")
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: "Get global shop catalog" })
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description:
+			"Returns the global shop catalog items and default shop configuration.",
+		type: ShopCatalogResponseDto,
+	})
+	async getGlobalShopCatalog() {
+		this.logger.log("Received getGlobalShopCatalog request");
+		return plainToInstance(
+			ShopCatalogResponseDto,
+			await this.gameFacade.getShopCatalog({}),
+			{ excludeExtraneousValues: true },
+		);
+	}
+
+	@Get(":id/shop")
+	@UseGuards(JwtAuthGuard)
+	@ApiBearerAuth()
+	@HttpCode(HttpStatus.OK)
+	@ApiOperation({ summary: "Get shop catalog and settings for a game room" })
+	@ApiParam({
+		name: "id",
+		description: "The unique identifier of the game room.",
+		example: "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+	})
+	@ApiResponse({
+		status: HttpStatus.OK,
+		description: "Returns shop catalog items and room shop configuration.",
+		type: ShopCatalogResponseDto,
+	})
+	@ApiResponse({
+		status: HttpStatus.NOT_FOUND,
+		description: "The game room with the specified ID was not found.",
+	})
+	async getRoomShopCatalog(
+		@Param("id") roomId: string,
+		@GetAuthenticatedUser() user: UserDto,
+	) {
+		this.logger.log(
+			`Received getRoomShopCatalog request for roomId=${roomId} userId=${user.id}`,
+		);
+		return plainToInstance(
+			ShopCatalogResponseDto,
+			await this.gameFacade.getShopCatalog({ roomId }, user),
+			{ excludeExtraneousValues: true },
+		);
+	}
+
 	@Get(":id/voice-token")
 	@UseGuards(JwtAuthGuard)
 	@ApiBearerAuth()

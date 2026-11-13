@@ -10,6 +10,7 @@ import {
 	GameNotInProgressError,
 	PlayerNotFoundError,
 } from "../../../errors/game.errors";
+import { RoundIsNotInProgress } from "../../../errors/round.errors";
 import { ItemUsedDomainEvent } from "../../../events/game.events";
 import { RoundStatus, type GameState } from "../../../state/game.state";
 import type { UseItemAction } from "../../../actions/game.actions";
@@ -241,9 +242,20 @@ describe("UseItemStrategy", () => {
 		});
 	});
 
-	it("uses a seconds-based effect (FREEZE_NEXT_WORD) with expiresAt set", () => {
+	it("uses a seconds-based effect (FREEZE_NEXT_WORD) with expiresAt set when round is IN_PROGRESS", () => {
 		const strategy = new UseItemStrategy();
-		const state = createMockState();
+		const state = createMockState({
+			currentRound: {
+				id: "r-1",
+				teamId: "team-2",
+				explainerId: "user-2",
+				status: RoundStatus.IN_PROGRESS,
+				roundNumber: 1,
+				expiresAt: 10000,
+				words: [],
+				currentWord: { id: "w-1", text: "Apple", score: 0 },
+			},
+		});
 		ShopService.addItem(state, "user-1", {
 			id: "inv-1",
 			itemId: "FREEZE_NEXT_WORD",
@@ -268,6 +280,29 @@ describe("UseItemStrategy", () => {
 			status: "ACTIVE",
 			expiresAt: 2000 + 5000, // now + 5s
 		});
+	});
+
+	it("throws RoundIsNotInProgress when using seconds-based effect (FREEZE_NEXT_WORD) before round starts", () => {
+		const strategy = new UseItemStrategy();
+		const state = createMockState({ currentRound: null });
+		ShopService.addItem(state, "user-1", {
+			id: "inv-1",
+			itemId: "FREEZE_NEXT_WORD",
+			purchasedAt: 1000,
+		});
+
+		const action: UseItemAction = {
+			type: "USE_ITEM",
+			actorId: "user-1",
+			payload: {
+				inventoryItemId: "inv-1",
+				targetPlayerId: "user-2",
+			},
+		};
+		const ctx = createMockContext(state, action);
+
+		expect(() => strategy.handle(action, ctx)).toThrow(RoundIsNotInProgress);
+		expect(ShopService.getInventory(state, "user-1")).toHaveLength(1);
 	});
 
 	it("throws EffectAlreadyActiveError if same effect is already ARMED or ACTIVE on target", () => {

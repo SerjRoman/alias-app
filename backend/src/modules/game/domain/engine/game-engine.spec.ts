@@ -274,9 +274,9 @@ describe("GameEngine (Aggregate Root & Pipeline Dispatcher)", () => {
 			expect(roundWords).toBeDefined();
 			const bananaWord = roundWords![1];
 			game.dispatch({
-				type: "CHANGE_WORD_SCORE",
+				type: "CHANGE_WORD_OUTCOME",
 				actorId: ownerId,
-				payload: { wordId: bananaWord.id, delta: 1 },
+				payload: { wordId: bananaWord.id, outcome: "guessed" },
 			});
 			expect(bananaWord.score).toBe(1);
 			expect(game.getState().teams[0].score).toBe(2);

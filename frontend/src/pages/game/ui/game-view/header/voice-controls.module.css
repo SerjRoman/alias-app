@@ -1,0 +1,193 @@
+.settingsPopover {
+	z-index: 60;
+	width: 280px;
+	max-width: calc(100vw - 24px);
+	padding: var(--space-md);
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-panel, #111827);
+	border: 1px solid var(--game-border-default, #334155);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+	color: var(--game-text-primary, #f8fafc);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-md);
+}
+
+.popoverSection {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+.sectionTitle {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--game-text-secondary, #94a3b8);
+}
+
+.krispRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-sm);
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card, rgba(255, 255, 255, 0.04));
+	border: 1px solid var(--game-border-subtle, #1e293b);
+}
+
+.krispInfo {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.krispLabel {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary, #f8fafc);
+}
+
+.krispHint {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted, #64748b);
+}
+
+.toggleSwitch {
+	position: relative;
+	width: 38px;
+	height: 22px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--game-border-default, #334155);
+	background: rgba(148, 163, 184, 0.2);
+	cursor: pointer;
+	padding: 0;
+	flex-shrink: 0;
+	transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.toggleSwitch:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+
+.toggleSwitch.enabled {
+	background: rgba(16, 185, 129, 0.35);
+	border-color: rgba(16, 185, 129, 0.7);
+}
+
+.toggleThumb {
+	position: absolute;
+	top: 2px;
+	left: 2px;
+	width: 16px;
+	height: 16px;
+	border-radius: var(--radius-full);
+	background: #e2e8f0;
+	transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.toggleSwitch.enabled .toggleThumb {
+	transform: translateX(16px);
+	background: #34d399;
+}
+
+.devicesList {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2xs);
+	max-height: 180px;
+	overflow-y: auto;
+}
+
+.deviceItem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-xs);
+	width: 100%;
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card, rgba(255, 255, 255, 0.03));
+	border: 1px solid transparent;
+	color: var(--game-text-secondary, #cbd5e1);
+	font-size: var(--font-size-sm);
+	text-align: left;
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.deviceItem:hover {
+	background: var(--game-bg-card-hover, rgba(255, 255, 255, 0.07));
+	color: var(--game-text-primary, #f8fafc);
+}
+
+.deviceItem.activeDevice {
+	background: var(--game-color-info-bg, rgba(59, 130, 246, 0.15));
+	border-color: var(--game-color-info-border, rgba(59, 130, 246, 0.35));
+	color: var(--game-color-info-hover, #60a5fa);
+	font-weight: var(--font-weight-semibold);
+}
+
+.deviceLabel {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.emptyDevices {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted, #64748b);
+	padding: var(--space-xs);
+}
+
+.volumeControl {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2xs);
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card, rgba(255, 255, 255, 0.04));
+	border: 1px solid var(--game-border-subtle, #1e293b);
+}
+
+.volumeHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-xs);
+}
+
+.volumeLabel {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--game-text-primary, #f8fafc);
+}
+
+.volumeValue {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-color-info-hover, #60a5fa);
+	font-variant-numeric: tabular-nums;
+}
+
+.volumeSlider {
+	width: 100%;
+	height: 4px;
+	accent-color: var(--game-color-info, #3b82f6);
+	cursor: pointer;
+}
+
+.popoverArrow {
+	fill: var(--game-bg-panel, #111827);
+}

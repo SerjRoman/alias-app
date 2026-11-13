@@ -50,8 +50,7 @@ export function usePlayersDisplayMap(players: readonly PlayerBase[]) {
 								"Unknown Player",
 							username: shortInfo?.username || "",
 							avatarUrl:
-								shortInfo?.avatarUrl ||
-								USER_DEFAULT_AVATAR_URL,
+								shortInfo?.avatarUrl || USER_DEFAULT_AVATAR_URL,
 						} satisfies PlayerDisplayInfo,
 					];
 				}),

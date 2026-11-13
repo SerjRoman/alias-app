@@ -3,21 +3,26 @@
 	height: 100vh;
 	max-width: 100vw;
 	max-height: 100vh;
-	margin: 0;
 	padding: 0;
 	overflow: hidden;
-	background-color: var(--game-bg-root, #0a0c14);
-	color: var(--game-text-primary, #f8fafc);
+	background-color: var(--game-bg-root);
+	color: var(--game-text-primary);
 	display: grid;
 	grid-template-rows: auto 1fr;
 	box-sizing: border-box;
+
+	/* Override generic surface/hover tokens for shared Button inside dark game view */
+	--color-surface: var(--game-bg-card);
+	--color-hover: var(--game-bg-card-hover);
+	--color-text: var(--game-text-primary);
+	--color-border: var(--game-border-default);
 }
 
 .mainStage {
 	display: grid;
-	grid-template-columns: 330px 1fr 340px;
-	gap: 16px;
-	padding: 16px;
+	grid-template-columns: var(--space-sidebar-left-width) 1fr var(--space-sidebar-right-width);
+	gap: var(--space-2xl);
+	padding: var(--space-2xl);
 	overflow: hidden;
 	height: 100%;
 	min-height: 0;
@@ -27,15 +32,15 @@
 @media (max-width: 1200px) {
 	.mainStage {
 		grid-template-columns: 290px 1fr 300px;
-		gap: 12px;
-		padding: 12px;
+		gap: var(--space-lg);
+		padding: var(--space-lg);
 	}
 }
 
 @media (max-width: 900px) {
 	.mainStage {
 		grid-template-columns: 260px 1fr 260px;
-		gap: 8px;
-		padding: 8px;
+		gap: var(--space-sm);
+		padding: var(--space-sm);
 	}
 }

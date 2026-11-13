@@ -1,0 +1,139 @@
+.playerRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-sm) var(--space-md);
+	min-height: 44px;
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-subtle);
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.playerRow:hover {
+	background: var(--game-bg-card-hover);
+}
+
+.playerRow.speaking {
+	border-color: var(--game-color-success);
+	background: var(--game-color-success-bg);
+}
+
+.playerRow.roundReady {
+	border-color: var(--game-color-success-border, var(--game-color-success));
+	background: var(--game-color-success-bg);
+	box-shadow: 0 0 0 1px var(--game-color-success-bg);
+}
+
+.playerRow.targetable {
+	cursor: crosshair;
+	border-color: var(--game-color-warning, #f59e0b);
+	box-shadow: 0 0 0 1px var(--game-color-warning, #f59e0b);
+}
+
+.playerRow.targetable:hover {
+	background: var(--game-color-warning-bg, rgba(245, 158, 11, 0.14));
+}
+
+.playerInfo {
+	display: flex;
+	align-items: center;
+	gap: var(--space-md);
+	min-width: 0;
+}
+
+.playerAvatarWrapper {
+	position: relative;
+	width: 32px;
+	height: 32px;
+	border-radius: var(--radius-full);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid var(--game-border-subtle);
+	background: var(--game-bg-stage);
+	flex-shrink: 0;
+}
+
+.playerAvatar {
+	width: 100%;
+	height: 100%;
+	border-radius: var(--radius-full);
+	object-fit: cover;
+	background: var(--game-bg-card);
+	filter: brightness(0.97) contrast(1.02);
+	display: block;
+}
+
+.playerSpeakingRing {
+	position: absolute;
+	inset: -3px;
+	border-radius: var(--radius-full);
+	border: 2px solid var(--game-color-success);
+	pointer-events: none;
+	z-index: 2;
+}
+
+.playerName {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-semibold);
+	color: var(--game-text-primary);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.playerMeta {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	flex-shrink: 0;
+}
+
+.explainingIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-full);
+	background: var(--game-color-danger-bg);
+	border: 1px solid var(--game-color-danger-border);
+	color: var(--game-color-danger);
+	flex-shrink: 0;
+}
+
+.readyBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-full);
+	background: var(--game-color-success-bg);
+	border: 1px solid var(--game-color-success);
+	color: var(--game-color-success);
+	flex-shrink: 0;
+}
+
+.speakingBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-full);
+	background: var(--game-color-success-bg);
+	border: 1px solid var(--game-color-success);
+	color: var(--game-color-success);
+	flex-shrink: 0;
+}
+
+.playerScore {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	color: var(--game-text-muted);
+	flex-shrink: 0;
+}

@@ -1,0 +1,229 @@
+.stageSingle {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	width: 100%;
+	gap: var(--space-lg);
+}
+
+.feedCard {
+	flex: 1;
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+	background: var(--game-bg-panel);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-xl);
+	overflow: hidden;
+}
+
+.feedHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-lg) var(--space-xl);
+	background: var(--game-bg-header);
+	border-bottom: 1px solid var(--game-border-default);
+	flex-shrink: 0;
+}
+
+.feedTitle {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--game-text-secondary);
+}
+
+.roundScoreTotal {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-extrabold);
+	color: #34d399;
+	background: rgba(16, 185, 129, 0.15);
+	border: 1px solid rgba(16, 185, 129, 0.35);
+	padding: var(--space-3xs) var(--space-sm);
+	border-radius: var(--radius-md);
+}
+
+.roundScoreTotal.negative {
+	color: #fda4af;
+	background: rgba(244, 63, 94, 0.14);
+	border-color: rgba(244, 63, 94, 0.35);
+}
+
+.feedList {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+.emptyState {
+	text-align: center;
+	padding: 24px 12px;
+	color: var(--game-text-muted, #64748b);
+	font-size: 12px;
+}
+
+.feedItem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-md);
+	padding: var(--space-sm) var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-subtle);
+}
+
+.feedWordGroup {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	min-width: 0;
+	flex: 1;
+}
+
+.feedWord {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary);
+	letter-spacing: 0.02em;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.effectIcons {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	flex-shrink: 0;
+}
+
+.effectBadge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	padding: 0;
+	border-radius: var(--radius-sm);
+	background: var(--game-color-info-bg, rgba(59, 130, 246, 0.15));
+	border: 1px solid var(--game-color-info-border, rgba(59, 130, 246, 0.35));
+	color: var(--game-color-info-hover, #60a5fa);
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.effectBadge:hover {
+	background: rgba(59, 130, 246, 0.25);
+	border-color: var(--game-color-info, #3b82f6);
+}
+
+.feedBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-extrabold);
+	padding: var(--space-3xs) var(--space-xs);
+	border-radius: var(--radius-sm);
+	flex-shrink: 0;
+}
+
+.feedBadge.correct {
+	background: rgba(16, 185, 129, 0.16);
+	color: #34d399;
+	border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.feedBadge.neutral {
+	background: rgba(148, 163, 184, 0.14);
+	color: #94a3b8;
+	border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.feedBadge.skipped {
+	background: rgba(244, 63, 94, 0.14);
+	color: #fda4af;
+	border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+/* Host 3-state segmented toggle */
+.statusToggleGroup {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+	padding: 3px;
+	border-radius: var(--radius-md);
+	background: var(--game-bg-root);
+	border: 1px solid var(--game-border-default);
+	flex-shrink: 0;
+}
+
+.statusToggleBtn {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	border: 1px solid transparent;
+	border-radius: var(--radius-sm);
+	background: transparent;
+	color: var(--game-text-secondary);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.statusToggleBtn:hover {
+	color: var(--game-text-primary);
+	background: var(--game-border-subtle);
+}
+
+.statusToggleBtn.activeCorrect {
+	background: rgba(16, 185, 129, 0.2);
+	color: #34d399;
+	border-color: rgba(16, 185, 129, 0.45);
+}
+
+.statusToggleBtn.activeNeutral {
+	background: rgba(148, 163, 184, 0.18);
+	color: #e2e8f0;
+	border-color: rgba(148, 163, 184, 0.4);
+}
+
+.statusToggleBtn.activeWrong {
+	background: rgba(244, 63, 94, 0.18);
+	color: #fda4af;
+	border-color: rgba(244, 63, 94, 0.45);
+}
+
+.footerActions {
+	display: flex;
+	justify-content: flex-end;
+	flex-shrink: 0;
+}
+
+.nextRoundBtn {
+	width: 100%;
+	min-height: 44px;
+	border-radius: var(--radius-lg);
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	background: rgba(16, 185, 129, 0.2);
+	border: 1px solid rgba(16, 185, 129, 0.5);
+	color: #34d399;
+	transition: all 0.2s ease;
+}
+
+.nextRoundBtn:hover:not(:disabled) {
+	background: rgba(16, 185, 129, 0.3);
+	border-color: rgba(16, 185, 129, 0.75);
+	color: #6ee7b7;
+}

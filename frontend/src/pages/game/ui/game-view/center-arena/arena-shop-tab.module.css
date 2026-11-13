@@ -1,0 +1,241 @@
+.dockContent {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: var(--space-md) var(--space-xl);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-lg);
+}
+
+.shopSection {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+/* Section Subheaders */
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--game-text-secondary);
+}
+
+.sectionHeaderSub {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted);
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* Inventory Slots Bar (Max 3 slots) */
+.inventorySlotsRow {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: var(--space-sm);
+}
+
+.inventorySlot {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-sm) var(--space-md);
+	min-height: 48px;
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-color-cyan-border);
+	gap: var(--space-sm);
+}
+
+.inventorySlotEmpty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-xs);
+	padding: var(--space-xs) var(--space-md);
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-root);
+	border: 1px dashed var(--game-border-default);
+	color: var(--game-text-muted);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+}
+
+.inventorySlotInfo {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-width: 0;
+}
+
+.inventorySlotIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: var(--radius-md);
+	background: var(--game-color-cyan-bg);
+	color: var(--game-color-cyan-active);
+	flex-shrink: 0;
+}
+
+.inventorySlotDetails {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.inventorySlotName {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary);
+	line-height: 1.25;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.inventorySlotDesc {
+	font-size: var(--font-size-2xs);
+	color: var(--game-text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.btnActivateSlot {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	background: rgba(16, 185, 129, 0.16);
+	border: 1px solid rgba(16, 185, 129, 0.4);
+	color: #34d399;
+	padding: var(--space-2xs) var(--space-sm);
+	border-radius: var(--radius-sm);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-extrabold);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+}
+
+.btnActivateSlot:hover {
+	background: rgba(16, 185, 129, 0.28);
+	border-color: rgba(16, 185, 129, 0.65);
+	color: #6ee7b7;
+	transform: translateY(-1px);
+}
+
+/* Shop Catalog Grid */
+.shopGrid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+	gap: var(--space-sm);
+}
+
+.shopCard {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-sm) var(--space-md);
+	min-height: 52px;
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-subtle);
+	transition: all 0.2s ease;
+	gap: var(--space-sm);
+}
+
+.shopCard:hover {
+	border-color: var(--game-color-info);
+	background: var(--game-bg-card-hover);
+	transform: translateY(-1px);
+}
+
+.shopCardInfo {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-width: 0;
+}
+
+.shopCardIcon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	border-radius: var(--radius-md);
+	background: var(--game-color-info-bg);
+	color: var(--game-color-info-hover);
+	flex-shrink: 0;
+}
+
+.shopCardDetails {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.shopCardName {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary);
+	line-height: 1.25;
+}
+
+.shopCardDesc {
+	font-size: var(--font-size-2xs);
+	color: var(--game-text-muted);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.btnShopBuy {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	background: var(--game-color-warning-bg);
+	border: 1px solid var(--game-color-warning-border);
+	color: var(--game-accent-gold);
+	padding: var(--space-2xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+.btnShopBuy:hover:not(:disabled) {
+	background: var(--game-color-warning-hover);
+	color: var(--color-text-light);
+}
+
+.btnShopBuy:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	background: var(--game-border-subtle);
+	border-color: var(--game-border-subtle);
+	color: var(--game-text-muted);
+}
+
+.infoTrigger {
+	flex: 1;
+	background: transparent;
+	border: none;
+	padding: 0;
+	margin: 0;
+	text-align: left;
+	color: inherit;
+	cursor: pointer;
+}

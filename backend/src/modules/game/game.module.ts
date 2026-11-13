@@ -10,18 +10,18 @@ import { RoundScheduler } from "./application/round-scheduler.service";
 import { RedisGameRepository } from "./infrastructure/redis-game.repository";
 import { GameGateway } from "./presentation/game.gateway";
 import { DictionaryService } from "./application/dictionary.service";
-import { ChangeWordScoreUseCase } from "./application/use-cases/game/change-word-score.use-case";
+import { ChangeWordOutcomeUseCase } from "./application/use-cases/round/change-word-outcome.use-case";
 import { CreateGameUseCase } from "./application/use-cases/game/create-game.use-case";
 import { DeleteFinishedGameUseCase } from "./application/use-cases/game/delete-finished-game.use-case";
 import { DeleteGameUseCase } from "./application/use-cases/game/delete-game.use-case";
 import { FindAllGamesUseCase } from "./application/use-cases/game/find-all-games.use-case";
 import { FindOneGameUseCase } from "./application/use-cases/game/find-one.use-case";
 import { GetGameCodeUseCase } from "./application/use-cases/game/get-game-code.use-case";
-import { GetPrivatePlayerStateUseCase } from "./application/use-cases/game/get-private-player-state.use-case";
+import { GetPrivatePlayerStateUseCase } from "./application/use-cases/player/get-private-player-state.use-case";
 import { JoinGameUseCase } from "./application/use-cases/game/join-game.use-case";
 import { LeaveGameUseCase } from "./application/use-cases/game/leave-game.use-case";
-import { NextRoundUseCase } from "./application/use-cases/game/next-round.use-case";
-import { NextWordUseCase } from "./application/use-cases/game/next-word.use-case";
+import { NextRoundUseCase } from "./application/use-cases/round/next-round.use-case";
+import { NextWordUseCase } from "./application/use-cases/round/next-word.use-case";
 import { StartGameUseCase } from "./application/use-cases/game/start-game.use-case";
 import { ToggleReadyUseCase } from "./application/use-cases/game/toggle-game-ready.use-case";
 import { TransferOwnershipUseCase } from "./application/use-cases/game/transfer-ownership.use-case";
@@ -47,7 +47,12 @@ import { StartPointingUseCase } from "./application/use-cases/round/start-pointi
 import { StartRoundForcedUseCase } from "./application/use-cases/round/start-round-forced.use-case";
 import { PauseRoundUseCase } from "./application/use-cases/round/pause-round.use-case";
 import { ResumeRoundUseCase } from "./application/use-cases/round/resume-round.use-case";
-import { BuyItemUseCase, UseItemUseCase } from "./application/use-cases/shop";
+import { GetExplainerWordUseCase } from "./application/use-cases/round/get-explainer-word.use-case";
+import {
+	BuyItemUseCase,
+	UseItemUseCase,
+	GetShopCatalogUseCase,
+} from "./application/use-cases/shop";
 import { DICTIONARY_REPOSITORY } from "./application/dictionary.repository.interface";
 import { RedisDictionaryRepository } from "./infrastructure/redis-dictionary.repository";
 import { VoiceService } from "./application/voice.service";
@@ -86,7 +91,7 @@ import { RoomFifoQueueService } from "./application/room-fifo-queue.service";
 			useClass: LocalWordPackClient,
 		},
 		// Use cases:
-		ChangeWordScoreUseCase,
+		ChangeWordOutcomeUseCase,
 		CreateGameUseCase,
 		DeleteFinishedGameUseCase,
 		DeleteGameUseCase,
@@ -123,8 +128,10 @@ import { RoomFifoQueueService } from "./application/room-fifo-queue.service";
 		StartRoundForcedUseCase,
 		PauseRoundUseCase,
 		ResumeRoundUseCase,
+		GetExplainerWordUseCase,
 		BuyItemUseCase,
 		UseItemUseCase,
+		GetShopCatalogUseCase,
 	],
 	controllers: [GameController],
 	exports: [

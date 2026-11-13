@@ -1,0 +1,75 @@
+.popoverContent {
+	z-index: 60;
+	width: 240px;
+	max-width: calc(100vw - 24px);
+	padding: var(--space-md);
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-panel, #111827);
+	border: 1px solid var(--game-border-default, #334155);
+	box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+	color: var(--game-text-primary, #f8fafc);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-sm);
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-width: 0;
+}
+
+.identity {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	min-width: 0;
+}
+
+.name {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary, #f8fafc);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.username {
+	font-size: var(--font-size-sm);
+	color: var(--game-text-secondary, #94a3b8);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.guestBadge {
+	font-size: var(--font-size-xs);
+	color: var(--game-text-muted, #64748b);
+}
+
+.profileLink {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-xs);
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	background: var(--game-color-info-bg, rgba(59, 130, 246, 0.15));
+	border: 1px solid var(--game-color-info-border, rgba(59, 130, 246, 0.35));
+	color: var(--game-color-info-hover, #60a5fa);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-semibold);
+	text-decoration: none;
+	transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.profileLink:hover {
+	background: rgba(59, 130, 246, 0.25);
+	border-color: var(--game-color-info, #3b82f6);
+}
+
+.popoverArrow {
+	fill: var(--game-bg-panel, #111827);
+}

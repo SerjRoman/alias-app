@@ -260,13 +260,13 @@ describe("roundFlowHandler", () => {
 		});
 	});
 
-	describe("3. CHANGE_WORD_SCORE", () => {
+	describe("3. CHANGE_WORD_OUTCOME", () => {
 		it("updates word score and team score accordingly", () => {
 			const { ctx, emittedEvents } = createActionContext(
 				{
-					type: "CHANGE_WORD_SCORE",
+					type: "CHANGE_WORD_OUTCOME",
 					actorId: "host-1",
-					payload: { wordId: "w-2", delta: 1 },
+					payload: { wordId: "w-2", outcome: "guessed" },
 				},
 				{
 					teams: [
@@ -308,12 +308,12 @@ describe("roundFlowHandler", () => {
 			expect(scoreChangedEvent.teamScore).toBe(11);
 		});
 
-		it("clamps word score between -1 and 1", () => {
+		it("sets word outcome to skipped and score to -1", () => {
 			const { ctx } = createActionContext(
 				{
-					type: "CHANGE_WORD_SCORE",
+					type: "CHANGE_WORD_OUTCOME",
 					actorId: "host-1",
-					payload: { wordId: "w-1", delta: 5 },
+					payload: { wordId: "w-1", outcome: "skipped" },
 				},
 				{
 					currentRound: {
@@ -332,13 +332,14 @@ describe("roundFlowHandler", () => {
 			roundFlowHandler(ctx);
 
 			const round = ctx.state.currentRound!;
-			expect(round.words[0].score).toBe(1);
+			expect(round.words[0].outcome).toBe("skipped");
+			expect(round.words[0].score).toBe(-1);
 		});
 
 		it("throws RoundIsNotPointing if round is not in POINTING status", () => {
 			const { ctx } = createActionContext({
-				type: "CHANGE_WORD_SCORE",
-				payload: { wordId: "w-1", delta: 1 },
+				type: "CHANGE_WORD_OUTCOME",
+				payload: { wordId: "w-1", outcome: "guessed" },
 			});
 
 			expect(() => roundFlowHandler(ctx)).toThrow(RoundIsNotPointing);
@@ -347,8 +348,8 @@ describe("roundFlowHandler", () => {
 		it("throws WordInRoundNotFound if word is not found in round words history", () => {
 			const { ctx } = createActionContext(
 				{
-					type: "CHANGE_WORD_SCORE",
-					payload: { wordId: "w-unknown", delta: 1 },
+					type: "CHANGE_WORD_OUTCOME",
+					payload: { wordId: "w-unknown", outcome: "guessed" },
 				},
 				{
 					currentRound: {
@@ -729,12 +730,12 @@ describe("roundFlowHandler", () => {
 	});
 
 	describe("6. Owner & Settings Permission Guards", () => {
-		it("throws PlayerNotRoomOwnerError on CHANGE_WORD_SCORE when isOnlyOwnerCanChangeScore is true and actor is not owner", () => {
+		it("throws PlayerNotRoomOwnerError on CHANGE_WORD_OUTCOME when isOnlyOwnerCanChangeScore is true and actor is not owner", () => {
 			const { ctx } = createActionContext(
 				{
-					type: "CHANGE_WORD_SCORE",
+					type: "CHANGE_WORD_OUTCOME",
 					actorId: "p1",
-					payload: { wordId: "w-1", delta: 1 },
+					payload: { wordId: "w-1", outcome: "guessed" },
 				},
 				{
 					settings: { isOnlyOwnerCanChangeScore: true },
@@ -756,12 +757,12 @@ describe("roundFlowHandler", () => {
 			);
 		});
 
-		it("allows non-owner to CHANGE_WORD_SCORE when isOnlyOwnerCanChangeScore is false", () => {
+		it("allows non-owner to CHANGE_WORD_OUTCOME when isOnlyOwnerCanChangeScore is false", () => {
 			const { ctx } = createActionContext(
 				{
-					type: "CHANGE_WORD_SCORE",
+					type: "CHANGE_WORD_OUTCOME",
 					actorId: "p1",
-					payload: { wordId: "w-1", delta: 1 },
+					payload: { wordId: "w-1", outcome: "guessed" },
 				},
 				{
 					settings: { isOnlyOwnerCanChangeScore: false },

@@ -64,7 +64,8 @@
 		border-color 0.2s;
 }
 
-.tabActive {
+.tabActive,
+.tab[data-state="active"] {
 	background-color: var(--color-primary);
 	color: var(--color-text-light);
 	border-color: var(--color-primary);

@@ -1,0 +1,200 @@
+/* 2-Column Split Stage */
+.stageGrid {
+	flex: 1;
+	display: grid;
+	grid-template-columns: 1.15fr 0.85fr;
+	gap: var(--space-2xl);
+	min-height: 0;
+}
+
+.wordCard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-3xl);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-xl);
+	padding: var(--space-5xl);
+	position: relative;
+	text-align: center;
+}
+
+.wordBadge {
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	padding: var(--space-3xs) var(--space-md);
+	border-radius: var(--radius-2xl);
+	background: var(--game-color-info-bg);
+	border: 1px solid var(--game-color-info-border);
+	color: var(--game-color-info-hover);
+}
+
+.targetWord {
+	font-size: var(--font-size-word);
+	font-weight: var(--font-weight-black);
+	letter-spacing: 0.04em;
+	color: var(--game-text-primary);
+	word-break: break-all;
+	line-height: var(--line-height-tight);
+}
+
+.actionButtons {
+	display: flex;
+	gap: var(--space-2xl);
+	width: 100%;
+	max-width: 380px;
+}
+
+.btnAction {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-sm);
+	padding: var(--space-xl) var(--space-3xl);
+	border-radius: var(--radius-lg);
+	font-size: var(--font-size-xl);
+	font-weight: var(--font-weight-bold);
+	cursor: pointer;
+	border: 1px solid transparent;
+	user-select: none;
+}
+
+/* Light & Pleasant Soft Colors for Correct & Skip with Smooth Hover/Active */
+.btnCorrect {
+	background: rgba(16, 185, 129, 0.14);
+	color: #34d399;
+	border: 1px solid rgba(16, 185, 129, 0.38);
+}
+
+.btnCorrect:hover {
+	background: rgba(16, 185, 129, 0.24);
+	border-color: rgba(16, 185, 129, 0.7);
+	color: #6ee7b7;
+}
+
+.btnCorrect:active {
+	background: rgba(16, 185, 129, 0.32);
+	border-color: #10b981;
+	color: #a7f3d0;
+}
+
+.btnSkip {
+	background: rgba(244, 63, 94, 0.12);
+	color: #fda4af;
+	border: 1px solid rgba(244, 63, 94, 0.32);
+}
+
+.btnSkip:hover {
+	background: rgba(244, 63, 94, 0.22);
+	border-color: rgba(244, 63, 94, 0.65);
+	color: #fecdd3;
+}
+
+.btnSkip:active {
+	background: rgba(244, 63, 94, 0.3);
+	border-color: #f43f5e;
+	color: #ffe4e6;
+}
+
+/* Guessed Words Feed */
+.feedCard {
+	display: flex;
+	flex-direction: column;
+	background: var(--game-bg-panel);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-xl);
+	overflow: hidden;
+}
+
+.feedHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-lg) var(--space-xl);
+	background: var(--game-bg-header);
+	border-bottom: 1px solid var(--game-border-default);
+}
+
+.feedTitle {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--game-text-secondary);
+}
+
+.roundScoreTotal {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-extrabold);
+	background: rgba(16, 185, 129, 0.15);
+	border: 1px solid rgba(16, 185, 129, 0.35);
+	padding: var(--space-3xs) var(--space-sm);
+	border-radius: var(--radius-md);
+}
+.roundScoreTotal.positive {
+	color: #34d399;
+}
+.roundScoreTotal.negative {
+	background: rgba(244, 63, 94, 0.14);
+	color: #fda4af;
+	border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.feedList {
+	flex: 1;
+	overflow-y: auto;
+	padding: var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+}
+
+.feedItem {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-sm) var(--space-md);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-subtle);
+}
+
+.feedWord {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-text-primary);
+	letter-spacing: 0.02em;
+}
+
+.feedBadge {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-extrabold);
+	padding: var(--space-3xs) var(--space-xs);
+	border-radius: var(--radius-sm);
+}
+
+.feedBadge.correct {
+	background: rgba(16, 185, 129, 0.16);
+	color: #34d399;
+	border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.feedBadge.skipped {
+	background: rgba(244, 63, 94, 0.14);
+	color: #fda4af;
+	border: 1px solid rgba(244, 63, 94, 0.35);
+}
+
+.feedHeaderActions {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+}

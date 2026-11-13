@@ -7,6 +7,7 @@ export type {
 	RoundState,
 	PlayerState,
 	WordState,
+	WordOutcome,
 	GameWordsLevel,
 	GameSummaryResponse,
 	ParticipantDisplayData,
@@ -16,3 +17,11 @@ export { GameStatus, RoundStatus } from "./game.types";
 export { useGameSlice } from "./game.slice";
 export { useGameShortcuts } from "./use-game-shortcuts";
 export { useGameSync } from "../api/use-game-sync";
+export {
+	usePrivatePlayerSlice,
+	type PrivatePlayerState,
+	type ShopInventoryItem,
+	type EffectItemId,
+	type EffectTargetType,
+	type PendingTargetItem,
+} from "./player-state.slice";

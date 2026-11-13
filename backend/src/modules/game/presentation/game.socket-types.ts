@@ -6,7 +6,7 @@ import type {
 	NextRoundDto,
 	NextWordDto,
 	StartRoundDto,
-	ChangeWordScoreDto,
+	ChangeWordOutcomeDto,
 	SubmitCustomWordsDto,
 	CreateTeamDto,
 	MoveToTeamDto,
@@ -24,6 +24,8 @@ import type {
 	StartPointingDto,
 	BuyItemDto,
 	UseItemDto,
+	GetExplainerWordDto,
+	GetShopCatalogDto,
 } from "../application/dto/body";
 import type {
 	GameResponseDetailsDto,
@@ -34,19 +36,21 @@ import type {
 	WordResponseDto,
 	GameSettingsDto,
 	PrivatePlayerStateResponseDto,
+	ExplainerWordResponseDto,
+	ShopCatalogResponseDto,
 } from "../application/dto/response";
 import type { AuthenticatedUser } from "@common/types/authenticated-user";
 import type { ADMIN_EVENTS } from "./socket.events";
 
 interface ServerToClientEvents {
 	gameUpdated: (data: GameUpdateResponseDto | GameResponseDetailsDto) => void;
-	"game-settings-updated": (data: GameSettingsDto) => void;
+	gameSettingsUpdated: (data: GameSettingsDto) => void;
 	teamsUpdated: (data: TeamResponseDto[]) => void;
 	playersUpdated: (data: PlayerResponseDto[]) => void;
 	playerKicked: (data: { kickedUserId: string }) => void;
 	gameStarted: (data: GameResponseDetailsDto) => void;
 	roundUpdated: (data: RoundResponseDto) => void;
-	privateWord: (dto: WordResponseDto) => void;
+	explainerWord: (dto: ExplainerWordResponseDto) => void;
 	privateStateUpdated: (dto: PrivatePlayerStateResponseDto) => void;
 	gameFinished: () => void;
 	gameDeleted: (data: { roomId: string }) => void;
@@ -70,13 +74,19 @@ interface ClientToServerEvents {
 	nextRound: (dto: NextRoundDto) => void;
 	endPointing: (dto: EndPointingDto) => void;
 	startRound: (dto: StartRoundDto) => void;
-	changeWordScore: (dto: ChangeWordScoreDto) => void;
+	changeWordOutcome: (dto: ChangeWordOutcomeDto) => void;
 	deleteGame: (dto: DeleteGameDto) => void;
-	buyItem: (dto: BuyItemDto) => void;
-	useItem: (dto: UseItemDto) => void;
+	buyItem: (dto: BuyItemDto) => Promise<PrivatePlayerStateResponseDto>;
+	useItem: (dto: UseItemDto) => Promise<PrivatePlayerStateResponseDto>;
 	getPrivateState: (data: {
 		roomId: string;
 	}) => Promise<PrivatePlayerStateResponseDto>;
+	getExplainerWord?: (
+		dto: GetExplainerWordDto,
+	) => Promise<ExplainerWordResponseDto | null>;
+	getShopCatalog?: (
+		dto: GetShopCatalogDto,
+	) => Promise<ShopCatalogResponseDto>;
 	[ADMIN_EVENTS.assignPlayerToTeam]: (dto: MoveToTeamDto) => void;
 	[ADMIN_EVENTS.kickPlayer]: (dto: KickPlayerDto) => void;
 	[ADMIN_EVENTS.banPlayer]: (dto: BanPlayerDto) => void;

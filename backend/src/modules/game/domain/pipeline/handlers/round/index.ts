@@ -5,7 +5,7 @@ import { SetExplainerStrategy } from "./set-explainer.strategy";
 import { ChangeRoundTimeStrategy } from "./change-round-time.strategy";
 import {
 	StartPointingStrategy,
-	ChangeWordScoreStrategy,
+	ChangeWordOutcomeStrategy,
 	EndPointingStrategy,
 } from "./round-pointing.strategies";
 import { StartRoundStrategy } from "./start-round.strategy";
@@ -31,7 +31,7 @@ export const roundFlowDispatcher = new ActionDispatcher().registerAll([
 	new ChangeRoundTimeStrategy(),
 	new StartRoundStrategy(),
 	new StartPointingStrategy(),
-	new ChangeWordScoreStrategy(),
+	new ChangeWordOutcomeStrategy(),
 	new EndPointingStrategy(),
 	new AwardRoundCoinsStrategy(),
 	new NextRoundStrategy(),

@@ -10,6 +10,7 @@ import {
 	SetExplainerDto,
 	PauseGameDto,
 	ResumeGameDto,
+	GetExplainerWordDto,
 } from "../dto/body";
 import { EndPointingUseCase } from "../use-cases/round/end-pointing.use-case";
 import { SetExplainerUseCase } from "../use-cases/round/set-explainer.use-case";
@@ -18,6 +19,7 @@ import { StartPointingUseCase } from "../use-cases/round/start-pointing.use-case
 import { StartRoundForcedUseCase } from "../use-cases/round/start-round-forced.use-case";
 import { PauseRoundUseCase } from "../use-cases/round/pause-round.use-case";
 import { ResumeRoundUseCase } from "../use-cases/round/resume-round.use-case";
+import { GetExplainerWordUseCase } from "../use-cases/round/get-explainer-word.use-case";
 
 @Injectable()
 export class RoundFacade {
@@ -31,6 +33,7 @@ export class RoundFacade {
 		private readonly startRoundForcedUseCase: StartRoundForcedUseCase,
 		private readonly pauseRoundUseCase: PauseRoundUseCase,
 		private readonly resumeRoundUseCase: ResumeRoundUseCase,
+		private readonly getExplainerWordUseCase: GetExplainerWordUseCase,
 	) {}
 
 	async startRound(dto: StartRoundDto, actor: UserDto) {
@@ -60,5 +63,9 @@ export class RoundFacade {
 	}
 	async resumeRound(dto: ResumeGameDto, actor: UserDto) {
 		return this.resumeRoundUseCase.execute(dto, actor);
+	}
+
+	async getExplainerWord(dto: GetExplainerWordDto, actor: UserDto) {
+		return this.getExplainerWordUseCase.execute(dto, actor);
 	}
 }

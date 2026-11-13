@@ -47,6 +47,94 @@
 	--game-accent-gold: #f59e0b;
 	--game-accent-cyan: #06b6d4;
 
+	/* Typography Tokens */
+	--font-size-2xs: 9px;
+	--font-size-xs: 10px;
+	--font-size-sm: 11px;
+	--font-size-base: 12px;
+	--font-size-md: 13px;
+	--font-size-lg: 14px;
+	--font-size-xl: 16px;
+	--font-size-2xl: 18px;
+	--font-size-3xl: 24px;
+	--font-size-4xl: 38px;
+	--font-size-word: clamp(26px, 3vw, 38px);
+
+	--font-weight-normal: 400;
+	--font-weight-medium: 500;
+	--font-weight-semibold: 600;
+	--font-weight-bold: 700;
+	--font-weight-extrabold: 800;
+	--font-weight-black: 900;
+
+	--line-height-none: 1;
+	--line-height-tight: 1.2;
+	--line-height-snug: 1.35;
+	--line-height-normal: 1.5;
+	--line-height-relaxed: 1.6;
+
+	/* Spacing Tokens (padding, margin, gap) */
+	--space-3xs: 2px;
+	--space-2xs: 4px;
+	--space-xs: 6px;
+	--space-sm: 8px;
+	--space-md: 10px;
+	--space-lg: 12px;
+	--space-xl: 14px;
+	--space-2xl: 16px;
+	--space-3xl: 18px;
+	--space-4xl: 20px;
+	--space-5xl: 24px;
+	--space-6xl: 28px;
+	--space-header-height: 56px;
+	--space-sidebar-left-width: 330px;
+	--space-sidebar-right-width: 340px;
+	--space-dock-height: 270px;
+
+	/* Radius Tokens */
+	--radius-2xs: 2px;
+	--radius-xs: 3px;
+	--radius-sm: 4px;
+	--radius-md: 6px;
+	--radius-lg: 8px;
+	--radius-xl: 10px;
+	--radius-2xl: 12px;
+	--radius-full: 9999px;
+
+	/* Gaming Color & State Tokens */
+	--game-color-success: #10b981;
+	--game-color-success-hover: #059669;
+	--game-color-success-bg: rgba(16, 185, 129, 0.12);
+	--game-color-success-border: rgba(16, 185, 129, 0.3);
+
+	--game-color-danger: #ef4444;
+	--game-color-danger-hover: #dc2626;
+	--game-color-danger-bg: rgba(239, 68, 68, 0.12);
+	--game-color-danger-border: rgba(239, 68, 68, 0.35);
+
+	--game-color-warning: #f59e0b;
+	--game-color-warning-hover: #fbbf24;
+	--game-color-warning-bg: rgba(245, 158, 11, 0.12);
+	--game-color-warning-border: rgba(245, 158, 11, 0.35);
+
+	--game-color-info: #3b82f6;
+	--game-color-info-hover: #60a5fa;
+	--game-color-info-bg: rgba(59, 130, 246, 0.12);
+	--game-color-info-border: rgba(59, 130, 246, 0.35);
+
+	--game-color-cyan-active: #38bdf8;
+	--game-color-cyan-bg: rgba(56, 189, 248, 0.15);
+	--game-color-cyan-border: rgba(56, 189, 248, 0.3);
+
+	--game-color-purple-bg: rgba(168, 85, 247, 0.15);
+	--game-color-purple-border: rgba(168, 85, 247, 0.35);
+	--game-color-purple-text: #c084fc;
+
+	--game-color-slate-btn: #334155;
+	--game-color-slate-btn-hover: #475569;
+	--game-color-slate-btn-border: #475569;
+	--game-color-slate-btn-text: #f1f5f9;
+
 	/* Z-Index Hierarchy */
 	--z-assistant: 300;
 	--z-tooltip: 400;

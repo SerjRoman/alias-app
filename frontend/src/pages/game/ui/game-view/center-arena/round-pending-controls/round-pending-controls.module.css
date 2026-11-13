@@ -1,0 +1,49 @@
+.container {
+	flex: 1;
+	min-height: 0;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-xl);
+	padding: var(--space-3xl);
+	background: var(--game-bg-panel);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-xl);
+	text-align: center;
+	color: var(--game-text-primary);
+}
+
+.spectatorMessage {
+	color: var(--game-text-secondary);
+	font-size: var(--font-size-md);
+}
+
+.startBtn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-sm);
+	min-height: 44px;
+	min-width: 240px;
+	padding: var(--space-sm) var(--space-xl);
+	border-radius: var(--radius-lg);
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-bold);
+	background: rgba(16, 185, 129, 0.2);
+	border: 1px solid rgba(16, 185, 129, 0.5);
+	color: #34d399;
+	transition: all 0.2s ease;
+}
+
+.startBtn:hover:not(:disabled) {
+	background: rgba(16, 185, 129, 0.3);
+	border-color: rgba(16, 185, 129, 0.75);
+	color: #6ee7b7;
+}
+
+.startBtn:disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}

@@ -29,6 +29,18 @@ import {
 } from "../../../errors/team.errors";
 import { handlePlayerDepartureSideEffects } from "./lobby.helpers";
 
+const DEFAULT_COLORS = [
+	"#FF5733",
+	"#33FF57",
+	"#3357FF",
+	"#F3FF33",
+	"#FF33F3",
+	"#33FFF3",
+	"#F3A833",
+	"#A833F3",
+	"#33A8F3",
+	"#F3A8A8",
+];
 export class AddTeamStrategy implements ActionStrategy<AddTeamAction> {
 	readonly actionType = "ADD_TEAM" as const;
 
@@ -56,14 +68,6 @@ export class AddTeamStrategy implements ActionStrategy<AddTeamAction> {
 			);
 		}
 
-		const DEFAULT_COLORS = [
-			"#FF5733",
-			"#33FF57",
-			"#3357FF",
-			"#F3FF33",
-			"#FF33F3",
-			"#33FFF3",
-		];
 		const assignedColor =
 			payload.color ||
 			DEFAULT_COLORS[state.teams.length % DEFAULT_COLORS.length];

@@ -1,0 +1,258 @@
+.dockContent {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	padding: var(--space-md) var(--space-xl);
+	display: flex;
+	flex-direction: column;
+}
+
+/* Betting Dashboard (2-Column) */
+.bettingDashboard {
+	display: grid;
+	grid-template-columns: 1fr 1.25fr;
+	gap: var(--space-lg);
+	height: 100%;
+	min-height: 0;
+	align-items: stretch;
+}
+
+/* Left Column: My Active Bets */
+.myBetsColumn {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+	min-height: 0;
+	background: var(--game-bg-stage);
+	border: 1px solid var(--game-border-default);
+	border-radius: var(--radius-lg);
+	padding: var(--space-sm) var(--space-md);
+}
+
+.sectionHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--game-text-secondary);
+}
+
+.myBetsList {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+	padding-right: var(--space-2xs);
+}
+
+.myBetCard {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-3xs);
+	padding: var(--space-xs) var(--space-sm);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-color-warning-border);
+}
+
+.myBetHeader {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.myBetCategory {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-color-cyan-active);
+	text-transform: uppercase;
+}
+
+.betWinningStatus {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3xs);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-extrabold);
+	color: #34d399;
+	background: rgba(16, 185, 129, 0.16);
+	border: 1px solid rgba(16, 185, 129, 0.35);
+	padding: 1px var(--space-xs);
+	border-radius: var(--radius-sm);
+}
+
+.betPendingStatus {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3xs);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	color: var(--game-color-warning);
+	background: var(--game-color-warning-bg);
+	border: 1px solid var(--game-color-warning-border);
+	padding: 1px var(--space-xs);
+	border-radius: var(--radius-sm);
+}
+
+.myBetTarget {
+	font-size: var(--font-size-base);
+	font-weight: var(--font-weight-extrabold);
+	color: var(--game-text-primary);
+}
+
+.myBetFooter {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--font-size-xs);
+	color: var(--game-accent-gold);
+	font-weight: var(--font-weight-semibold);
+}
+
+.myBetsEmpty {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 100%;
+	color: var(--game-text-muted);
+	font-size: var(--font-size-sm);
+	text-align: center;
+	padding: var(--space-2xl);
+}
+
+/* Right Column: Betting Controls */
+.bettingControls {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	gap: var(--space-sm);
+	min-height: 0;
+}
+
+.btnCategory {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--space-2xs);
+	background: transparent;
+	border: none;
+	color: var(--game-text-secondary);
+	padding: var(--space-2xs) var(--space-2xs);
+	border-radius: var(--radius-sm);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	cursor: pointer;
+	transition: all 0.15s ease;
+	white-space: nowrap;
+}
+
+.btnCategory:hover {
+	color: var(--game-text-primary);
+	background: var(--game-border-subtle);
+}
+
+.betOptionsRow {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+	gap: var(--space-xs);
+}
+
+.betOptionCard {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-3xs);
+	padding: var(--space-xs) var(--space-2xs);
+	border-radius: var(--radius-md);
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	color: var(--game-text-secondary);
+	cursor: pointer;
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-bold);
+	transition: all 0.2s ease;
+}
+
+.betOptionCard:hover {
+	border-color: var(--game-color-info);
+	color: var(--game-text-primary);
+}
+
+.betOptionCard.selected {
+	border-color: var(--game-color-warning);
+	background: var(--game-color-warning-bg);
+	color: var(--game-color-warning);
+}
+
+.betOddsTag {
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-extrabold);
+	color: var(--game-color-cyan-active);
+}
+
+.betActionRow {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+}
+
+.betChipsGroup {
+	display: flex;
+	align-items: center;
+	gap: var(--space-2xs);
+	flex: 1;
+}
+
+.btnChip {
+	background: var(--game-bg-card);
+	border: 1px solid var(--game-border-default);
+	color: var(--game-text-secondary);
+	padding: var(--space-2xs) var(--space-sm);
+	border-radius: var(--radius-sm);
+	font-size: var(--font-size-xs);
+	font-weight: var(--font-weight-bold);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.btnChip:hover {
+	border-color: var(--game-color-warning);
+	color: var(--game-color-warning);
+}
+
+.btnChip.activeChip {
+	background: var(--game-color-warning-bg);
+	border-color: var(--game-color-warning);
+	color: var(--game-color-warning);
+}
+
+.btnPlaceBet {
+	display: flex;
+	align-items: center;
+	gap: var(--space-xs);
+	background: var(--game-accent-gold);
+	border: none;
+	color: #000;
+	padding: var(--space-sm) var(--space-xl);
+	border-radius: var(--radius-md);
+	font-size: var(--font-size-sm);
+	font-weight: var(--font-weight-extrabold);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	white-space: nowrap;
+}
+
+.btnPlaceBet:hover:not(:disabled) {
+	background: var(--game-color-warning-hover);
+}
+
+.btnPlaceBet:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}

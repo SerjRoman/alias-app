@@ -1,0 +1,76 @@
+.spectatorsCard {
+	flex-shrink: 0;
+	border-radius: var(--radius-lg);
+	background: var(--game-bg-card);
+	border: 1px dashed var(--game-border-default);
+	overflow: hidden;
+	transition: all 0.2s ease;
+}
+
+.spectatorsCard:hover {
+	border-color: var(--game-border-highlight);
+	background: var(--game-bg-card-hover);
+}
+
+.teamHeader {
+	width: 100%;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: var(--space-md) var(--space-lg);
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: inherit;
+	text-align: left;
+	transition: background 0.2s ease;
+	flex-shrink: 0;
+}
+
+.teamIdentity {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	min-width: 0;
+	flex: 1;
+}
+
+.spectatorIconWrapper {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: var(--radius-md);
+	background: var(--game-border-subtle);
+	color: var(--game-text-secondary);
+	flex-shrink: 0;
+}
+
+.spectatorTitle {
+	font-size: var(--font-size-md);
+	font-weight: var(--font-weight-semibold);
+	color: var(--game-text-secondary);
+}
+
+.teamMetrics {
+	display: flex;
+	align-items: center;
+	gap: var(--space-sm);
+	flex-shrink: 0;
+}
+
+.chevron {
+	color: var(--game-text-muted);
+	flex-shrink: 0;
+}
+
+.playersList {
+	padding: var(--space-md) var(--space-md) var(--space-md);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-xs);
+	border-top: 1px solid var(--game-border-subtle);
+	flex-shrink: 0;
+}

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { SessionLayout } from "./layouts/session-layout";
 import { BaseLayout } from "./layouts/base-layout";
 import { PrivateLayout } from "./layouts/private-layout";
 import { GameLayout } from "./layouts/game-layout";
@@ -23,39 +24,35 @@ const ProfilePage = lazy(() =>
 		default: module.ProfilePage,
 	})),
 );
-const TestGamePage = lazy(() =>
-	import("../pages/test-game").then((module) => ({
-		default: module.TestGamePage,
-	})),
-);
 
 export function AppRoutes() {
 	return (
 		<BrowserRouter>
 			<Routes>
-				<Route path="/" element={<BaseLayout />}>
-					<Route path="/login" element={<LoginPage />}></Route>
-					<Route
-						path="/login/anonymous"
-						element={<AnonymousLoginPage />}
-					/>
-					<Route path="/" element={<PrivateLayout />}>
-						<Route path="/games" element={<GamesPage />} />
+				<Route element={<SessionLayout />}>
+					<Route path="/" element={<BaseLayout />}>
+						<Route path="/login" element={<LoginPage />}></Route>
 						<Route
-							path="/profile/:userId"
-							element={<ProfilePage />}
+							path="/login/anonymous"
+							element={<AnonymousLoginPage />}
 						/>
-						<Route
-							path="/games/:roomId/teams"
-							element={<div>Teams page</div>}
-						/>
+						<Route path="/" element={<PrivateLayout />}>
+							<Route path="/games" element={<GamesPage />} />
+							<Route
+								path="/profile/:userId"
+								element={<ProfilePage />}
+							/>
+							<Route
+								path="/games/:roomId/teams"
+								element={<div>Teams page</div>}
+							/>
+						</Route>
 					</Route>
-				</Route>
-				<Route path="/game" element={<GameLayout />}>
-					<Route index element={<GamePage />} />
-				</Route>
-				<Route path="/test-game" element={<GameLayout />}>
-					<Route index element={<TestGamePage />} />
+					<Route element={<PrivateLayout />}>
+						<Route path="/game" element={<GameLayout />}>
+							<Route index element={<GamePage />} />
+						</Route>
+					</Route>
 				</Route>
 			</Routes>
 		</BrowserRouter>

@@ -1,7 +1,7 @@
 import type { ActionStrategy } from "../../../dispatcher/action-dispatcher";
 import type {
 	StartPointingAction,
-	ChangeWordScoreAction,
+	ChangeWordOutcomeAction,
 	EndPointingAction,
 } from "../../../actions/game.actions";
 import type { ActionContext } from "../../pipeline.types";
@@ -22,7 +22,6 @@ import {
 	RoundNotActiveError,
 	WordInRoundNotFound,
 } from "../../../errors/round.errors";
-import { inferOutcomeFromWord, OUTCOME_LADDER } from "./round.helpers";
 
 export class StartPointingStrategy implements ActionStrategy<StartPointingAction> {
 	readonly actionType = "START_POINTING" as const;
@@ -59,6 +58,9 @@ export class StartPointingStrategy implements ActionStrategy<StartPointingAction
 		}
 
 		round.status = RoundStatus.POINTING;
+		round.expiresAt = 0;
+		round.pausedAt = null;
+		round.remainingMs = null;
 		emit(
 			new RoundPointingStartedDomainEvent(
 				state.id,
@@ -69,10 +71,10 @@ export class StartPointingStrategy implements ActionStrategy<StartPointingAction
 	}
 }
 
-export class ChangeWordScoreStrategy implements ActionStrategy<ChangeWordScoreAction> {
-	readonly actionType = "CHANGE_WORD_SCORE" as const;
+export class ChangeWordOutcomeStrategy implements ActionStrategy<ChangeWordOutcomeAction> {
+	readonly actionType = "CHANGE_WORD_OUTCOME" as const;
 
-	handle(action: ChangeWordScoreAction, ctx: ActionContext): void {
+	handle(action: ChangeWordOutcomeAction, ctx: ActionContext): void {
 		const { state, emit } = ctx;
 		const round = state.currentRound;
 
@@ -98,15 +100,7 @@ export class ChangeWordScoreStrategy implements ActionStrategy<ChangeWordScoreAc
 		}
 
 		const oldScore = word.score;
-		const currentOutcome = inferOutcomeFromWord(word);
-		const currentIndex = OUTCOME_LADDER.indexOf(currentOutcome);
-		const step =
-			Math.abs(payload.delta) >= 2
-				? Math.sign(payload.delta) * 2
-				: Math.sign(payload.delta);
-		const nextIndex = Math.max(0, Math.min(2, currentIndex + step));
-		const newOutcome: WordOutcome =
-			payload.outcome ?? OUTCOME_LADDER[nextIndex];
+		const newOutcome: WordOutcome = payload.outcome;
 
 		const { score: newScore } = calculateWordScore(
 			newOutcome,
