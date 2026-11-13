@@ -11,7 +11,6 @@ import {
 	RoundIsNotInProgress,
 	RoundNotActiveError,
 } from "../../../domain/errors/round.errors";
-import { PlayerNotRoomOwnerError } from "../../../domain/errors/game.errors";
 import { Injectable, Inject } from "@nestjs/common";
 import { RoomFifoQueueService } from "../../room-fifo-queue.service";
 import { RoundStatus } from "../../../domain";
@@ -41,9 +40,6 @@ export class ChangeRoundTimeUseCase extends RoomUseCase<
 		dto: ChangeRoundTimeDto,
 		actor: UserDto,
 	): void {
-		if (game.getState().ownerId !== actor.id) {
-			throw new PlayerNotRoomOwnerError();
-		}
 		const round = game.getState().currentRound;
 		if (!round) {
 			throw new RoundNotActiveError();
@@ -52,16 +48,22 @@ export class ChangeRoundTimeUseCase extends RoomUseCase<
 			throw new RoundIsNotInProgress();
 		}
 
-		const newDuration = this.roundScheduler.changeRoundTime(
-			dto.roomId,
-			dto.seconds * 1000,
-		);
-		if (newDuration) {
-			game.dispatch({
-				type: "CHANGE_ROUND_TIME",
-				actorId: actor.id,
-				payload: { endTime: newDuration + Date.now() },
-			});
-		}
+		const timeDeltaMs = dto.seconds * 1000;
+		const now = Date.now();
+		const currentRemaining = round.pausedAt
+			? (round.remainingMs ?? 0)
+			: Math.max(0, round.expiresAt - now);
+		const newRemaining = Math.max(0, currentRemaining + timeDeltaMs);
+		const newExpiresAt = now + newRemaining;
+
+		// 1. Сначала домен валидирует права (владелец) и мутирует состояние
+		game.dispatch({
+			type: "CHANGE_ROUND_TIME",
+			actorId: actor.id,
+			payload: { expiresAt: newExpiresAt },
+		});
+
+		// 2. После успешного доменного dispatch применяем сайд-эффект в шедулере
+		this.roundScheduler.changeRoundTime(dto.roomId, timeDeltaMs);
 	}
 }

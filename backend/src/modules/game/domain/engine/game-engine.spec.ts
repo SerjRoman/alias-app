@@ -48,14 +48,15 @@ describe("GameEngine (Aggregate Root & Pipeline Dispatcher)", () => {
 				bannedPlayerIds: [],
 				activeTeamId: "t1",
 				currentRound: null,
-				addons: { shop: { coins: 50 } },
+				activeEffects: [],
+				addons: { custom: { coins: 50 } },
 			};
 
 			const game = GameEngine.fromPrimitives(existingState);
 
 			expect(game.getState()).toEqual(existingState);
 			expect(
-				(game.getState().addons.shop as { coins: number }).coins,
+				(game.getState().addons.custom as { coins: number }).coins,
 			).toBe(50);
 		});
 
@@ -90,8 +91,9 @@ describe("GameEngine (Aggregate Root & Pipeline Dispatcher)", () => {
 					status: "IN_PROGRESS",
 					words: [],
 					currentWord: null,
-					endTime: 1000,
+					expiresAt: 1000,
 				},
+				activeEffects: [],
 				addons: {},
 			});
 
@@ -165,7 +167,7 @@ describe("GameEngine (Aggregate Root & Pipeline Dispatcher)", () => {
 					currentWord: { id: "w1", text: "VALHALLA", score: 0 },
 					words: [],
 					roundNumber: 1,
-					endTime: Date.now() + 60000,
+					expiresAt: Date.now() + 60000,
 				},
 				activeEffects: [
 					{
@@ -195,10 +197,10 @@ describe("GameEngine (Aggregate Root & Pipeline Dispatcher)", () => {
 			expect(state.teams[0].score).toBe(12); // 10 + 2
 			expect(state.addons.streak).toBe(1);
 
-			const round = state.currentRound!;
-			expect(round.words).toHaveLength(1);
-			expect(round.words[0].score).toBe(2);
-			expect(round.currentWord?.text).toBe("ODIN");
+			const round = state.currentRound;
+			expect(round?.words).toHaveLength(1);
+			expect(round?.words[0].score).toBe(2);
+			expect(round?.currentWord?.text).toBe("ODIN");
 
 			const events = game.pullDomainEvents();
 			expect(

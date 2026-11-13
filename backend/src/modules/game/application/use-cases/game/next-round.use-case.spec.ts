@@ -55,8 +55,9 @@ describe("NextRoundUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: null,
 				words: [{ id: "w-1", text: "SUN", score: 1 }],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};
@@ -156,7 +157,7 @@ describe("NextRoundUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: { id: "w-1", text: "SUN", score: 0 },
 				words: [],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
 		});
 		gameSharedService.loadGame.mockResolvedValue(engine);

@@ -70,13 +70,23 @@ export abstract class RoomUseCase<
 		return this.fifoQueue.run(roomId, async () => {
 			const engine = await this.gameSharedService.loadGame(roomId);
 			const context = {} as TContext;
-			await this.beforeHandle?.(engine, dto, actor, context);
-			const result = await this.handle(engine, dto, actor, context);
+			if (this.beforeHandle) {
+				await Promise.resolve(
+					this.beforeHandle(engine, dto, actor, context),
+				);
+			}
+			const result = await Promise.resolve(
+				this.handle(engine, dto, actor, context),
+			);
 			if (!this.skipSave) {
 				await this.gameRepository.saveGame(engine);
 			}
 			this.publishNotifications(engine);
-			await this.afterCommit?.(engine, dto, actor, result, context);
+			if (this.afterCommit) {
+				await Promise.resolve(
+					this.afterCommit(engine, dto, actor, result, context),
+				);
+			}
 			return (
 				result !== undefined ? result : engine.toPrimitives()
 			) as TResult;

@@ -1,5 +1,9 @@
 import type { GameAction } from "../actions/game.actions";
 import { ActionBlockedByEffectError } from "../errors/game.errors";
+import {
+	EffectExpiredDomainEvent,
+	DomainEvent,
+} from "../events/game.events";
 import type {
 	ActiveEffect,
 	EffectDurationType,
@@ -132,17 +136,30 @@ export function runEffectGuards(
 	action: GameAction,
 	activeEffects: ActiveEffect[] | undefined,
 	now: number,
+	emit?: (event: DomainEvent) => void,
+	roomId?: string,
 ): void {
 	if (!activeEffects || activeEffects.length === 0) {
 		return;
 	}
 
-	for (const effect of activeEffects) {
+	for (let i = activeEffects.length - 1; i >= 0; i--) {
+		const effect = activeEffects[i];
 		if (effect.status !== "ACTIVE") {
 			continue;
 		}
-		if (effect.expiresAt !== undefined && now >= effect.expiresAt) {
-			effect.status = "CONSUMED";
+		const deadline = effect.expiresAt;
+		if (deadline !== undefined && !effect.pausedAt && now >= deadline) {
+			activeEffects.splice(i, 1);
+			if (emit && roomId) {
+				emit(
+					new EffectExpiredDomainEvent(
+						roomId,
+						effect.id,
+						effect.itemId,
+					),
+				);
+			}
 			continue;
 		}
 		const rule = EFFECT_REGISTRY[effect.itemId];

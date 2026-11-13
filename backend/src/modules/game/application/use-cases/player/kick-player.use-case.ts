@@ -35,15 +35,6 @@ export class KickPlayerUseCase extends RoomUseCase<KickPlayerDto, GameState> {
 		super(fifoQueue, gameSharedService, gameRepository, eventEmitter);
 	}
 
-	override async execute(
-		dto: KickPlayerDto,
-		actorOrRoomId: UserDto | string,
-		optionalActor?: UserDto,
-	): Promise<GameState> {
-		const actor = (optionalActor ?? actorOrRoomId) as UserDto;
-		return super.execute(dto, actor);
-	}
-
 	protected override handle(
 		engine: GameEngine,
 		dto: KickPlayerDto,

@@ -24,7 +24,11 @@ export class UpdateGameSettingsUseCase extends RoomUseCase<
 	UpdateGameSettingsContext
 > {
 	private readonly logger = new Logger(UpdateGameSettingsUseCase.name);
-	protected override readonly notify = ["settings"] as const;
+	protected override readonly notify = [
+		"settings",
+		"players",
+		"game",
+	] as const;
 
 	constructor(
 		fifoQueue: RoomFifoQueueService,

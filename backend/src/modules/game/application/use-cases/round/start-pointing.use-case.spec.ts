@@ -57,8 +57,9 @@ describe("StartPointingUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => 
 				currentWord: { id: "w-last", text: "PLANET", score: 0 },
 				words: [{ id: "w-prev", text: "STAR", score: 1 }],
 				roundNumber: 1,
-				endTime: Date.now() + 30000,
+				expiresAt: Date.now() + 30000,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};
@@ -167,7 +168,7 @@ describe("StartPointingUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => 
 				currentWord: null,
 				words: [],
 				roundNumber: 1,
-				endTime: 0,
+				expiresAt: 0,
 			},
 		});
 		gameSharedService.loadGame.mockResolvedValue(engine);

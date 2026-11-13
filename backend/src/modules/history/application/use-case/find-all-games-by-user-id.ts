@@ -77,11 +77,10 @@ export class FindAllGamesByUserIdUseCase {
 					teamId: p.teamId,
 				};
 
-				const isRegistered = p.userId ? profiles.has(p.userId) : false;
-				if (isRegistered) {
+				if (p.userId && profiles.has(p.userId)) {
 					userProfile = {
 						...userProfile,
-						...profiles.get(p.userId!)!,
+						...profiles.get(p.userId),
 						isRegistered: true,
 					};
 				}

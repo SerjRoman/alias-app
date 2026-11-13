@@ -57,8 +57,9 @@ describe("ChangeWordScoreUseCase (with Addon Pipeline & FIFO Queue) - TDD", () =
 					{ id: "w-2", text: "MOON", score: 0 },
 				],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};
@@ -155,7 +156,7 @@ describe("ChangeWordScoreUseCase (with Addon Pipeline & FIFO Queue) - TDD", () =
 				currentWord: { id: "w-1", text: "SUN", score: 0 },
 				words: [],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
 		});
 		gameSharedService.loadGame.mockResolvedValue(engine);

@@ -25,7 +25,7 @@ export class CloudinaryService {
 							),
 						);
 					}
-					resolve(result);
+					resolve(result as UploadApiResponse);
 				},
 			);
 

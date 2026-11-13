@@ -29,8 +29,16 @@ import {
 	GetRoomCodeDto,
 	EndGameDto,
 	ShufflePlayersDto,
+	BuyItemDto,
+	UseItemDto,
+	PauseGameDto,
+	ResumeGameDto,
 } from "../dto/body";
 import { ShufflePlayersUseCase } from "../use-cases/game/shuffle-players.use-case";
+import { BuyItemUseCase } from "../use-cases/shop/buy-item.use-case";
+import { UseItemUseCase } from "../use-cases/shop/use-item.use-case";
+import { PauseRoundUseCase } from "../use-cases/round/pause-round.use-case";
+import { ResumeRoundUseCase } from "../use-cases/round/resume-round.use-case";
 
 @Injectable()
 export class GameFacade {
@@ -53,6 +61,10 @@ export class GameFacade {
 		private readonly validateCodeUseCase: ValidateCodeUseCase,
 		private readonly getPrivatePlayerStateUseCase: GetPrivatePlayerStateUseCase,
 		private readonly shufflePlayersUseCase: ShufflePlayersUseCase,
+		private readonly buyItemUseCase: BuyItemUseCase,
+		private readonly useItemUseCase: UseItemUseCase,
+		private readonly pauseRoundUseCase: PauseRoundUseCase,
+		private readonly resumeRoundUseCase: ResumeRoundUseCase,
 	) {}
 
 	async create(dto: CreateGameDto, actor: UserDto) {
@@ -125,5 +137,21 @@ export class GameFacade {
 
 	async shufflePlayers(dto: ShufflePlayersDto, actor: UserDto) {
 		return this.shufflePlayersUseCase.execute(dto, actor);
+	}
+
+	async buyItem(dto: BuyItemDto, actor: UserDto) {
+		return this.buyItemUseCase.execute(dto, actor);
+	}
+
+	async useItem(dto: UseItemDto, actor: UserDto) {
+		return this.useItemUseCase.execute(dto, actor);
+	}
+
+	async pauseGame(dto: PauseGameDto, actor: UserDto) {
+		return this.pauseRoundUseCase.execute(dto, actor);
+	}
+
+	async resumeGame(dto: ResumeGameDto, actor: UserDto) {
+		return this.resumeRoundUseCase.execute(dto, actor);
 	}
 }

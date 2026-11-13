@@ -6,7 +6,7 @@ import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
 export class NextRoundUseCase extends RoomUseCase<NextRoundDto, void> {
-	protected override readonly notify = ["game"] as const;
+	protected override readonly notify = ["game", "round"] as const;
 
 	protected override handle(
 		engine: GameEngine,

@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose, Type, Transform } from "class-transformer";
 import {
 	type GameSettings as DetailsGameSettings,
 	GameStatus,
@@ -8,6 +8,7 @@ import {
 import { PlayerResponseDto } from "./player.dto";
 import { RoundResponseDto } from "./round-response.dto";
 import { TeamResponseDto } from "./team-response.dto";
+import { PublicGameAddonsDto } from "./game-addons.dto";
 
 type GameSettings = Pick<
 	DetailsGameSettings,
@@ -171,6 +172,52 @@ export class LeftPlayerDto {
 	leftAt: number;
 }
 
+export class ActiveEffectResponseDto {
+	@ApiProperty({ example: "eff-uuid-1" })
+	@Expose()
+	id: string;
+
+	@ApiProperty({ example: "DOUBLE_POINTS" })
+	@Expose()
+	itemId: string;
+
+	@ApiProperty({ example: "user-1" })
+	@Expose()
+	sourcePlayerId: string;
+
+	@ApiPropertyOptional({ example: "team-1", nullable: true })
+	@Expose()
+	targetTeamId?: string;
+
+	@ApiPropertyOptional({ example: "user-2", nullable: true })
+	@Expose()
+	targetPlayerId?: string;
+
+	@ApiProperty({ example: "ACTIVE" })
+	@Expose()
+	status: string;
+
+	@ApiPropertyOptional({ example: 1 })
+	@Expose()
+	charges?: number;
+
+	@ApiPropertyOptional({ example: 1794318000000 })
+	@Expose()
+	expiresAt?: number;
+
+	@ApiPropertyOptional({ example: 5000 })
+	@Expose()
+	durationMs?: number;
+
+	@ApiPropertyOptional({ example: null, nullable: true })
+	@Expose()
+	pausedAt?: number | null;
+
+	@ApiPropertyOptional({ example: null, nullable: true })
+	@Expose()
+	remainingMs?: number | null;
+}
+
 export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
 	@ApiProperty({
 		type: [PlayerResponseDto],
@@ -233,6 +280,32 @@ export class BaseGameResponseDetailsDto extends BaseGameResponseDto {
 	})
 	@Expose()
 	ownerOfflineSince?: number | null;
+
+	@ApiPropertyOptional({
+		type: [ActiveEffectResponseDto],
+		description: "List of active effects currently applied",
+	})
+	@Expose()
+	@Type(() => ActiveEffectResponseDto)
+	activeEffects?: ActiveEffectResponseDto[];
+
+	@ApiPropertyOptional({
+		type: PublicGameAddonsDto,
+		description:
+			"Public addon data slices (private economy and shop data are sanitized)",
+	})
+	@Expose()
+	@Type(() => PublicGameAddonsDto)
+	@Transform(({ value }) => {
+		if (!value || typeof value !== "object") return value;
+		const sanitized = { ...(value as Record<string, unknown>) };
+		delete sanitized.shop;
+		delete sanitized.economy;
+		return Object.keys(sanitized).length > 0
+			? (sanitized as PublicGameAddonsDto)
+			: undefined;
+	})
+	addons?: PublicGameAddonsDto;
 }
 
 export class GameResponseDetailsDto extends BaseGameResponseDetailsDto {

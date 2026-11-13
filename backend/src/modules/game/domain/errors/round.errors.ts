@@ -1,4 +1,4 @@
-import { GameError } from "./game.errors";
+import { GameError, NotRoundExplainerError } from "./game.errors";
 import { GameErrorCode } from "./error-codes";
 
 export class RoundError extends GameError {
@@ -30,21 +30,9 @@ export class NoActiveWordError extends RoundError {
 	}
 }
 
-export class UserIsNotExplainerError extends RoundError {
-	constructor(
-		public readonly userId?: string,
-		message?: string,
-	) {
-		super(
-			message ??
-				(userId
-					? `User with ID ${userId} is not the round explainer!`
-					: "Only the round explainer can cycle words"),
-			GameErrorCode.USER_IS_NOT_EXPLAINER,
-			userId ? { userId } : undefined,
-		);
-	}
-}
+export { NotRoundExplainerError };
+export const UserIsNotExplainerError = NotRoundExplainerError;
+export type UserIsNotExplainerError = NotRoundExplainerError;
 
 export class RoundIsNotInProgress extends RoundError {
 	constructor(message = "Round is not in progress!") {

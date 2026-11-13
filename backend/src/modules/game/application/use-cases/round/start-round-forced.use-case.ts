@@ -69,8 +69,13 @@ export class StartRoundForcedUseCase extends RoomUseCase<
 			},
 		);
 
+		const round = room.toPrimitives().currentRound;
+		if (!round) {
+			throw new Error("Round was not started properly");
+		}
+
 		return {
-			round: room.toPrimitives().currentRound!,
+			round,
 			roomId: room.id,
 		};
 	}
@@ -89,12 +94,14 @@ export class StartRoundForcedUseCase extends RoomUseCase<
 			});
 			await this.gameRepository.saveGame(room);
 
-			const updatedRound = room.toPrimitives().currentRound!;
-			const eventPayload: RoundUpdatedPayload = {
-				round: updatedRound,
-				roomId: room.id,
-			};
-			this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
+			const updatedRound = room.toPrimitives().currentRound;
+			if (updatedRound) {
+				const eventPayload: RoundUpdatedPayload = {
+					round: updatedRound,
+					roomId: room.id,
+				};
+				this.eventEmitter.emit(ROUND_UPDATED, eventPayload);
+			}
 		});
 	}
 }

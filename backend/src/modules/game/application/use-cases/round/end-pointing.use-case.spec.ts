@@ -59,8 +59,9 @@ describe("EndPointingUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 					{ id: "w-2", text: "MOON", score: 1 },
 				],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};
@@ -197,7 +198,7 @@ describe("EndPointingUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: null,
 				words: [],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
 		});
 		gameSharedService.loadGame.mockResolvedValue(engine);

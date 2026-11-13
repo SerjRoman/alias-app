@@ -46,6 +46,7 @@ describe("TransferOwnershipUseCase", () => {
 				},
 			],
 			bannedPlayerIds: [],
+			activeEffects: [],
 			addons: {},
 			currentRound: null,
 		});

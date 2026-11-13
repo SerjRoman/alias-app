@@ -13,7 +13,7 @@ import {
 } from "../../events/game.events";
 import type { GameState } from "../../state/game.state";
 import type { ActionContext } from "../pipeline.types";
-import { lobbyHandler } from "./lobby.handler";
+import { lobbyHandler } from "./lobby";
 
 describe("lobbyHandler", () => {
 	const createInitialState = (overrides?: Partial<GameState>): GameState => ({
@@ -33,6 +33,7 @@ describe("lobbyHandler", () => {
 		bannedPlayerIds: [],
 		activeTeamId: null,
 		currentRound: null,
+		activeEffects: [],
 		addons: {},
 		...overrides,
 	});
@@ -154,8 +155,8 @@ describe("lobbyHandler", () => {
 
 			lobbyHandler(ctx);
 
-			const player = ctx.state.players.find((p) => p.id === "p1")!;
-			expect(player.isReady).toBe(true);
+			const player = ctx.state.players.find((p) => p.id === "p1");
+			expect(player?.isReady).toBe(true);
 
 			expect(emittedEvents).toHaveLength(1);
 			const readyEvent =

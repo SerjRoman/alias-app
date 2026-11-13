@@ -49,7 +49,12 @@ export class DictionaryService {
 				"No more words available for this game",
 			);
 		}
-		const word = cached.pop()!;
+		const word = cached.pop();
+		if (!word) {
+			throw new NoWordsAvailableError(
+				"No more words available for this game",
+			);
+		}
 		// Refill in background if running low
 		if (cached.length < 10) {
 			this.refillCache(roomId).catch((err) =>

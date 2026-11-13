@@ -1,102 +1,23 @@
 import {
 	Catch,
-	ArgumentsHost,
-	WsExceptionFilter,
+	type ArgumentsHost,
+	type WsExceptionFilter,
 	HttpException,
 	Logger,
 } from "@nestjs/common";
 import { WsException } from "@nestjs/websockets";
-import { Socket } from "socket.io";
+import type { Socket } from "socket.io";
 
 @Catch()
 export class WsExceptionsFilter implements WsExceptionFilter {
 	private readonly logger = new Logger(WsExceptionsFilter.name);
 
-	catch(exception: any, host: ArgumentsHost) {
+	catch(exception: unknown, host: ArgumentsHost): void {
 		const client = host.switchToWs().getClient<Socket>();
+		this.logException(exception);
 
-		if (exception instanceof Error) {
-			this.logger.error(
-				`WS Exception: ${exception.message}`,
-				exception.stack,
-			);
-		} else {
-			this.logger.error(`WS Exception: ${JSON.stringify(exception)}`);
-		}
-
-		let errorName = "InternalServerError";
-		let errorMessage = "Internal server error";
-
-		if (exception instanceof HttpException) {
-			const response = exception.getResponse();
-			errorName = exception.name;
-			if (typeof response === "string") {
-				errorMessage = response;
-			} else if (response && typeof response === "object") {
-				const msg = (response as Record<string, unknown>).message;
-				errorMessage = Array.isArray(msg)
-					? msg.join(", ")
-					: typeof msg === "string"
-						? msg
-						: exception.message;
-			} else {
-				errorMessage = exception.message;
-			}
-		} else if (exception instanceof WsException) {
-			errorName = "WsException";
-			const err = exception.getError();
-			if (typeof err === "string") {
-				errorMessage = err;
-			} else if (err && typeof err === "object") {
-				const msg = (err as Record<string, unknown>).message;
-				errorMessage =
-					typeof msg === "string" ? msg : JSON.stringify(err);
-			} else {
-				errorMessage = exception.message;
-			}
-		} else if (exception instanceof Error) {
-			errorName = exception.name || "Error";
-			errorMessage = exception.message;
-		}
-
-		let code = "INTERNAL_ERROR";
-		const details: Record<string, unknown> = {};
-
-		if (exception && typeof exception === "object") {
-			if (
-				"code" in exception &&
-				typeof (exception as { code: unknown }).code === "string"
-			) {
-				code = (exception as { code: string }).code;
-			}
-			if (
-				"details" in exception &&
-				typeof (exception as { details: unknown }).details ===
-					"object" &&
-				(exception as { details: unknown }).details !== null
-			) {
-				Object.assign(
-					details,
-					(exception as { details: Record<string, unknown> }).details,
-				);
-			}
-			for (const key of [
-				"teamId",
-				"teamName",
-				"playerId",
-				"roomId",
-				"wordId",
-			]) {
-				if (
-					key in exception &&
-					typeof (exception as Record<string, unknown>)[key] ===
-						"string" &&
-					!details[key]
-				) {
-					details[key] = (exception as Record<string, unknown>)[key];
-				}
-			}
-		}
+		const { errorName, errorMessage } = this.resolveErrorInfo(exception);
+		const { code, details } = this.extractDetails(exception);
 
 		const errorResponse = {
 			event: "exception",
@@ -111,5 +32,110 @@ export class WsExceptionsFilter implements WsExceptionFilter {
 		if (client && typeof client.emit === "function") {
 			client.emit("exception", errorResponse);
 		}
+	}
+
+	private logException(exception: unknown): void {
+		if (exception instanceof Error) {
+			this.logger.error(
+				`WS Exception: ${exception.message}`,
+				exception.stack,
+			);
+		} else {
+			this.logger.error(`WS Exception: ${JSON.stringify(exception)}`);
+		}
+	}
+
+	private resolveErrorInfo(exception: unknown): {
+		errorName: string;
+		errorMessage: string;
+	} {
+		if (exception instanceof HttpException) {
+			return {
+				errorName: exception.name,
+				errorMessage: this.extractHttpMessage(exception),
+			};
+		}
+
+		if (exception instanceof WsException) {
+			return {
+				errorName: "WsException",
+				errorMessage: this.extractWsMessage(exception),
+			};
+		}
+
+		if (exception instanceof Error) {
+			return {
+				errorName: exception.name || "Error",
+				errorMessage: exception.message,
+			};
+		}
+
+		return {
+			errorName: "InternalServerError",
+			errorMessage: "Internal server error",
+		};
+	}
+
+	private extractHttpMessage(exception: HttpException): string {
+		const response = exception.getResponse();
+		if (typeof response === "string") {
+			return response;
+		}
+		if (response && typeof response === "object") {
+			const msg = (response as Record<string, unknown>).message;
+			if (Array.isArray(msg)) {
+				return msg.join(", ");
+			}
+			if (typeof msg === "string") {
+				return msg;
+			}
+		}
+		return exception.message;
+	}
+
+	private extractWsMessage(exception: WsException): string {
+		const err = exception.getError();
+		if (typeof err === "string") {
+			return err;
+		}
+		if (err && typeof err === "object") {
+			const msg = (err as Record<string, unknown>).message;
+			if (typeof msg === "string") {
+				return msg;
+			}
+			return JSON.stringify(err);
+		}
+		return exception.message;
+	}
+
+	private extractDetails(exception: unknown): {
+		code: string;
+		details: Record<string, unknown>;
+	} {
+		let code = "INTERNAL_ERROR";
+		const details: Record<string, unknown> = {};
+
+		if (exception && typeof exception === "object") {
+			const errObj = exception as Record<string, unknown>;
+			if (typeof errObj.code === "string") {
+				code = errObj.code;
+			}
+			if (errObj.details && typeof errObj.details === "object") {
+				Object.assign(details, errObj.details);
+			}
+			for (const key of [
+				"teamId",
+				"teamName",
+				"playerId",
+				"roomId",
+				"wordId",
+			]) {
+				if (typeof errObj[key] === "string" && !details[key]) {
+					details[key] = errObj[key];
+				}
+			}
+		}
+
+		return { code, details };
 	}
 }

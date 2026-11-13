@@ -58,6 +58,7 @@ describe("KickPlayerUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 			bannedPlayerIds: [],
 			activeTeamId: null,
 			currentRound: null,
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};
@@ -100,7 +101,7 @@ describe("KickPlayerUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 		gameSharedService.loadGame.mockResolvedValue(engine);
 
 		const dto: KickPlayerDto = { roomId, playerId: targetPlayerId };
-		const result = await useCase.execute(dto, roomId, actorOwner);
+		const result = await useCase.execute(dto, actorOwner);
 
 		// Player removed from players list
 		expect(engine.getState().players).toHaveLength(1);
@@ -151,7 +152,7 @@ describe("KickPlayerUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 		};
 
 		const dto: KickPlayerDto = { roomId, playerId: targetPlayerId };
-		await expect(useCase.execute(dto, roomId, notOwner)).rejects.toThrow(
+		await expect(useCase.execute(dto, notOwner)).rejects.toThrow(
 			"Only room owner can kick players",
 		);
 

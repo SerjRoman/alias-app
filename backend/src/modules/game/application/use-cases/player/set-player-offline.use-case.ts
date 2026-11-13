@@ -4,7 +4,6 @@ import {
 	RoomNotFoundError,
 } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
-import { ROUND_UPDATED } from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
@@ -21,7 +20,7 @@ import type { GameEngine } from "../../../domain/engine/game-engine";
 @Injectable()
 export class SetPlayerOfflineUseCase extends RoomUseCase<string, void> {
 	private readonly logger = new Logger(SetPlayerOfflineUseCase.name);
-	protected override readonly notify = ["players"] as const;
+	protected override readonly notify = ["players", "round", "game"] as const;
 
 	constructor(
 		fifoQueue: RoomFifoQueueService,
@@ -78,10 +77,6 @@ export class SetPlayerOfflineUseCase extends RoomUseCase<string, void> {
 			state.currentRound.pausedAt !== undefined
 		) {
 			this.roundScheduler.pauseRoundTimeout(roomId);
-			this.eventEmitter.emit(ROUND_UPDATED, {
-				round: state.currentRound,
-				roomId,
-			});
 		}
 
 		if (

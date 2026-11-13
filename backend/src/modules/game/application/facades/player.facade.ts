@@ -22,11 +22,11 @@ export class PlayerFacade {
 	}
 
 	async kickPlayer(dto: KickPlayerDto, actor: UserDto) {
-		return this.kickPlayerUseCase.execute(dto, dto.roomId, actor);
+		return this.kickPlayerUseCase.execute(dto, actor);
 	}
 
 	async banPlayer(dto: BanPlayerDto, actor: UserDto) {
-		return this.banPlayerUseCase.execute(dto, dto.roomId, actor);
+		return this.banPlayerUseCase.execute(dto, actor);
 	}
 
 	async setPlayerOffline(roomId: string, actor: UserDto) {

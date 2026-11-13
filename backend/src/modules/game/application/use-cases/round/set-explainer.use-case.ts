@@ -3,6 +3,7 @@ import { SetExplainerDto } from "../../dto/body";
 import { Injectable, Inject } from "@nestjs/common";
 import { RoomUseCase } from "../room.use-case";
 import type { GameEngine } from "../../../domain/engine/game-engine";
+import { RoundStatus } from "../../../domain";
 import { RoomFifoQueueService } from "../../room-fifo-queue.service";
 import { GameSharedService } from "../../game-shared.service";
 import {
@@ -41,12 +42,11 @@ export class SetExplainerUseCase extends RoomUseCase<SetExplainerDto> {
 	protected override afterCommit(room: GameEngine, dto: SetExplainerDto) {
 		const round = room.getState().currentRound;
 		if (
-			round &&
-			round.status === "IN_PROGRESS" &&
+			round?.status === RoundStatus.IN_PROGRESS &&
 			!round.pausedAt &&
-			round.endTime > Date.now()
+			round.expiresAt > Date.now()
 		) {
-			const remaining = Math.max(0, round.endTime - Date.now());
+			const remaining = Math.max(0, round.expiresAt - Date.now());
 			this.roundScheduler.resumeRoundTimeout(dto.roomId, remaining);
 		}
 	}

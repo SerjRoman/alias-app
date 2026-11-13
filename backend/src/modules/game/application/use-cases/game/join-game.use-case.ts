@@ -1,11 +1,7 @@
 import { EventEmitter2 } from "@nestjs/event-emitter";
 import { InvalidGameCode } from "../../../domain/errors/game.errors";
 import { GameSharedService } from "../../game-shared.service";
-import {
-	PLAYERS_UPDATED,
-	ROUND_UPDATED,
-	TEAMS_UPDATED,
-} from "../../game.events";
+import { PLAYERS_UPDATED, TEAMS_UPDATED } from "../../game.events";
 import {
 	type IGameRepository,
 	GAME_REPOSITORY,
@@ -17,11 +13,16 @@ import { RoomFifoQueueService } from "../../room-fifo-queue.service";
 import { RoundScheduler } from "../../round-scheduler.service";
 import { RoomUseCase } from "../room.use-case";
 import type { GameEngine } from "../../../domain/engine/game-engine";
-import type { GameState } from "../../../domain";
+import { RoundStatus, type GameState } from "../../../domain";
 
 @Injectable()
 export class JoinGameUseCase extends RoomUseCase<JoinGameDto, GameState> {
-	protected override readonly notify = ["game"] as const;
+	protected override readonly notify = [
+		"game",
+		"players",
+		"teams",
+		"round",
+	] as const;
 
 	constructor(
 		fifoQueue: RoomFifoQueueService,
@@ -115,18 +116,14 @@ export class JoinGameUseCase extends RoomUseCase<JoinGameDto, GameState> {
 			this.roundScheduler.clearOwnerTransferTimeout(dto.roomId);
 		}
 		if (
-			updatedState.currentRound?.status === "IN_PROGRESS" &&
+			updatedState.currentRound?.status === RoundStatus.IN_PROGRESS &&
 			!updatedState.currentRound.pausedAt
 		) {
 			const remaining = Math.max(
 				0,
-				updatedState.currentRound.endTime - Date.now(),
+				updatedState.currentRound.expiresAt - Date.now(),
 			);
 			this.roundScheduler.resumeRoundTimeout(dto.roomId, remaining);
-			this.eventEmitter.emit(ROUND_UPDATED, {
-				round: updatedState.currentRound,
-				roomId: dto.roomId,
-			});
 		}
 	}
 }

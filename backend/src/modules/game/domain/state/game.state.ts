@@ -1,19 +1,25 @@
-import type { WordPackSelection } from "../../application/word-pack-client.interface";
+import type { PausableTimer } from "../time/pausable-timer";
+import type { GameAddons } from "../addons/addons.types";
 
-export type { WordPackSelection };
-
-export enum GameStatus {
-	LOBBY = "LOBBY",
-	IN_PROGRESS = "IN_PROGRESS",
-	FINISHED = "FINISHED",
+export interface WordPackSelection {
+	packId: string;
+	count: number;
 }
 
-export enum RoundStatus {
-	PENDING = "PENDING",
-	IN_PROGRESS = "IN_PROGRESS",
-	POINTING = "POINTING",
-	FINISHED = "FINISHED",
-}
+export const GameStatus = {
+	LOBBY: "LOBBY",
+	IN_PROGRESS: "IN_PROGRESS",
+	FINISHED: "FINISHED",
+} as const;
+export type GameStatus = (typeof GameStatus)[keyof typeof GameStatus];
+
+export const RoundStatus = {
+	PENDING: "PENDING",
+	IN_PROGRESS: "IN_PROGRESS",
+	POINTING: "POINTING",
+	FINISHED: "FINISHED",
+} as const;
+export type RoundStatus = (typeof RoundStatus)[keyof typeof RoundStatus];
 
 export type WordOutcome = "guessed" | "skipped" | "neutral";
 
@@ -28,14 +34,13 @@ export type EffectDurationType = "round" | "charges" | "seconds" | "instant";
 
 export type EffectStatus = "ARMED" | "ACTIVE" | "CONSUMED";
 
-export interface ActiveEffect {
+export interface ActiveEffect extends PausableTimer {
 	id: string;
 	itemId: EffectItemId;
 	sourcePlayerId: string;
 	targetTeamId?: string;
 	targetPlayerId?: string;
 	status: EffectStatus;
-	expiresAt?: number;
 	charges?: number;
 }
 
@@ -69,18 +74,16 @@ export interface LeftPlayerState {
 /**
  * Round state representation.
  */
-export interface RoundState {
+export interface RoundState extends PausableTimer {
 	id: string;
 	/** Player who explains words to their team in this round */
 	explainerId: string;
 	teamId: string;
-	status: RoundStatus | `${RoundStatus}`;
+	status: RoundStatus;
 	currentWord: WordItem | null;
 	words: WordItem[];
 	roundNumber: number;
-	endTime: number;
-	pausedAt?: number | null;
-	remainingMs?: number | null;
+	expiresAt: number;
 }
 
 /**
@@ -150,7 +153,7 @@ export interface GameSettingsState {
 export interface GameState {
 	id: string;
 	ownerId: string;
-	status: GameStatus | `${GameStatus}`;
+	status: GameStatus;
 	pointsToWin: number;
 	roundTimeSeconds?: number;
 	settings?: GameSettingsState;
@@ -166,6 +169,6 @@ export interface GameState {
 	createdAt?: number;
 	nextRoundNumber?: number;
 	currentRound: RoundState | null;
-	activeEffects?: ActiveEffect[];
-	addons: Record<string, unknown>;
+	activeEffects: ActiveEffect[];
+	addons: GameAddons;
 }

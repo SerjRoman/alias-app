@@ -24,11 +24,11 @@ export class RoundResponseDto {
 	roundNumber: number;
 
 	@ApiProperty({
-		example: "number",
-		description: "Unix time left in seconds",
+		example: 1794318060000,
+		description: "Unix timestamp when round expires (ms)",
 	})
 	@Expose()
-	endTime: number;
+	expiresAt: number;
 
 	@ApiProperty({ enum: RoundStatus })
 	@Expose()

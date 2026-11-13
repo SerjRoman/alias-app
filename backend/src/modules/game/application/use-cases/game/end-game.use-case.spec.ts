@@ -55,8 +55,9 @@ describe("EndGameUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: null,
 				words: [],
 				roundNumber: 1,
-				endTime: 100,
+				expiresAt: 100,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};

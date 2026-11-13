@@ -17,6 +17,7 @@ export interface ActionContext {
 	now?: number;
 	resolvedWordScore?: number;
 	resolvedEffectIds?: string[];
+	consumedEffectIds?: string[];
 	emit: EmitEventFn;
 }
 

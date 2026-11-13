@@ -55,8 +55,9 @@ describe("NextWordUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: { id: "w-current", text: "FOREST", score: 0 },
 				words: [],
 				roundNumber: 1,
-				endTime: Date.now() + 60000,
+				expiresAt: Date.now() + 60000,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};

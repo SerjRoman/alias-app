@@ -4,9 +4,10 @@ export const ADMIN_EVENTS = {
 	banPlayer: "admin:banPlayer",
 	startRound: "admin:startRound",
 	startPointing: "admin:startPointing",
-	finishRound: "admin:finishRound",
 	endGame: "admin:endGame",
 	assignPlayerToTeam: "admin:assignPlayerToTeam",
 	shufflePlayers: "admin:shufflePlayers",
 	changeRoundTime: "admin:changeRoundTime",
+	pauseGame: "admin:pauseGame",
+	resumeGame: "admin:resumeGame",
 } as const;

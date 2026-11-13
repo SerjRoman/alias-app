@@ -67,7 +67,7 @@ describe("Staged Scoring Pipeline, Effect Snapshots & Command Guards", () => {
 				},
 				words: [],
 				roundNumber: 1,
-				endTime: Date.now() + 60000,
+				expiresAt: Date.now() + 60000,
 			},
 			activeEffects: [],
 			addons: {},
@@ -245,9 +245,7 @@ describe("Staged Scoring Pipeline, Effect Snapshots & Command Guards", () => {
 			});
 			expect(engine.getState().currentRound?.words[0].score).toBe(0);
 			expect(engine.getState().teams[0].score).toBe(10);
-			expect(engine.getState().activeEffects?.[0].status).toBe(
-				"CONSUMED",
-			);
+			expect(engine.getState().activeEffects).toHaveLength(0);
 
 			engine.dispatch({
 				type: "WORD_SKIPPED",
@@ -344,9 +342,7 @@ describe("Staged Scoring Pipeline, Effect Snapshots & Command Guards", () => {
 				now + 5000,
 			);
 
-			expect(engine.getState().activeEffects?.[0].status).toBe(
-				"CONSUMED",
-			);
+			expect(engine.getState().activeEffects).toHaveLength(0);
 			expect(engine.getState().currentRound?.words).toHaveLength(1);
 			expect(engine.getState().teams[0].score).toBe(11);
 		});

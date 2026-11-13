@@ -5,4 +5,8 @@ export * from "./errors";
 export * from "./pipeline/pipeline.types";
 export * from "./pipeline/scoring-pipeline";
 export * from "./pipeline/handlers";
+export * from "./economy";
+export * from "./shop";
+export * from "./addons";
+export * from "./time";
 export * from "./engine/game-engine";

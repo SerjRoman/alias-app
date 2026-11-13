@@ -62,8 +62,9 @@ describe("StartRoundUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 				currentWord: null,
 				words: [],
 				roundNumber: 1,
-				endTime: 0,
+				expiresAt: 0,
 			},
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};

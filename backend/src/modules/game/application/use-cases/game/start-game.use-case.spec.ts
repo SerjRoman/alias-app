@@ -51,6 +51,7 @@ describe("StartGameUseCase (with Addon Pipeline & FIFO Queue) - TDD", () => {
 			bannedPlayerIds: [],
 			activeTeamId: null,
 			currentRound: null,
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		};

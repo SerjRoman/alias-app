@@ -1,0 +1,330 @@
+.sidebar {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
+	background: var(--game-bg-panel, #131724);
+	border: 1px solid var(--game-border-default, #232b3e);
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 14px 16px;
+	background: rgba(15, 20, 32, 0.7);
+	border-bottom: 1px solid var(--game-border-default, #232b3e);
+	flex-shrink: 0;
+}
+
+.titleWrapper {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.title {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--game-text-primary, #f8fafc);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.teamsList {
+	flex: 1;
+	min-height: 0;
+	overflow-y: auto;
+	overflow-x: hidden;
+	padding: 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+/* Team Accordion */
+.teamCard {
+	flex-shrink: 0;
+	border-radius: 8px;
+	background: var(--game-bg-card, #181d2d);
+	border: 1px solid var(--game-border-default, #232b3e);
+	overflow: hidden;
+	transition: all 0.2s ease;
+}
+
+.teamCard.activeTurn {
+	border-color: var(--team-color, #ef4444);
+	box-shadow: 0 0 16px -2px var(--team-glow, rgba(239, 68, 68, 0.35));
+}
+
+.teamHeader {
+	width: 100%;
+	min-height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 10px 12px;
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: inherit;
+	text-align: left;
+	transition: background 0.2s ease;
+	flex-shrink: 0;
+}
+
+.teamHeader:hover {
+	background: rgba(255, 255, 255, 0.03);
+}
+
+.teamIdentity {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	min-width: 0;
+	flex: 1;
+}
+
+.teamColorBar {
+	width: 4px;
+	height: 18px;
+	border-radius: 2px;
+	background: var(--team-color, #3b82f6);
+	box-shadow: 0 0 8px var(--team-color, #3b82f6);
+	flex-shrink: 0;
+}
+
+.teamName {
+	font-size: 13px;
+	font-weight: 700;
+	color: var(--game-text-primary, #f8fafc);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.crownIcon {
+	color: #f59e0b;
+	filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7));
+	flex-shrink: 0;
+	animation: game-pulse-glow 2.5s infinite ease-in-out;
+}
+
+.nextTurnBadge {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 6px;
+	border-radius: 4px;
+	color: #38bdf8;
+	background: rgba(56, 189, 248, 0.12);
+	border: 1px solid rgba(56, 189, 248, 0.35);
+	flex-shrink: 0;
+}
+
+.teamMetrics {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
+}
+
+.teamScoreBadge {
+	font-size: 12px;
+	font-weight: 800;
+	color: #fff;
+	background: rgba(0, 0, 0, 0.4);
+	padding: 2px 8px;
+	border-radius: 6px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	flex-shrink: 0;
+}
+
+.chevron {
+	color: var(--game-text-muted, #64748b);
+	transition: transform 0.2s ease;
+	flex-shrink: 0;
+}
+
+.chevron.expanded {
+	transform: rotate(180deg);
+}
+
+/* Players List */
+.playersList {
+	padding: 0 10px 10px;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	border-top: 1px solid rgba(255, 255, 255, 0.04);
+	margin-top: 4px;
+	padding-top: 8px;
+	flex-shrink: 0;
+}
+
+.playerRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 7px 10px;
+	min-height: 44px;
+	border-radius: 8px;
+	background: rgba(15, 20, 32, 0.45);
+	border: 1px solid transparent;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+}
+
+.playerRow:hover {
+	background: rgba(255, 255, 255, 0.04);
+}
+
+.playerRow.speaking {
+	border-color: #10b981;
+	background: rgba(16, 185, 129, 0.08);
+	animation: game-speaking-pulse 1.8s infinite;
+}
+
+.playerInfo {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.playerAvatarWrapper {
+	position: relative;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12), 0 2px 4px rgba(0, 0, 0, 0.35);
+	background: #161a26;
+	flex-shrink: 0;
+}
+
+.playerAvatarWrapper::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
+	pointer-events: none;
+}
+
+.playerAvatar {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	object-fit: cover;
+	background: #1f2538;
+	filter: brightness(0.97) contrast(1.02);
+	display: block;
+}
+
+.playerSpeakingRing {
+	position: absolute;
+	inset: -3px;
+	border-radius: 50%;
+	border: 2px solid #10b981;
+	box-shadow: 0 0 6px #10b981;
+	pointer-events: none;
+	z-index: 2;
+}
+
+.playerName {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--game-text-primary, #f8fafc);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.playerMeta {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+}
+
+.explainingIcon {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: rgba(239, 68, 68, 0.2);
+	border: 1px solid rgba(239, 68, 68, 0.45);
+	color: #f87171;
+	box-shadow: 0 0 6px rgba(239, 68, 68, 0.3);
+	flex-shrink: 0;
+}
+
+.speechIndicator {
+	display: flex;
+	align-items: center;
+	gap: 2px;
+	height: 12px;
+	flex-shrink: 0;
+}
+
+.soundWaveBar {
+	width: 2px;
+	background: #10b981;
+	border-radius: 1px;
+	animation: soundwave-bar 0.8s infinite ease-in-out;
+}
+
+.soundWaveBar:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.soundWaveBar:nth-child(3) {
+	animation-delay: 0.4s;
+}
+
+.playerScore {
+	font-size: 11px;
+	font-weight: 600;
+	color: var(--game-text-muted, #64748b);
+	flex-shrink: 0;
+}
+
+/* Spectators Special Card */
+.spectatorsCard {
+	background: rgba(18, 22, 34, 0.45);
+	border: 1px dashed rgba(255, 255, 255, 0.1);
+	margin-top: 4px;
+}
+
+.spectatorsCard:hover {
+	border-color: rgba(255, 255, 255, 0.2);
+	background: rgba(18, 22, 34, 0.7);
+}
+
+.spectatorIconWrapper {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	border-radius: 6px;
+	background: rgba(148, 163, 184, 0.12);
+	color: var(--game-text-secondary, #94a3b8);
+	flex-shrink: 0;
+}
+
+.spectatorTitle {
+	font-size: 13px;
+	font-weight: 600;
+	color: var(--game-text-secondary, #94a3b8);
+}
+

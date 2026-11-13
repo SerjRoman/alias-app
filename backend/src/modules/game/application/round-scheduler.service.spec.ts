@@ -85,7 +85,7 @@ describe("RoundScheduler", () => {
 			expect(callback).not.toHaveBeenCalled();
 
 			// Resume with remaining time
-			scheduler.resumeRoundTimeout("room-1", remaining!);
+			scheduler.resumeRoundTimeout("room-1", remaining ?? undefined);
 
 			jest.advanceTimersByTime(34999);
 			expect(callback).not.toHaveBeenCalled();
@@ -118,6 +118,70 @@ describe("RoundScheduler", () => {
 
 			jest.advanceTimersByTime(40000);
 			expect(callback).not.toHaveBeenCalled();
+		});
+	});
+
+	describe("Unified Room Timers Array (pauseAll, resumeAll, pauseTimer, resumeTimer)", () => {
+		it("pauses all active room timers and resumes them", () => {
+			const roundCb = jest.fn();
+			const effectCb = jest.fn();
+
+			scheduler.scheduleRoundTimeout("room-1", 60000, roundCb);
+			scheduler.scheduleEffectTimeout("room-1", "eff-1", 5000, effectCb);
+
+			// 2 seconds pass
+			jest.advanceTimersByTime(2000);
+
+			const pausedMap = scheduler.pauseAll("room-1");
+			expect(pausedMap.get("round")).toBe(58000);
+			expect(pausedMap.get("effect-eff-1")).toBe(3000);
+
+			// 10 seconds pass while paused
+			jest.advanceTimersByTime(10000);
+			expect(roundCb).not.toHaveBeenCalled();
+			expect(effectCb).not.toHaveBeenCalled();
+
+			// Resume all
+			scheduler.resumeAll("room-1");
+
+			// Advance 3 seconds -> effect fires
+			jest.advanceTimersByTime(3000);
+			expect(effectCb).toHaveBeenCalledTimes(1);
+			expect(roundCb).not.toHaveBeenCalled();
+
+			// Advance 55 seconds -> round fires
+			jest.advanceTimersByTime(55000);
+			expect(roundCb).toHaveBeenCalledTimes(1);
+		});
+
+		it("pauses and resumes a specific timer by id", () => {
+			const callback = jest.fn();
+			scheduler.scheduleTimer("room-1", "custom-1", 10000, callback);
+
+			jest.advanceTimersByTime(4000);
+			const remaining = scheduler.pauseTimer("room-1", "custom-1");
+			expect(remaining).toBe(6000);
+
+			jest.advanceTimersByTime(20000);
+			expect(callback).not.toHaveBeenCalled();
+
+			scheduler.resumeTimer("room-1", "custom-1");
+			jest.advanceTimersByTime(6000);
+			expect(callback).toHaveBeenCalledTimes(1);
+		});
+
+		it("clears all timers in room on clearRoom", () => {
+			const cb1 = jest.fn();
+			const cb2 = jest.fn();
+
+			scheduler.scheduleRoundTimeout("room-1", 60000, cb1);
+			scheduler.scheduleEffectTimeout("room-1", "eff-1", 5000, cb2);
+
+			scheduler.clearRoom("room-1");
+
+			jest.advanceTimersByTime(100000);
+			expect(cb1).not.toHaveBeenCalled();
+			expect(cb2).not.toHaveBeenCalled();
 		});
 	});
 });

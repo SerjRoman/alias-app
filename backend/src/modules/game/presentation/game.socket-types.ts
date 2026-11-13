@@ -15,7 +15,6 @@ import type {
 	PlayerLeaveRoomBodyDto,
 	EndPointingDto,
 	DeleteGameDto,
-	FinishRoundDto,
 	KickPlayerDto,
 	BanPlayerDto,
 	EndGameDto,
@@ -23,6 +22,8 @@ import type {
 	ShufflePlayersDto,
 	ChangeRoundTimeDto,
 	StartPointingDto,
+	BuyItemDto,
+	UseItemDto,
 } from "../application/dto/body";
 import type {
 	GameResponseDetailsDto,
@@ -32,6 +33,7 @@ import type {
 	RoundResponseDto,
 	WordResponseDto,
 	GameSettingsDto,
+	PrivatePlayerStateResponseDto,
 } from "../application/dto/response";
 import type { AuthenticatedUser } from "@common/types/authenticated-user";
 import type { ADMIN_EVENTS } from "./socket.events";
@@ -45,7 +47,9 @@ interface ServerToClientEvents {
 	gameStarted: (data: GameResponseDetailsDto) => void;
 	roundUpdated: (data: RoundResponseDto) => void;
 	privateWord: (dto: WordResponseDto) => void;
+	privateStateUpdated: (dto: PrivatePlayerStateResponseDto) => void;
 	gameFinished: () => void;
+	gameDeleted: (data: { roomId: string }) => void;
 }
 
 interface ClientToServerEvents {
@@ -68,7 +72,11 @@ interface ClientToServerEvents {
 	startRound: (dto: StartRoundDto) => void;
 	changeWordScore: (dto: ChangeWordScoreDto) => void;
 	deleteGame: (dto: DeleteGameDto) => void;
-	finishRound: (dto: FinishRoundDto) => void;
+	buyItem: (dto: BuyItemDto) => void;
+	useItem: (dto: UseItemDto) => void;
+	getPrivateState: (data: {
+		roomId: string;
+	}) => Promise<PrivatePlayerStateResponseDto>;
 	[ADMIN_EVENTS.assignPlayerToTeam]: (dto: MoveToTeamDto) => void;
 	[ADMIN_EVENTS.kickPlayer]: (dto: KickPlayerDto) => void;
 	[ADMIN_EVENTS.banPlayer]: (dto: BanPlayerDto) => void;

@@ -12,9 +12,9 @@ import {
 	GameFinishedDomainEvent,
 	GameStartedDomainEvent,
 } from "../../events/game.events";
-import type { GameState } from "../../state/game.state";
+import { RoundStatus, type GameState } from "../../state/game.state";
 import type { ActionContext } from "../pipeline.types";
-import { gameLifecycleHandler } from "./game-lifecycle.handler";
+import { gameLifecycleHandler } from "./lifecycle";
 
 jest.mock("uuid", () => ({
 	v4: () => "mocked-game-round-uuid",
@@ -39,6 +39,7 @@ describe("gameLifecycleHandler", () => {
 		bannedPlayerIds: [],
 		activeTeamId: null,
 		currentRound: null,
+		activeEffects: [],
 		addons: {},
 		...overrides,
 	});
@@ -195,11 +196,11 @@ describe("gameLifecycleHandler", () => {
 						id: "r-active",
 						explainerId: "p1",
 						teamId: "team-1",
-						status: "IN_PROGRESS",
+						status: RoundStatus.IN_PROGRESS,
 						currentWord: null,
 						words: [],
 						roundNumber: 3,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);

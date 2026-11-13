@@ -23,6 +23,30 @@
 	--border-radius: 8px;
 	--box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 
+	/* Gaming Dark Theme Palette */
+	--game-bg-root: #0a0c14;
+	--game-bg-header: #10131f;
+	--game-bg-stage: #0c0f18;
+	--game-bg-panel: #131724;
+	--game-bg-card: #181d2d;
+	--game-bg-card-hover: #1f2539;
+	--game-bg-surface-elevated: #22293d;
+	--game-bg-input: #0f121d;
+	--game-bg-footer: #0f121d;
+
+	--game-border-subtle: rgba(255, 255, 255, 0.07);
+	--game-border-default: #232b3e;
+	--game-border-strong: #333d56;
+	--game-border-highlight: #435172;
+
+	--game-text-primary: #f8fafc;
+	--game-text-secondary: #94a3b8;
+	--game-text-muted: #64748b;
+	--game-text-dim: #475569;
+
+	--game-accent-gold: #f59e0b;
+	--game-accent-cyan: #06b6d4;
+
 	/* Z-Index Hierarchy */
 	--z-assistant: 300;
 	--z-tooltip: 400;
@@ -32,6 +56,66 @@
 	--z-modal: 500;
 	--z-confirmation-modal: 1500;
 	--z-audio-prompt: 2000;
+}
+
+/* Custom Sleek Scrollbar for Gaming UI */
+.game-scroll::-webkit-scrollbar {
+	width: 5px;
+	height: 5px;
+}
+.game-scroll::-webkit-scrollbar-track {
+	background: rgba(15, 18, 29, 0.4);
+	border-radius: 4px;
+}
+.game-scroll::-webkit-scrollbar-thumb {
+	background: #2a334a;
+	border-radius: 4px;
+}
+.game-scroll::-webkit-scrollbar-thumb:hover {
+	background: #3e4a6a;
+}
+
+@keyframes game-pulse-glow {
+	0%, 100% {
+		opacity: 0.9;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 1;
+		transform: scale(1.02);
+	}
+}
+
+@keyframes game-speaking-pulse {
+	0% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+	}
+	70% {
+		box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+	}
+	100% {
+		box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+	}
+}
+
+@keyframes soundwave-bar {
+	0%, 100% {
+		height: 4px;
+	}
+	50% {
+		height: 22px;
+	}
+}
+
+@keyframes timer-danger-pulse {
+	0%, 100% {
+		transform: scale(1);
+		filter: drop-shadow(0 0 6px rgba(239, 68, 68, 0.6));
+	}
+	50% {
+		transform: scale(1.03);
+		filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.9));
+	}
 }
 
 body {

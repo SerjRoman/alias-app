@@ -102,9 +102,10 @@ export class ExplainerCannotBeMovedError extends TeamError {
 		public readonly roundId?: string,
 		message?: string,
 	) {
+		const playerRef = playerName ? `"${playerName}"` : playerId;
 		super(
 			message ??
-				`Cannot move player ${playerName ? `"${playerName}"` : playerId}: player is currently explaining words in active round`,
+				`Cannot move player ${playerRef}: player is currently explaining words in active round`,
 			GameErrorCode.EXPLAINER_CANNOT_BE_MOVED,
 			{ playerId, playerName, roundId },
 		);

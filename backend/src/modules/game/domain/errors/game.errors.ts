@@ -28,8 +28,19 @@ export class PlayerNotRoomOwnerError extends GameError {
 }
 
 export class NotRoundExplainerError extends GameError {
-	constructor(message = "User is not the round explainer") {
-		super(message, GameErrorCode.NOT_ROUND_EXPLAINER);
+	constructor(
+		public readonly userId?: string,
+		message?: string,
+	) {
+		super(
+			message ??
+				(userId
+					? `User with ID ${userId} is not the round explainer!`
+					: "User is not the round explainer"),
+			GameErrorCode.NOT_ROUND_EXPLAINER,
+			userId ? { userId } : undefined,
+		);
+		this.name = "NotRoundExplainerError";
 	}
 }
 

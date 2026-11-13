@@ -17,7 +17,7 @@ export class MoveToTeamUseCase extends RoomUseCase<MoveToTeamDto> {
 
 		room.dispatch({
 			type: "MOVE_TO_TEAM",
-			actorId: dto.playerId ? actor.id : undefined,
+			actorId: actor.id,
 			payload: {
 				playerId: targetPlayerId,
 				teamId: dto.teamId,

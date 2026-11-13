@@ -41,7 +41,7 @@ export interface RoundState {
     id: string;
     explainerId: string;
     teamId: string;
-    endTime: number;
+    expiresAt: number;
     status: RoundStatus;
     currentWord: WordState | null;
     words: WordState[];
@@ -90,6 +90,7 @@ export interface GameStateDetails extends GameState {
     spectators?: string[];
     leftPlayers?: LeftPlayerState[];
     ownerOfflineSince?: number | null;
+    addons?: GameAddons;
 }
 
 export interface GameStateUpdatePayload extends Omit<GameStateDetails, "settings"> {
@@ -133,6 +134,37 @@ export interface WordResponse {
     isGuessed: boolean;
     outcome?: "guessed" | "skipped" | "neutral";
     appliedEffectIds?: string[];
+}
+
+export interface ShopInventoryItem {
+    id: string;
+    itemId: string;
+    purchasedAt: number;
+}
+
+export interface PlayerEconomyAddon {
+    balance: number;
+}
+
+export interface PlayerShopAddon {
+    inventory: ShopInventoryItem[];
+}
+
+export interface PlayerAddonsState {
+    economy?: PlayerEconomyAddon;
+    shop?: PlayerShopAddon;
+    [key: string]: unknown;
+}
+
+export interface PrivatePlayerState {
+    word: WordResponse | null;
+    balance: number;
+    inventory: ShopInventoryItem[];
+    addons?: PlayerAddonsState;
+}
+
+export interface GameAddons {
+    [key: string]: unknown;
 }
 
 export interface RoundDetailsResponse {

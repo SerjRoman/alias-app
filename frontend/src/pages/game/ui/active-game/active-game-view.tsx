@@ -24,7 +24,7 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 	useActiveGameSync();
 
 	if (!game || !user || !game.currentRound) {
-		navigate("/games");
+		void navigate("/games");
 		return null;
 	}
 
@@ -91,7 +91,7 @@ export function ActiveGameView({ playersDisplayMap }: Readonly<ActiveGameViewPro
 					<RoundInProgressBlock
 						roomId={game.id}
 						isExplainer={isExplainer}
-						endTime={currentRound.endTime}
+						expiresAt={currentRound.expiresAt}
 						pausedAt={currentRound.pausedAt}
 						words={currentRound.words}
 					/>

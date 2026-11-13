@@ -1,7 +1,6 @@
-export interface WordPackSelection {
-	packId: string;
-	count: number;
-}
+import type { WordPackSelection } from "../domain";
+
+export type { WordPackSelection };
 
 export interface IWordPackClient {
 	getRandomWords(selections: WordPackSelection[]): Promise<string[]>;

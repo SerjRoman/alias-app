@@ -3,7 +3,7 @@ import { UserIsNotExplainerError } from "../../errors/round.errors";
 import { WordCycledDomainEvent } from "../../events/game.events";
 import type { GameState } from "../../state/game.state";
 import type { ActionContext } from "../pipeline.types";
-import { wordCycleHandler } from "./word-cycle.handler";
+import { wordCycleHandler } from "./word-cycle";
 
 jest.mock("uuid", () => ({
 	v4: () => "mocked-uuid",
@@ -27,7 +27,7 @@ describe("wordCycleHandler", () => {
 			currentWord: { id: "w-1", text: "ELEPHANT", score: 0 },
 			words: [],
 			roundNumber: 1,
-			endTime: Date.now() + 60000,
+			expiresAt: Date.now() + 60000,
 		},
 		activeEffects: [],
 		addons: {},
@@ -181,7 +181,7 @@ describe("wordCycleHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: Date.now() + 60000,
+						expiresAt: Date.now() + 60000,
 					},
 				},
 			);
@@ -221,7 +221,7 @@ describe("wordCycleHandler", () => {
 						currentWord: { id: "w-1", text: "ELEPHANT", score: 0 },
 						words: [],
 						roundNumber: 1,
-						endTime: Date.now(),
+						expiresAt: Date.now(),
 					},
 				},
 			);

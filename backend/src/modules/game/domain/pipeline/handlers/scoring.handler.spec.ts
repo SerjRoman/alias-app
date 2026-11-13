@@ -11,7 +11,7 @@ import {
 } from "../../events/game.events";
 import type { GameState } from "../../state/game.state";
 import type { ActionContext } from "../pipeline.types";
-import { scoringHandler } from "./scoring.handler";
+import { scoringHandler } from "./scoring";
 
 describe("scoringHandler", () => {
 	const createInitialState = (overrides?: Partial<GameState>): GameState => ({
@@ -37,7 +37,7 @@ describe("scoringHandler", () => {
 			currentWord: { id: "w-1", text: "ELEPHANT", score: 0 },
 			words: [],
 			roundNumber: 1,
-			endTime: Date.now() + 60000,
+			expiresAt: Date.now() + 60000,
 		},
 		activeEffects: [],
 		addons: {},
@@ -63,8 +63,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(11);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(11);
 			expect(ctx.resolvedWordScore).toBe(1);
 			expect(ctx.resolvedEffectIds).toEqual([]);
 
@@ -91,8 +91,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(12);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(12);
 			expect(ctx.resolvedWordScore).toBe(2);
 			expect(ctx.resolvedEffectIds).toEqual(["eff-double-1"]);
 
@@ -108,8 +108,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(9);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(9);
 			expect(ctx.resolvedWordScore).toBe(-1);
 
 			expect(emittedEvents).toHaveLength(1);
@@ -134,8 +134,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(8);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(8);
 			expect(ctx.resolvedWordScore).toBe(-2);
 			expect(ctx.resolvedEffectIds).toEqual(["eff-pen-1"]);
 
@@ -166,15 +166,11 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(10);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(10);
 			expect(ctx.resolvedWordScore).toBe(0);
 
-			const shieldEffect = ctx.state.activeEffects?.find(
-				(e) => e.id === "eff-shield-1",
-			);
-			expect(shieldEffect?.charges).toBe(0);
-			expect(shieldEffect?.status).toBe("CONSUMED");
+			expect(ctx.consumedEffectIds).toEqual(["eff-shield-1"]);
 
 			const event = emittedEvents[0] as WordSkippedDomainEvent;
 			expect(event.penalty).toBe(0);
@@ -194,8 +190,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(0);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(0);
 		});
 	});
 
@@ -218,7 +214,7 @@ describe("scoringHandler", () => {
 					currentWord: null,
 					words: [],
 					roundNumber: 1,
-					endTime: Date.now() + 60000,
+					expiresAt: Date.now() + 60000,
 				},
 			});
 
@@ -235,7 +231,7 @@ describe("scoringHandler", () => {
 					currentWord: { id: "w-1", text: "ELEPHANT", score: 0 },
 					words: [],
 					roundNumber: 1,
-					endTime: Date.now(),
+					expiresAt: Date.now(),
 				},
 			});
 
@@ -257,8 +253,8 @@ describe("scoringHandler", () => {
 
 			scoringHandler(ctx);
 
-			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1")!;
-			expect(activeTeam.score).toBe(10);
+			const activeTeam = ctx.state.teams.find((t) => t.id === "team-1");
+			expect(activeTeam?.score).toBe(10);
 			expect(emittedEvents).toHaveLength(0);
 		});
 	});

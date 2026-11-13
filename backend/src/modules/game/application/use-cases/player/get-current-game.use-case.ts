@@ -13,7 +13,6 @@ export class GetCurrentGameUseCase {
 
 	async execute(userId: string) {
 		const roomId = await this.gameRepository.getUserRoom(userId);
-		console.log("ROOMID", roomId);
 		if (!roomId) {
 			return { roomId: null, code: null };
 		}

@@ -1,24 +1,23 @@
 import { BaseEntity } from "@common/domain/base-entity";
 import type { DomainEvent } from "@common/domain/domain-event";
-import type { GameAction } from "../actions/game.actions";
+import type {
+	GameAction,
+	WordGuessedAction,
+	WordSkippedAction,
+} from "../actions/game.actions";
 import {
 	NotRoundExplainerError,
 	PlayerNotRoomOwnerError,
 } from "../errors/game.errors";
+import { RoundIsNotPending, RoundNotActiveError } from "../errors/round.errors";
 import {
-	NoActiveWordError,
-	RoundIsNotInProgress,
-	RoundIsNotPending,
-	RoundNotActiveError,
-	UserIsNotExplainerError,
-} from "../errors/round.errors";
-import { NoActiveTeamError } from "../errors/team.errors";
-import {
+	EffectExpiredDomainEvent,
 	GameFinishedDomainEvent,
 	GameStartedDomainEvent,
 	RoundEndedDomainEvent,
 } from "../events/game.events";
 import { DEFAULT_GAME_HANDLERS } from "../pipeline/handlers";
+import { WordCyclingGuardStrategy } from "../pipeline/handlers/word-cycle";
 import type {
 	ActionContext,
 	GamePipelineHandler,
@@ -28,12 +27,9 @@ import { RoundStatus, type GameState } from "../state/game.state";
 
 export { DEFAULT_GAME_HANDLERS };
 
-/**
- * Synchronizes state fields to ensure consistent team/player/round invariants.
- */
-function syncInPlaceInterop(state: GameState): void {
+function syncSettingsDefaults(state: GameState): void {
 	if (
-		state.pointsToWin === undefined &&
+		(state.pointsToWin as unknown) === undefined &&
 		state.settings?.pointsToWin !== undefined
 	) {
 		state.pointsToWin = state.settings.pointsToWin;
@@ -44,50 +40,73 @@ function syncInPlaceInterop(state: GameState): void {
 	) {
 		state.roundTimeSeconds = state.settings.roundTimeSeconds;
 	}
-	if (state.activeTeamId === undefined) {
+	if ((state.activeTeamId as unknown) === undefined) {
 		state.activeTeamId = state.currentRound?.teamId ?? null;
 	}
 	state.addons ??= {};
 	state.bannedPlayerIds ??= [];
+	state.activeEffects ??= [];
+}
 
-	// Sync team.playerIds <-> player.teamId
+function buildPlayerToTeamMap(teams: GameState["teams"]): Map<string, string> {
+	const playerToTeam = new Map<string, string>();
+	for (const team of teams) {
+		if (Array.isArray(team.playerIds)) {
+			for (const pid of team.playerIds) {
+				playerToTeam.set(pid, team.id);
+			}
+		}
+	}
+	return playerToTeam;
+}
+
+function syncPlayerTeamMappings(state: GameState): void {
 	const hasTeamPlayerIds = state.teams.some(
 		(t) => Array.isArray(t.playerIds) && t.playerIds.length > 0,
 	);
-	if (hasTeamPlayerIds) {
-		const playerToTeam = new Map<string, string>();
-		for (const team of state.teams) {
-			if (Array.isArray(team.playerIds)) {
-				for (const pid of team.playerIds) {
-					playerToTeam.set(pid, team.id);
-				}
-			}
-		}
-		for (const player of state.players) {
-			const mappedTeamId = playerToTeam.get(player.id);
-			if (mappedTeamId) {
-				player.teamId = mappedTeamId;
-			} else if (
-				player.teamId &&
-				state.teams.some(
-					(t) => t.id === player.teamId && Array.isArray(t.playerIds),
-				)
-			) {
-				player.teamId = undefined;
-			}
-		}
+	if (!hasTeamPlayerIds) {
+		return;
 	}
 
+	const playerToTeam = buildPlayerToTeamMap(state.teams);
 	for (const player of state.players) {
-		if (player.teamId) {
-			const team = state.teams.find((t) => t.id === player.teamId);
-			if (team && Array.isArray(team.playerIds)) {
-				if (!team.playerIds.includes(player.id)) {
-					team.playerIds.push(player.id);
-				}
-			}
+		const mappedTeamId = playerToTeam.get(player.id);
+		if (mappedTeamId) {
+			player.teamId = mappedTeamId;
+		} else if (
+			player.teamId &&
+			state.teams.some(
+				(t) => t.id === player.teamId && Array.isArray(t.playerIds),
+			)
+		) {
+			player.teamId = undefined;
 		}
 	}
+}
+
+function syncTeamPlayerLists(state: GameState): void {
+	for (const player of state.players) {
+		if (!player.teamId) {
+			continue;
+		}
+		const team = state.teams.find((t) => t.id === player.teamId);
+		if (
+			team &&
+			Array.isArray(team.playerIds) &&
+			!team.playerIds.includes(player.id)
+		) {
+			team.playerIds.push(player.id);
+		}
+	}
+}
+
+/**
+ * Synchronizes state fields to ensure consistent team/player/round invariants.
+ */
+function syncInPlaceInterop(state: GameState): void {
+	syncSettingsDefaults(state);
+	syncPlayerTeamMappings(state);
+	syncTeamPlayerLists(state);
 }
 
 /**
@@ -169,6 +188,7 @@ export class GameEngine extends BaseEntity {
 			(clone.currentRound ? clone.currentRound.roundNumber + 1 : 1);
 		clone.spectators = clone.spectators ?? [];
 		clone.bannedPlayerIds = clone.bannedPlayerIds ?? [];
+		clone.activeEffects = clone.activeEffects ?? [];
 
 		return clone;
 	}
@@ -187,10 +207,17 @@ export class GameEngine extends BaseEntity {
 	} {
 		syncInPlaceInterop(this._state);
 
-		// Phase 1: Execute active effect guards & auto-expire time-based effects
-		runEffectGuards(action, this._state.activeEffects, now);
-
 		const pendingEvents: DomainEvent[] = [];
+
+		// Phase 1: Execute active effect guards & auto-expire time-based effects
+		runEffectGuards(
+			action,
+			this._state.activeEffects,
+			now,
+			(event: DomainEvent) => pendingEvents.push(event),
+			this._state.id,
+		);
+
 		const ctx: ActionContext = {
 			action,
 			state: this._state,
@@ -209,7 +236,8 @@ export class GameEngine extends BaseEntity {
 			if (
 				event instanceof GameStartedDomainEvent ||
 				event instanceof RoundEndedDomainEvent ||
-				event instanceof GameFinishedDomainEvent
+				event instanceof GameFinishedDomainEvent ||
+				event instanceof EffectExpiredDomainEvent
 			) {
 				if (!event.gameState?.id) {
 					event.gameState = primitivesSnapshot;
@@ -292,39 +320,34 @@ export class GameEngine extends BaseEntity {
 		now: number = Date.now(),
 	): void {
 		syncInPlaceInterop(this._state);
-		runEffectGuards(
+		const action: WordGuessedAction | WordSkippedAction = {
+			type: actionType,
+			actorId,
+			payload: { nextWordText: "" },
+		};
+		runEffectGuards(action, this._state.activeEffects, now);
+
+		const guard = new WordCyclingGuardStrategy();
+		guard.handle(action, {
+			action,
+			state: this._state,
+			now,
+			emit: () => {},
+		});
+	}
+
+	/**
+	 * Expires an active effect by its unique ID, removing it from activeEffects and emitting EffectExpiredDomainEvent.
+	 */
+	public expireEffect(effectId: string, now: number = Date.now()): void {
+		this.dispatch(
 			{
-				type: actionType,
-				actorId,
-				payload: { nextWordText: "" },
+				type: "EXPIRE_EFFECT",
+				actorId: "system",
+				payload: { effectId },
 			},
-			this._state.activeEffects,
 			now,
 		);
-
-		const activeTeam = this._state.teams.some(
-			(t) => t.id === this._state.activeTeamId,
-		);
-		if (!activeTeam) {
-			throw new NoActiveTeamError();
-		}
-
-		const round = this._state.currentRound;
-		if (round?.status !== RoundStatus.IN_PROGRESS) {
-			throw new RoundIsNotInProgress();
-		}
-
-		const explainerId = round.explainerId;
-		if (actorId && explainerId && actorId !== explainerId) {
-			throw new UserIsNotExplainerError(
-				actorId,
-				"Only the round explainer can cycle words",
-			);
-		}
-
-		if (!round.currentWord) {
-			throw new NoActiveWordError();
-		}
 	}
 
 	/**
@@ -349,6 +372,7 @@ export class GameEngine extends BaseEntity {
 			ownerOfflineSince: options?.ownerOfflineSince ?? null,
 			activeTeamId: null,
 			currentRound: null,
+			activeEffects: options?.activeEffects ?? [],
 			createdAt: options?.createdAt ?? Date.now(),
 			addons: options?.addons ?? {},
 			...options,

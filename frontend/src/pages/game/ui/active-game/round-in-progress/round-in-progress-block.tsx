@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 interface Props {
 	roomId: string;
 	isExplainer: boolean;
-	endTime: number;
+	expiresAt: number;
 	pausedAt?: number | null;
 	words: WordState[];
 }
@@ -17,7 +17,7 @@ interface Props {
 export function RoundInProgressBlock({
 	roomId,
 	isExplainer,
-	endTime,
+	expiresAt,
 	pausedAt,
 	words,
 }: Readonly<Props>) {
@@ -32,7 +32,7 @@ export function RoundInProgressBlock({
 
 	return (
 		<>
-			<Timer endTime={endTime} pausedAt={pausedAt} />
+			<Timer expiresAt={expiresAt} pausedAt={pausedAt} />
 
 			{isExplainer && (
 				<div className={styles.wordCard}>

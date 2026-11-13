@@ -6,7 +6,11 @@ import type { GameEngine } from "../../../domain/engine/game-engine";
 
 @Injectable()
 export class ShufflePlayersUseCase extends RoomUseCase<ShufflePlayersDto> {
-	protected override notify = ["game"] as const;
+	protected override readonly notify = [
+		"game",
+		"teams",
+		"players",
+	] as const;
 
 	protected override handle(
 		game: GameEngine,

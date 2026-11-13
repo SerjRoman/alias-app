@@ -63,6 +63,7 @@ describe("LeaveGameUseCase", () => {
 				},
 			],
 			bannedPlayerIds: [],
+			activeEffects: [],
 			addons: {},
 			currentRound: null,
 		});
@@ -129,7 +130,7 @@ describe("LeaveGameUseCase", () => {
 				status: "IN_PROGRESS" as any,
 				words: [],
 				currentWord: null,
-				endTime: Date.now() + 30000,
+				expiresAt: Date.now() + 30000,
 				pausedAt: Date.now(),
 			},
 		});

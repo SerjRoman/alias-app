@@ -321,14 +321,21 @@ export class UserController {
 		);
 	}
 
-	private extractPublicId(url: string): string | null {
+	private extractPublicId(url: string | null | undefined): string | null {
+		if (!url || typeof url !== "string") {
+			return null;
+		}
 		try {
-			const parts = url.split("/");
+			const safeUrl = String(url);
+			const parts = safeUrl.split("/");
 			const fileWithExt = parts.at(-1);
 			if (!fileWithExt) {
 				return null;
 			}
 			const fileName = fileWithExt.split(".")[0];
+			if (!fileName) {
+				return null;
+			}
 			return `avatars/${fileName}`;
 		} catch (error) {
 			this.logger.error(

@@ -94,6 +94,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			bannedPlayerIds: [],
 			activeTeamId: null,
 			currentRound: null,
+			activeEffects: [],
 			addons: {},
 			...overrides,
 		});
@@ -255,9 +256,9 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			});
 
 			const state = engine.toPrimitives();
-			const p2 = state.players.find((p) => p.id === "p2")!;
-			expect(p2.teamId).toBeUndefined();
-			expect(p2.isReady).toBe(false);
+			const p2 = state.players.find((p) => p.id === "p2");
+			expect(p2?.teamId).toBeUndefined();
+			expect(p2?.isReady).toBe(false);
 			expect(state.teams[0].playerIds).not.toContain("p2");
 			expect(state.spectators).toContain("p2");
 		});
@@ -402,8 +403,9 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 					status: RoundStatus.IN_PROGRESS,
 					words: [],
 					currentWord: null,
-					endTime: 10000,
+					expiresAt: 10000,
 				},
+				activeEffects: [],
 				addons: {},
 				bannedPlayerIds: [],
 				...overrides,
@@ -422,8 +424,8 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			const state = engine.toPrimitives();
 			expect(state.teams).toHaveLength(2);
 			expect(state.teams.some((t) => t.id === "team-3")).toBe(false);
-			const p3 = state.players.find((p) => p.id === "p3")!;
-			expect(p3.teamId).toBeUndefined();
+			const p3 = state.players.find((p) => p.id === "p3");
+			expect(p3?.teamId).toBeUndefined();
 			expect(state.spectators).toContain("p3");
 		});
 
@@ -664,10 +666,11 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 					status: RoundStatus.IN_PROGRESS,
 					words: [],
 					currentWord: { id: "w-1", text: "FOREST", score: 1 },
-					endTime: now + 35000,
+					expiresAt: now + 35000,
 					pausedAt: null,
 					remainingMs: null,
 				},
+				activeEffects: [],
 				addons: {},
 				bannedPlayerIds: [],
 				...overrides,
@@ -754,7 +757,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 					status: RoundStatus.IN_PROGRESS,
 					words: [],
 					currentWord: { id: "w-1", text: "FOREST", score: 1 },
-					endTime: now + 35000,
+					expiresAt: now + 35000,
 					pausedAt: now - 5000,
 					remainingMs: 35000,
 				},
@@ -779,7 +782,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			expect(explainer?.isOnline).toBe(true);
 			expect(state.currentRound?.pausedAt).toBeNull();
 			expect(state.currentRound?.remainingMs).toBeNull();
-			expect(state.currentRound?.endTime).toBe(reconnectTime + 35000);
+			expect(state.currentRound?.expiresAt).toBe(reconnectTime + 35000);
 		});
 
 		it("JOIN_GAME clears ownerOfflineSince when owner reconnects", () => {
@@ -971,7 +974,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 					status: RoundStatus.IN_PROGRESS,
 					words: [],
 					currentWord: null,
-					endTime: now + 35000,
+					expiresAt: now + 35000,
 				},
 			});
 
@@ -988,7 +991,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			expect(state.currentRound?.status).toBe(RoundStatus.FINISHED);
 		});
 
-		it("SET_EXPLAINER unpauses round and sets new endTime when assigning a new explainer", () => {
+		it("SET_EXPLAINER unpauses round and sets new expiresAt when assigning a new explainer", () => {
 			const engine = createMidGameEngine({
 				currentRound: {
 					id: "round-1",
@@ -998,7 +1001,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 					status: RoundStatus.IN_PROGRESS,
 					words: [],
 					currentWord: { id: "w-1", text: "WORD", score: 1 },
-					endTime: now + 35000,
+					expiresAt: now + 35000,
 					pausedAt: now,
 					remainingMs: 35000,
 				},
@@ -1018,12 +1021,12 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			expect(state.currentRound?.explainerId).toBe("p2");
 			expect(state.currentRound?.pausedAt).toBeNull();
 			expect(state.currentRound?.remainingMs).toBeNull();
-			expect(state.currentRound?.endTime).toBe(newTime + 35000);
+			expect(state.currentRound?.expiresAt).toBe(newTime + 35000);
 			expect(state.teams[0].lastExplainerId).toBe("p2");
 		});
 	});
 
-	describe("Round & Moderation Actions (TOGGLE_ROUND_READY, SET_EXPLAINER, CHANGE_ROUND_TIME, FINISH_ROUND, DELETE_GAME)", () => {
+	describe("Round & Moderation Actions (TOGGLE_ROUND_READY, SET_EXPLAINER, CHANGE_ROUND_TIME, DELETE_GAME)", () => {
 		it("TOGGLE_ROUND_READY toggles player isRoundReady", () => {
 			const engine = createLobbyEngine();
 
@@ -1060,8 +1063,8 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 				payload: { explainerId: "p2" },
 			});
 
-			const round = engine.toPrimitives().currentRound!;
-			expect(round.explainerId).toBe("p2");
+			const round = engine.toPrimitives().currentRound;
+			expect(round?.explainerId).toBe("p2");
 		});
 
 		it("SET_EXPLAINER throws PlayerNotFoundError if player is not on active team", () => {
@@ -1095,7 +1098,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			).toThrow(RoundIsNotPending);
 		});
 
-		it("CHANGE_ROUND_TIME updates currentRound.endTime when round is IN_PROGRESS", () => {
+		it("CHANGE_ROUND_TIME updates currentRound.expiresAt when round is IN_PROGRESS", () => {
 			const engine = createLobbyEngine();
 			engine.dispatch({ type: "START_GAME", actorId: ownerId });
 			engine.dispatch({
@@ -1107,10 +1110,10 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 			engine.dispatch({
 				type: "CHANGE_ROUND_TIME",
 				actorId: ownerId,
-				payload: { endTime: 999999 },
+				payload: { expiresAt: 999999 },
 			});
 
-			expect(engine.getState().currentRound?.endTime).toBe(999999);
+			expect(engine.getState().currentRound?.expiresAt).toBe(999999);
 		});
 
 		it("CHANGE_ROUND_TIME throws RoundIsNotInProgress when round is PENDING", () => {
@@ -1121,28 +1124,9 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 				engine.dispatch({
 					type: "CHANGE_ROUND_TIME",
 					actorId: ownerId,
-					payload: { endTime: 999999 },
+					payload: { expiresAt: 999999 },
 				}),
 			).toThrow(RoundIsNotInProgress);
-		});
-
-		it("FINISH_ROUND forces round status to FINISHED and emits RoundFinishedEvent", () => {
-			const engine = createLobbyEngine();
-			engine.dispatch({ type: "START_GAME", actorId: ownerId });
-			engine.pullDomainEvents();
-
-			engine.dispatch({
-				type: "FINISH_ROUND",
-				actorId: ownerId,
-			});
-
-			expect(engine.getState().currentRound?.status).toBe(
-				RoundStatus.FINISHED,
-			);
-			const events = engine.pullDomainEvents();
-			expect(events.some((e) => e.name === "RoundFinishedEvent")).toBe(
-				true,
-			);
 		});
 
 		it("DELETE_GAME emits GameDeletedEvent and enforces requireFinished when requested", () => {
@@ -1255,6 +1239,7 @@ describe("Lobby, Team & Moderation Actions Pipeline Suite", () => {
 				spectators: ["p3"],
 				bannedPlayerIds: [],
 				currentRound: null,
+				activeEffects: [],
 				addons: {},
 				...overrides,
 			});

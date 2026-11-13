@@ -9,7 +9,7 @@ export class DeleteFinishedGameUseCase extends RoomUseCase<
 	DeleteGameDto,
 	void
 > {
-	protected override readonly notify = ["game"] as const;
+	protected override readonly notify = [] as const;
 	protected override skipSave = true;
 
 	protected override async handle(

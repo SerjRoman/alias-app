@@ -37,7 +37,7 @@ export class MoveToSpectatorsUseCase extends RoomUseCase<MoveToSpectatorsDto> {
 
 		room.dispatch({
 			type: "MOVE_TO_SPECTATORS",
-			actorId: dto.playerId ? actor.id : undefined,
+			actorId: actor.id,
 			payload: {
 				playerId: targetPlayerId,
 			},

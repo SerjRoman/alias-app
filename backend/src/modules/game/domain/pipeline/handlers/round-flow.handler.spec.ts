@@ -21,7 +21,7 @@ import {
 } from "../../events/game.events";
 import type { GameState } from "../../state/game.state";
 import type { ActionContext } from "../pipeline.types";
-import { roundFlowHandler } from "./round-flow.handler";
+import { roundFlowHandler } from "./round";
 
 jest.mock("uuid", () => ({
 	v4: () => "mocked-round-uuid",
@@ -52,8 +52,9 @@ describe("roundFlowHandler", () => {
 			currentWord: null,
 			words: [],
 			roundNumber: 1,
-			endTime: 0,
+			expiresAt: 0,
 		},
+		activeEffects: [],
 		addons: {},
 		...overrides,
 	});
@@ -72,7 +73,7 @@ describe("roundFlowHandler", () => {
 	};
 
 	describe("1. START_ROUND", () => {
-		it("transitions round from PENDING to IN_PROGRESS, sets endTime, initializes first word, and emits RoundStartedDomainEvent", () => {
+		it("transitions round from PENDING to IN_PROGRESS, sets expiresAt, initializes first word, and emits RoundStartedDomainEvent", () => {
 			const { ctx, emittedEvents } = createActionContext({
 				type: "START_ROUND",
 				actorId: "p1",
@@ -83,7 +84,7 @@ describe("roundFlowHandler", () => {
 
 			const round = ctx.state.currentRound!;
 			expect(round.status).toBe("IN_PROGRESS");
-			expect(round.endTime).toBeGreaterThan(Date.now());
+			expect(round.expiresAt).toBeGreaterThan(Date.now());
 			expect(round.currentWord).toEqual({
 				id: "mocked-round-uuid",
 				text: "SUNSHINE",
@@ -115,7 +116,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -223,7 +224,7 @@ describe("roundFlowHandler", () => {
 						currentWord: { id: "w-last", text: "PLANET", score: 0 },
 						words: [{ id: "w-1", text: "STAR", score: 1 }],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -287,7 +288,7 @@ describe("roundFlowHandler", () => {
 							{ id: "w-2", text: "MOON", score: 0 },
 						],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -323,7 +324,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [{ id: "w-1", text: "GALAXY", score: 0 }],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -358,7 +359,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [{ id: "w-1", text: "GALAXY", score: 0 }],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -383,7 +384,7 @@ describe("roundFlowHandler", () => {
 							{ id: "w-2", text: "B", score: -1 },
 						],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -426,7 +427,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -460,7 +461,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -496,7 +497,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -517,7 +518,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -540,7 +541,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -584,7 +585,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -652,7 +653,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -713,7 +714,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -745,7 +746,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [{ id: "w-1", text: "GALAXY", score: 0 }],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -772,7 +773,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [{ id: "w-1", text: "GALAXY", score: 0 }],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -793,7 +794,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -815,7 +816,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);
@@ -830,7 +831,7 @@ describe("roundFlowHandler", () => {
 				{
 					type: "CHANGE_ROUND_TIME",
 					actorId: "p1",
-					payload: { endTime: 5000 },
+					payload: { expiresAt: 5000 },
 				},
 				{
 					currentRound: {
@@ -841,7 +842,7 @@ describe("roundFlowHandler", () => {
 						currentWord: null,
 						words: [],
 						roundNumber: 1,
-						endTime: 100,
+						expiresAt: 100,
 					},
 				},
 			);

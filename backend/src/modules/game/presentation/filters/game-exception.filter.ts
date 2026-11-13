@@ -54,6 +54,7 @@ export class GameHttpExceptionFilter implements ExceptionFilter {
 					(exception as { details: Record<string, unknown> }).details,
 				);
 			}
+			const errObj = exception as unknown as Record<string, unknown>;
 			for (const key of [
 				"teamId",
 				"teamName",
@@ -63,11 +64,10 @@ export class GameHttpExceptionFilter implements ExceptionFilter {
 			]) {
 				if (
 					key in exception &&
-					typeof (exception as Record<string, unknown>)[key] ===
-						"string" &&
+					typeof errObj[key] === "string" &&
 					!details[key]
 				) {
-					details[key] = (exception as Record<string, unknown>)[key];
+					details[key] = errObj[key];
 				}
 			}
 		}

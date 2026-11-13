@@ -3,18 +3,18 @@ import { Clock } from "lucide-react";
 import styles from "./timer.module.css";
 
 interface GameTimerProps {
-	endTime: number;
+	expiresAt: number;
 	totalDuration?: number;
 	pausedAt?: number | null;
 }
 
-export function Timer({ endTime, pausedAt }: Readonly<GameTimerProps>) {
+export function Timer({ expiresAt, pausedAt }: Readonly<GameTimerProps>) {
 	const [timeLeft, setTimeLeft] = useState(0);
 
 	useEffect(() => {
 		const tick = () => {
 			const now = pausedAt ?? Date.now();
-			const delta = endTime - now;
+			const delta = expiresAt - now;
 
 			if (delta <= 0) {
 				setTimeLeft(0);
@@ -31,7 +31,7 @@ export function Timer({ endTime, pausedAt }: Readonly<GameTimerProps>) {
 		const intervalId = setInterval(tick, 100);
 
 		return () => clearInterval(intervalId);
-	}, [endTime, pausedAt]);
+	}, [expiresAt, pausedAt]);
 
 	const minutes = Math.floor(timeLeft / 60);
 	const seconds = timeLeft % 60;

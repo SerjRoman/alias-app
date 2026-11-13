@@ -109,7 +109,7 @@ export class RoundStartedDomainEvent extends DomainEvent {
 		public readonly roundId: string,
 		public readonly teamId: string,
 		public readonly explainerId: string,
-		public readonly endTime: number,
+		public readonly expiresAt: number,
 	) {
 		super(RoundStartedDomainEvent.eventName);
 	}
@@ -221,6 +221,99 @@ export class GameDeletedDomainEvent extends DomainEvent {
 		public readonly playerIds: string[],
 	) {
 		super(GameDeletedDomainEvent.eventName);
+	}
+}
+
+/**
+ * Domain event emitted when a player purchases an item from the shop.
+ */
+export class ItemPurchasedDomainEvent extends DomainEvent {
+	static readonly eventName = "ItemPurchasedEvent";
+
+	constructor(
+		public readonly roomId: string,
+		public readonly playerId: string,
+		public readonly itemId: string,
+		public readonly inventoryItemId: string,
+		public readonly cost: number,
+		public readonly remainingBalance: number,
+	) {
+		super(ItemPurchasedDomainEvent.eventName);
+	}
+}
+
+/**
+ * Domain event emitted when a player activates an item from inventory.
+ */
+export class ItemUsedDomainEvent extends DomainEvent {
+	static readonly eventName = "ItemUsedEvent";
+
+	constructor(
+		public readonly roomId: string,
+		public readonly playerId: string,
+		public readonly itemId: string,
+		public readonly effectId: string,
+		public readonly status: string,
+		public readonly targetTeamId?: string,
+		public readonly targetPlayerId?: string,
+		public readonly durationMs?: number,
+		public readonly expiresAt?: number,
+	) {
+		super(ItemUsedDomainEvent.eventName);
+	}
+}
+
+/**
+ * Domain event emitted when a timed or duration-based effect expires.
+ */
+export class EffectExpiredDomainEvent extends DomainEvent {
+	static readonly eventName = "EffectExpiredEvent";
+
+	constructor(
+		public readonly roomId: string,
+		public readonly effectId: string,
+		public readonly itemId: string,
+		public gameState?: GameState,
+	) {
+		super(EffectExpiredDomainEvent.eventName);
+	}
+}
+
+/**
+ * Domain event emitted when active timers in the game are paused.
+ */
+export class GamePausedDomainEvent extends DomainEvent {
+	static readonly eventName = "GamePausedEvent";
+
+	constructor(
+		public readonly roomId: string,
+		public readonly pausedAt: number,
+		public readonly roundRemainingMs?: number | null,
+		public readonly effectsRemaining?: Array<{
+			effectId: string;
+			remainingMs: number;
+		}>,
+	) {
+		super(GamePausedDomainEvent.eventName);
+	}
+}
+
+/**
+ * Domain event emitted when paused timers in the game are resumed.
+ */
+export class GameResumedDomainEvent extends DomainEvent {
+	static readonly eventName = "GameResumedEvent";
+
+	constructor(
+		public readonly roomId: string,
+		public readonly resumedAt: number,
+		public readonly roundExpiresAt?: number | null,
+		public readonly effectsDeadlines?: Array<{
+			effectId: string;
+			expiresAt: number;
+		}>,
+	) {
+		super(GameResumedDomainEvent.eventName);
 	}
 }
 

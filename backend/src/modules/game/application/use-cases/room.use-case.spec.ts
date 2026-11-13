@@ -16,10 +16,11 @@ import { RoundStatus } from "../../domain/state/game.state";
 
 class TestRoomUseCase extends RoomUseCase<
 	{ roomId: string; value?: string },
-	{ id?: string } | undefined
+	{ id?: string; custom?: string } | undefined
 > {
 	public handleCallOrder: string[] = [];
-	public customResult: { id?: string } | undefined = undefined;
+	public customResult: { id?: string; custom?: string } | undefined =
+		undefined;
 
 	public setNotify(notifications: readonly RoomNotification[]) {
 		this.notify = notifications;
@@ -100,7 +101,7 @@ describe("RoomUseCase", () => {
 				status: RoundStatus.IN_PROGRESS,
 				words: [],
 				currentWord: null,
-				endTime: 1000,
+				expiresAt: 1000,
 			},
 		});
 

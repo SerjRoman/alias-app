@@ -39,9 +39,16 @@ export class PgWordPackRepository implements IWordPackRepository {
 		createdBy: string | null,
 		words: string[],
 	): Promise<WordPackInfo> {
-		const uniqueWords = Array.from(
-			new Set(words.map((w) => w.trim()).filter((w) => w.length > 0)),
-		);
+		const cleanedWords: string[] = [];
+		for (const w of words) {
+			if (typeof w === "string") {
+				const trimmed = w.trim();
+				if (trimmed.length > 0) {
+					cleanedWords.push(trimmed);
+				}
+			}
+		}
+		const uniqueWords = Array.from(new Set(cleanedWords));
 
 		const pack = this.packRepository.create({
 			name,

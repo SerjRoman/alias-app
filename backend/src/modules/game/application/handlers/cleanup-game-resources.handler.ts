@@ -7,6 +7,7 @@ import {
 } from "../game.repository.interface";
 import { VoiceService } from "../voice.service";
 import { DictionaryService } from "../dictionary.service";
+import { RoundScheduler } from "../round-scheduler.service";
 
 @Injectable()
 export class CleanupGameResourcesHandler {
@@ -17,6 +18,7 @@ export class CleanupGameResourcesHandler {
 		private readonly gameRepository: IGameRepository,
 		private readonly voiceService: VoiceService,
 		private readonly dictionaryService: DictionaryService,
+		private readonly roundScheduler: RoundScheduler,
 	) {}
 
 	@OnEvent(GameDeletedEvent.eventName)
@@ -39,13 +41,24 @@ export class CleanupGameResourcesHandler {
 		}
 
 		try {
-			await this.voiceService.deleteVoiceRoom(event.roomId);
+			this.voiceService.deleteVoiceRoom(event.roomId);
 			this.logger.log(
 				`Successfully deleted voice room for game ${event.roomId}`,
 			);
 		} catch (error) {
 			this.logger.error(
 				`Failed to delete voice room for game ${event.roomId}: ${error}`,
+			);
+		}
+
+		try {
+			this.roundScheduler.clearRoom(event.roomId);
+			this.logger.log(
+				`Successfully cleared timers for game ${event.roomId}`,
+			);
+		} catch (error) {
+			this.logger.error(
+				`Failed to clear timers for game ${event.roomId}: ${error}`,
 			);
 		}
 

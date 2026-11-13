@@ -10,7 +10,7 @@ export class ChangeWordScoreUseCase extends RoomUseCase<
 	ChangeWordScoreDto,
 	void
 > {
-	protected override readonly notify = ["round"] as const;
+	protected override readonly notify = ["round", "teams", "game"] as const;
 
 	protected override handle(
 		engine: GameEngine,
